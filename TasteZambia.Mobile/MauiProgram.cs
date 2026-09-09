@@ -3,6 +3,7 @@ using TasteZambia.Core.Data;
 using TasteZambia.Core.Services;
 using TasteZambia.Mobile.Services;
 using TasteZambia.Mobile.Views;
+using TasteZambia.Mobile.Views.Sections;
 
 namespace TasteZambia.Mobile;
 
@@ -46,15 +47,20 @@ public static class MauiProgram
         builder.Services.AddSingleton<ICookingProgressService, CookingProgressService>();
         builder.Services.AddSingleton<IPreferenceService, PreferenceService>();
         builder.Services.AddSingleton<IContributionService, ContributionService>();
-        builder.Services.AddSingleton<INavigationService, ShellNavigationService>();
+        // One instance, resolved as both the concrete type (App attaches the host
+        // to it) and the interface the ViewModels depend on.
+        builder.Services.AddSingleton<AppNavigationService>();
+        builder.Services.AddSingleton<INavigationService>(sp => sp.GetRequiredService<AppNavigationService>());
 
-        // ---- Shell and pages ----
-        builder.Services.AddSingleton<AppShell>();
-        builder.Services.AddTransient<HomePage>();
-        builder.Services.AddTransient<ExplorePage>();
-        builder.Services.AddTransient<RegionsPage>();
-        builder.Services.AddTransient<CulturePage>();
-        builder.Services.AddTransient<ProfilePage>();
+        // ---- Host page and sections ----
+        // Sections are singletons: the host keeps them alive so switching back to a
+        // tab restores it as the user left it, rather than rebuilding it.
+        builder.Services.AddSingleton<MainShellPage>();
+        builder.Services.AddSingleton<HomeView>();
+        builder.Services.AddSingleton<ExploreView>();
+        builder.Services.AddSingleton<RegionsView>();
+        builder.Services.AddSingleton<CultureView>();
+        builder.Services.AddSingleton<ProfileView>();
 
 #if DEBUG
         builder.Logging.AddDebug();

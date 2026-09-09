@@ -74,6 +74,36 @@ Letter-spacing in the spec is in `em`; MAUI `CharacterSpacing` is in device-inde
 - Gold (`TzGold`, `#8A5A12`) appears **only** on actions and gold text. `TzGoldDecor` (`#C07F1E`) is for decoration only — progress dots and track fills. Never use `TzGold` as decoration, and never use `TzGoldDecor` for text or a CTA fill (it fails contrast on cream).
 - Missing photography is shown as a **45°-striped placeholder** with an italic mono caption naming the photo needed — never a grey box, never a stock image.
 
+### Screen hosting — REVISED during execution
+
+The plan originally gave every screen its own `ContentPage` carrying its own
+`BottomNavBar`, routed by Shell. **That was wrong and has been replaced.**
+
+Because each page built its own copy of the bar, every tab change destroyed one bar
+and constructed another, so the bar visibly repainted on each switch. Shell's Android
+fragment transactions compounded it. Neither `animate: false` nor selecting
+`Shell.CurrentItem` fixed it — the bar was inside the thing being swapped.
+
+**The app is now a single host page.** `Views/MainShellPage.xaml` owns a
+`Grid RowDefinitions="*,Auto"`: row 0 is a content region, row 1 is one
+`BottomNavBar` created once and never rebuilt. Shell is removed entirely.
+
+Consequences for every screen task below:
+
+- Screens are **`ContentView`s under `Views/Sections/`**, not `ContentPage`s.
+- A screen does **not** include a `BottomNavBar`; the host owns it. Ignore every
+  `<controls:BottomNavBar .../>` line in the tasks that follow.
+- A screen's root is the content itself — no outer `Grid RowDefinitions="*,Auto"`.
+- Sections are registered **singleton** so returning to a tab restores its state.
+- Navigation still goes through `INavigationService`; `AppNavigationService` drives
+  the host instead of Shell. Routes are unchanged (`//home`, `recipe`, …), so no
+  ViewModel changes. New routes are added to `MainShellPage.Routes`, which also
+  maps each detail route to the nav section that stays lit.
+- Detail screens push onto the host's own view stack, and Android's back button
+  pops it via `OnBackButtonPressed`.
+- This matches the design canvas, which is one frame with fixed chrome and
+  changing content.
+
 ### .NET MAUI 10 API rules
 - `Border`, never `Frame`. `CollectionView`, never `ListView`/`TableView`.
 - Animation methods are `*Async`: `TranslateToAsync`, `FadeToAsync`, `ScaleToAsync`.

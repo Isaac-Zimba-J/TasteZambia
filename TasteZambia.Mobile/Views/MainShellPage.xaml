@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             x:Class="TasteZambia.Mobile.Views.MainShellPage">
+
+    <!-- The app is one page. The nav bar is created once here and never moves;
+         only the content region swaps. That is what the design shows - a single
+         frame with fixed chrome - and it is why there is nothing left to flicker:
+         no page swap, no fragment transaction, no rebuilding of the bar. -->
+    <Grid RowDefinitions="*,Auto">
+        <ContentView x:Name="Region" Grid.Row="0"/>
+        <controls:BottomNavBar x:Name="NavBar" Grid.Row="1"/>
+    </Grid>
+</ContentPage>

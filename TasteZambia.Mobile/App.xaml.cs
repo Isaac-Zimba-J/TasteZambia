@@ -1,3 +1,6 @@
+using TasteZambia.Mobile.Services;
+using TasteZambia.Mobile.Views;
+
 namespace TasteZambia.Mobile;
 
 public partial class App : Application
@@ -11,5 +14,12 @@ public partial class App : Application
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
-        => new(_services.GetRequiredService<AppShell>());
+    {
+        var host = _services.GetRequiredService<MainShellPage>();
+
+        // The navigation service drives the host directly; there is no Shell.
+        _services.GetRequiredService<AppNavigationService>().Attach(host);
+
+        return new Window(host);
+    }
 }
