@@ -5,6 +5,7 @@ using TasteZambia.Core.Services;
 using TasteZambia.Mobile.Services;
 using TasteZambia.Mobile.Views;
 using TasteZambia.Mobile.Views.Sections;
+using TasteZambia.Mobile.Views.Onboarding;
 using TasteZambia.Core.ViewModels;
 
 namespace TasteZambia.Mobile;
@@ -45,6 +46,7 @@ public static class MauiProgram
         // ---- Services: unchanged by the API swap. ----
         // Favourites, progress and preferences are singletons on purpose: a heart
         // toggled on Home must stay toggled on Explore and on the recipe screen.
+        builder.Services.AddSingleton<IOnboardingService, OnboardingService>();
         builder.Services.AddSingleton<ICatalogService, CatalogService>();
         builder.Services.AddSingleton<IFavouritesService, FavouritesService>();
         builder.Services.AddSingleton<ICookingProgressService, CookingProgressService>();
@@ -54,6 +56,18 @@ public static class MauiProgram
         // to it) and the interface the ViewModels depend on.
         builder.Services.AddSingleton<AppNavigationService>();
         builder.Services.AddSingleton<INavigationService>(sp => sp.GetRequiredService<AppNavigationService>());
+
+        // ---- Onboarding: its own host, no nav bar, runs before the app proper.
+        // One ViewModel shared by all seven so choices survive the walk. ----
+        builder.Services.AddSingleton<OnboardingViewModel>();
+        builder.Services.AddSingleton<OnboardingPage>();
+        builder.Services.AddSingleton<SplashView>();
+        builder.Services.AddSingleton<IntroView>();
+        builder.Services.AddSingleton<OnbLanguageView>();
+        builder.Services.AddSingleton<OnbWhoView>();
+        builder.Services.AddSingleton<OnbTasteView>();
+        builder.Services.AddSingleton<OnbNotifyView>();
+        builder.Services.AddSingleton<OnbReadyView>();
 
         // ---- Host page and sections ----
         // Sections are singletons: the host keeps them alive so switching back to a

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Onboarding.OnbNotifyView"
+             x:DataType="vm:OnboardingViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <VerticalStackLayout Padding="24,26,24,0" Spacing="0">
+                <controls:StepRail Step="4" Margin="0,0,0,26"/>
+                <Label Text="Two things worth knowing" FontFamily="NewsreaderMedium"
+                       FontSize="31" LineHeight="1.08" CharacterSpacing="-0.47"
+                       TextColor="{StaticResource TzInk}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Padding="24,22,24,0" Spacing="12">
+                <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 18" Padding="18">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="13">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Cook without signal" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                                   LineHeight="1.25" TextColor="{StaticResource TzInk}"/>
+                            <Label Text="Saved recipes stay on your device, so a kitchen with no reception is not a problem."
+                                   FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6"
+                                   TextColor="{StaticResource TzBodyMuted}"/>
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1" IsToggled="{Binding OfflineEnabled}"
+                                OnColor="{StaticResource TzGreenMid}"
+                                ThumbColor="{StaticResource TzSurface}" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 18" Padding="18">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="13">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="New stories from the archive" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                                   LineHeight="1.25" TextColor="{StaticResource TzInk}"/>
+                            <Label Text="About twice a month. Nothing else, and never a reminder to open the app."
+                                   FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6"
+                                   TextColor="{StaticResource TzBodyMuted}"/>
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1" IsToggled="{Binding StoryNotifications}"
+                                OnColor="{StaticResource TzGreenMid}"
+                                ThumbColor="{StaticResource TzSurface}" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+            <Border Margin="24,22,24,0" BackgroundColor="{StaticResource TzGreenDeep}" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 18" Padding="18">
+                <VerticalStackLayout Spacing="9">
+                    <Label Text="Anything you add stays yours" FontFamily="NewsreaderMedium" FontSize="19"
+                           LineHeight="1.25" TextColor="{StaticResource TzSurface}"/>
+                    <Label Text="Family recipes are private until you decide otherwise. You can withdraw or export everything you contribute, at any time."
+                           FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.7"
+                           TextColor="{StaticResource TzOnDark82}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Grid Padding="24,22,24,0" ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                <Border Style="{StaticResource SecondaryAction}" Padding="20,16">
+                    <Label Text="Back" FontFamily="ArchivoSemiBold" FontSize="13"
+                           TextColor="{StaticResource TzBody}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToTasteCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource PrimaryAction}" Padding="16">
+                    <Label Text="Continue" FontFamily="ArchivoSemiBold" FontSize="14"
+                           HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToReadyCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

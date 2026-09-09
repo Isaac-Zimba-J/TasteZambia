@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Onboarding.OnbTasteView"
+             x:DataType="vm:OnboardingViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <VerticalStackLayout Padding="24,26,24,0" Spacing="0">
+                <controls:StepRail Step="3" Margin="0,0,0,26"/>
+                <Label Text="What should we show you first?" FontFamily="NewsreaderMedium"
+                       FontSize="31" LineHeight="1.08" CharacterSpacing="-0.47"
+                       TextColor="{StaticResource TzInk}"/>
+                <Grid Margin="0,11,0,0" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <Label Text="Pick as many as you like." FontFamily="ArchivoRegular" FontSize="12.5"
+                           LineHeight="1.65" TextColor="{StaticResource TzBodyMuted}"/>
+                    <Label Grid.Column="1" Text="{Binding TasteCountLabel}" VerticalOptions="End"
+                           FontFamily="PlexMonoMedium" FontSize="10.5"
+                           TextColor="{StaticResource TzGreenMid}"/>
+                </Grid>
+            </VerticalStackLayout>
+
+            <FlexLayout Padding="24,20,24,0" Wrap="Wrap"
+                        BindableLayout.ItemsSource="{Binding TasteChips}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TasteChipViewModel">
+                        <Border StrokeThickness="1.5" StrokeShape="RoundRectangle 22" Padding="16,12"
+                                Margin="0,0,9,9">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="Stroke" Value="{StaticResource TzGreenDeep}"/>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource TzGreenDeep}"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
+                                    <Setter Property="Stroke" Value="{StaticResource TzBorder}"/>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource TzSurface}"/>
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Text="{Binding Label}" FontFamily="ArchivoMedium" FontSize="12.5">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="TextColor" Value="{StaticResource TzSurface}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
+                                        <Setter Property="TextColor" Value="{StaticResource TzBody}"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleCommand}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
+
+            <Border Margin="24,22,24,0" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 18" Padding="18">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="One more thing" Style="{StaticResource MicroLabel}"
+                           TextColor="{StaticResource TzGreenMid}"/>
+                    <Label Text="This only orders your home screen. Every province, every dish and every ingredient stays browsable from the start."
+                           FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.7"
+                           TextColor="{StaticResource TzBody}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Grid Padding="24,22,24,0" ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                <Border Style="{StaticResource SecondaryAction}" Padding="20,16">
+                    <Label Text="Back" FontFamily="ArchivoSemiBold" FontSize="13"
+                           TextColor="{StaticResource TzBody}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToWhoCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource PrimaryAction}" Padding="16">
+                    <Label Text="Continue" FontFamily="ArchivoSemiBold" FontSize="14"
+                           HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToNotifyCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

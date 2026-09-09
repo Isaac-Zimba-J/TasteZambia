@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Onboarding.IntroView"
+             x:DataType="vm:OnboardingViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <Grid HeightRequest="430">
+                <Image Source="spread_nshima.png" Aspect="AspectFill"/>
+                <BoxView>
+                    <BoxView.Background>
+                        <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                            <GradientStop Color="#FFFFFDF9" Offset="0.0"/>
+                            <GradientStop Color="#D1FFFDF9" Offset="0.14"/>
+                            <GradientStop Color="#570E2018" Offset="0.62"/>
+                            <GradientStop Color="#330E2018" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </BoxView.Background>
+                </BoxView>
+
+                <Border Margin="20" Padding="13,8" HorizontalOptions="End" VerticalOptions="Start"
+                        BackgroundColor="#800E2018" StrokeThickness="0" StrokeShape="RoundRectangle 18">
+                    <Label Text="Skip" FontFamily="ArchivoMedium" FontSize="11"
+                           TextColor="{StaticResource TzSurface}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SkipCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+
+            <VerticalStackLayout Padding="26,0" Margin="0,-46,0,0" Spacing="0">
+                <Label Text="Before we start" Style="{StaticResource KickerLabel}" Margin="0,0,0,13"/>
+                <Label Text="Zambian food, recorded properly" FontFamily="NewsreaderMedium"
+                       FontSize="34" LineHeight="1.06" CharacterSpacing="-0.51"
+                       TextColor="{StaticResource TzInk}"/>
+                <Label Text="Recipes here carry their local names, the province they come from, and the story of who cooked them. Nothing is invented and nothing is averaged out."
+                       Margin="0,14,0,0" FontFamily="ArchivoRegular" FontSize="14" LineHeight="1.75"
+                       TextColor="{StaticResource TzBody}"/>
+
+                <VerticalStackLayout Margin="0,22,0,0" Spacing="14">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                        <BoxView WidthRequest="7" HeightRequest="7" CornerRadius="3.5" Margin="0,6,0,0"
+                                 VerticalOptions="Start" Color="{StaticResource TzGoldDecor}"/>
+                        <Label Grid.Column="1" FontFamily="ArchivoRegular" FontSize="13" LineHeight="1.6"
+                               TextColor="{StaticResource TzBody}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Cook from it. " FontFamily="ArchivoSemiBold" TextColor="{StaticResource TzInk}"/>
+                                    <Span Text="Traditional method and modern kitchen, side by side."/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                        <BoxView WidthRequest="7" HeightRequest="7" CornerRadius="3.5" Margin="0,6,0,0"
+                                 VerticalOptions="Start" Color="{StaticResource TzGoldDecor}"/>
+                        <Label Grid.Column="1" FontFamily="ArchivoRegular" FontSize="13" LineHeight="1.6"
+                               TextColor="{StaticResource TzBody}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Learn from it. " FontFamily="ArchivoSemiBold" TextColor="{StaticResource TzInk}"/>
+                                    <Span Text="Every ingredient has its local names and where it grows."/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                        <BoxView WidthRequest="7" HeightRequest="7" CornerRadius="3.5" Margin="0,6,0,0"
+                                 VerticalOptions="Start" Color="{StaticResource TzGoldDecor}"/>
+                        <Label Grid.Column="1" FontFamily="ArchivoRegular" FontSize="13" LineHeight="1.6"
+                               TextColor="{StaticResource TzBody}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Add to it. " FontFamily="ArchivoSemiBold" TextColor="{StaticResource TzInk}"/>
+                                    <Span Text="Your family recipes belong in the record too."/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </Grid>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <Border Margin="26,28,26,0" Style="{StaticResource PrimaryAction}" Padding="16">
+                <Label Text="Get started" FontFamily="ArchivoSemiBold" FontSize="14"
+                       HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToLanguageCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

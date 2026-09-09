@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Onboarding.SplashView"
+             x:DataType="vm:OnboardingViewModel">
+
+    <Grid Padding="40" BackgroundColor="{StaticResource TzGreenDeep}">
+        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="0">
+            <Image Source="logo.png" WidthRequest="104" HeightRequest="104"
+                   Aspect="AspectFit" Margin="0,0,0,26"/>
+            <Label Text="Taste Zambia" FontFamily="NewsreaderMedium" FontSize="38"
+                   LineHeight="1" CharacterSpacing="-0.57"
+                   TextColor="{StaticResource TzSurface}" HorizontalOptions="Center"/>
+            <Label Text="Heritage &amp; Flavours" Margin="0,14,0,0"
+                   FontFamily="PlexMonoMedium" FontSize="10" CharacterSpacing="2.0"
+                   TextTransform="Uppercase" TextColor="{StaticResource TzGoldLight}"
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <Label Text="A living cultural archive of Zambian food"
+               VerticalOptions="End" HorizontalTextAlignment="Center" Margin="0,0,0,44"
+               FontFamily="ArchivoRegular" FontSize="11" LineHeight="1.6"
+               TextColor="#9EFFFDF9"/>
+
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding ToIntroCommand}"/>
+        </Grid.GestureRecognizers>
+    </Grid>
+</ContentView>

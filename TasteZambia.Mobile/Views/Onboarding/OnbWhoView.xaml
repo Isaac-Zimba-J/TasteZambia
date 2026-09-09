@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Onboarding.OnbWhoView"
+             x:DataType="vm:OnboardingViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <VerticalStackLayout Padding="24,26,24,0" Spacing="0">
+                <controls:StepRail Step="2" Margin="0,0,0,26"/>
+                <Label Text="What brings you to Zambian food?" FontFamily="NewsreaderMedium"
+                       FontSize="31" LineHeight="1.08" CharacterSpacing="-0.47"
+                       TextColor="{StaticResource TzInk}"/>
+                <Label Text="This changes how much a recipe explains. Nothing is hidden either way."
+                       Margin="0,11,0,0" FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.65"
+                       TextColor="{StaticResource TzBodyMuted}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Padding="24,20,24,0" Spacing="10"
+                                 BindableLayout.ItemsSource="{Binding VisitorKinds}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:VisitorKindViewModel">
+                        <Border StrokeThickness="1.5" StrokeShape="RoundRectangle 16" Padding="15">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="Stroke" Value="{StaticResource TzGreenDeep}"/>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource TzGreenTint}"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
+                                    <Setter Property="Stroke" Value="{StaticResource TzBorder}"/>
+                                    <Setter Property="BackgroundColor" Value="{StaticResource TzSurface}"/>
+                                </DataTrigger>
+                            </Border.Triggers>
+
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border WidthRequest="19" HeightRequest="19" StrokeThickness="1.5"
+                                        StrokeShape="RoundRectangle 9.5" Padding="0" Margin="0,1,0,0"
+                                        VerticalOptions="Start" BackgroundColor="Transparent">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                            <Setter Property="Stroke" Value="{StaticResource TzGreenDeep}"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
+                                            <Setter Property="Stroke" Value="{StaticResource TzBorderStrong}"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <BoxView WidthRequest="9" HeightRequest="9" CornerRadius="4.5"
+                                             IsVisible="{Binding IsSelected}"
+                                             Color="{StaticResource TzGreenDeep}"
+                                             HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="5">
+                                    <Label Text="{Binding Key}" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                                           LineHeight="1.2" TextColor="{StaticResource TzInk}"/>
+                                    <Label Text="{Binding Note}" FontFamily="ArchivoRegular" FontSize="11.5"
+                                           LineHeight="1.55" TextColor="{StaticResource TzBodyMuted}"/>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Grid Padding="24,22,24,0" ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                <Border Style="{StaticResource SecondaryAction}" Padding="20,16">
+                    <Label Text="Back" FontFamily="ArchivoSemiBold" FontSize="13"
+                           TextColor="{StaticResource TzBody}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToLanguageCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource PrimaryAction}" Padding="16">
+                    <Label Text="Continue" FontFamily="ArchivoSemiBold" FontSize="14"
+                           HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToTasteCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>
