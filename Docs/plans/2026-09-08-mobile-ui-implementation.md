@@ -1499,8 +1499,15 @@ public class CatalogServiceTests
     [Fact]
     public async Task Query_SurroundedByWhitespace_IsTrimmed()
     {
-        var results = await Sut().SearchAsync("   nshima   ", "All", CancellationToken.None);
-        Assert.Single(results);
+        var sut = Sut();
+        var padded = await sut.SearchAsync("   nshima   ", "All", CancellationToken.None);
+        var exact = await sut.SearchAsync("nshima", "All", CancellationToken.None);
+
+        // "nshima" legitimately matches two dishes: Nshima itself, and Ifisashi,
+        // whose description reads "Eaten with nshima across the country."
+        // Trimming means the padded query behaves identically to the exact one.
+        Assert.Equal(exact.Select(d => d.Id), padded.Select(d => d.Id));
+        Assert.Equal(2, padded.Count);
     }
 
     [Fact]

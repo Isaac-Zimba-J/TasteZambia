@@ -1,16 +1,15 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
 namespace TasteZambia.Mobile;
 
 public partial class App : Application
 {
-    public App()
+    private readonly IServiceProvider _services;
+
+    public App(IServiceProvider services)
     {
         InitializeComponent();
+        _services = services;
     }
 
     protected override Window CreateWindow(IActivationState? activationState)
-    {
-        return new Window(new AppShell());
-    }
+        => new(_services.GetRequiredService<AppShell>());
 }
