@@ -145,6 +145,17 @@
         <Setter Property="StrokeShape" Value="RoundRectangle 22"/>
     </Style>
 
+    <!-- Wizard field card. The design presents the draft in field-shaped cards
+         rather than live inputs; swapping these for Entry/Editor is the next
+         iteration, recorded in the plan's known gaps. -->
+    <Style x:Key="FieldCard" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource TzSurface}"/>
+        <Setter Property="Stroke" Value="{StaticResource TzBorder}"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="StrokeShape" Value="RoundRectangle 13"/>
+        <Setter Property="Padding" Value="14,13"/>
+    </Style>
+
     <!-- Every page: no Shell chrome, cream-white ground -->
     <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
         <Setter Property="BackgroundColor" Value="{StaticResource TzSurface}"/>

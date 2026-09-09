@@ -23,6 +23,8 @@ public partial class MainShellPage : ContentPage
         ["ingredients"] = (typeof(IngredientsView), "explore"),
         ["ingredient"]  = (typeof(IngredientView),  "explore"),
         ["story"]       = (typeof(StoryView),       "culture"),
+        ["share"]       = (typeof(ShareView),       "profile"),
+        ["family"]      = (typeof(FamilyView),      "profile"),
     };
 
     /// <summary>Views pushed over the current section, most recent last.</summary>

@@ -80,6 +80,10 @@ public static class MauiProgram
         builder.Services.AddTransient<IngredientView>();
         builder.Services.AddTransient<StoryViewModel>();
         builder.Services.AddTransient<StoryView>();
+        builder.Services.AddTransient<ShareViewModel>();
+        builder.Services.AddTransient<ShareView>();
+        builder.Services.AddTransient<FamilyViewModel>();
+        builder.Services.AddTransient<FamilyView>();
 
 #if DEBUG
         builder.Logging.AddDebug();

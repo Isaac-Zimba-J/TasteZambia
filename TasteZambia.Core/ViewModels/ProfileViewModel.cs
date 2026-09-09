@@ -93,7 +93,7 @@ public sealed partial class ProfileViewModel(
             SettingsRows.Add(row);
     }
 
-    [RelayCommand] private Task OpenShare() => Navigation.GoToAsync("shareStart");
-    [RelayCommand] private Task OpenFamily() => Navigation.GoToAsync("famStart");
+    [RelayCommand] private Task OpenShare() => Navigation.GoToAsync("share");
+    [RelayCommand] private Task OpenFamily() => Navigation.GoToAsync("family");
     [RelayCommand] private Task OpenSettings() => Navigation.GoToAsync("settings");
 }
