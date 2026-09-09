@@ -28,10 +28,10 @@
         <MauiXamlInflator>SourceGen</MauiXamlInflator>
 
         <!-- Display name -->
-        <ApplicationTitle>TasteZambia.Mobile</ApplicationTitle>
+        <ApplicationTitle>Taste Zambia</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.tastezambia.mobile</ApplicationId>
+        <ApplicationId>zm.tastezambia.mobile</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -49,17 +49,22 @@
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#17402F" />
 
         <!-- Splash Screen -->
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#17402F" BaseSize="128,128" />
 
         <!-- Images -->
         <MauiImage Include="Resources\Images\*" />
-        <MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
+        <MauiImage Update="Resources\Images\spread_nshima.png"      BaseSize="533,293" />
+        <MauiImage Update="Resources\Images\ifisashi.png"           BaseSize="531,393" />
+        <MauiImage Update="Resources\Images\chikanda.png"           BaseSize="536,396" />
+        <MauiImage Update="Resources\Images\market_ingredients.png" BaseSize="542,405" />
+        <MauiImage Update="Resources\Images\avatar_chanda.png"      BaseSize="529,529" />
+        <MauiImage Update="Resources\Images\logo_pot.png"           BaseSize="531,519" />
 
         <!-- Custom Fonts -->
-        <MauiFont Include="Resources\Fonts\*" />
+        <MauiFont Include="Resources\Fonts\*.ttf" />
 
         <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
@@ -72,6 +77,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\TasteZambia.Shared\TasteZambia.Shared.csproj" />
+      <ProjectReference Include="..\TasteZambia.Core\TasteZambia.Core.csproj" />
     </ItemGroup>
 
 </Project>

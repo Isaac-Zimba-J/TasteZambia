@@ -1,44 +1,73 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
-<ResourceDictionary 
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
+    <!-- Greens -->
+    <Color x:Key="TzGreenDeep">#17402F</Color>
+    <Color x:Key="TzGreenMid">#2F6A4D</Color>
+    <Color x:Key="TzGreenTint">#EEF2EC</Color>
 
-    <Color x:Key="Primary">#512BD4</Color>
-    <Color x:Key="PrimaryDark">#ac99ea</Color>
-    <Color x:Key="PrimaryDarkText">#242424</Color>
-    <Color x:Key="Secondary">#DFD8F7</Color>
-    <Color x:Key="SecondaryDarkText">#9880e5</Color>
-    <Color x:Key="Tertiary">#2B0B98</Color>
+    <!-- Gold: ACTIONS AND GOLD TEXT ONLY.
+         v2 split this: TzGold darkened for contrast on cream, while the old
+         value survives as TzGoldDecor for small decoration only. -->
+    <Color x:Key="TzGold">#8A5A12</Color>
+    <Color x:Key="TzGoldPressed">#6F4A10</Color>
+    <Color x:Key="TzGoldDecor">#C07F1E</Color>
+    <Color x:Key="TzGoldLight">#E8BD77</Color>
+    <Color x:Key="TzGoldTint">#F7EEDA</Color>
+    <Color x:Key="TzGoldTintText">#7A5A10</Color>
 
-    <Color x:Key="White">White</Color>
-    <Color x:Key="Black">Black</Color>
-    <Color x:Key="Magenta">#D600AA</Color>
-    <Color x:Key="MidnightBlue">#190649</Color>
-    <Color x:Key="OffBlack">#1f1f1f</Color>
+    <!-- Clay -->
+    <Color x:Key="TzClay">#A3452A</Color>
+    <Color x:Key="TzClayText">#8F3B23</Color>
 
-    <Color x:Key="Gray100">#E1E1E1</Color>
-    <Color x:Key="Gray200">#C8C8C8</Color>
-    <Color x:Key="Gray300">#ACACAC</Color>
-    <Color x:Key="Gray400">#919191</Color>
-    <Color x:Key="Gray500">#6E6E6E</Color>
-    <Color x:Key="Gray600">#404040</Color>
-    <Color x:Key="Gray900">#212121</Color>
-    <Color x:Key="Gray950">#141414</Color>
+    <!-- Surfaces -->
+    <Color x:Key="TzCream">#F7F1E6</Color>
+    <Color x:Key="TzSurface">#FFFDF9</Color>
+    <Color x:Key="TzDraftBg">#F0ECE4</Color>
+    <Color x:Key="TzStripeA">#DED4C2</Color>
+    <Color x:Key="TzStripeB">#E9E1D3</Color>
+    <Color x:Key="TzTimelineIdle">#D8CDB9</Color>
 
-    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
-    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
-    <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
-    <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
-    <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
+    <!-- Ink ramp -->
+    <Color x:Key="TzInk">#221A12</Color>
+    <Color x:Key="TzInkSoft">#2C2318</Color>
+    <Color x:Key="TzStoryBody">#3D3225</Color>
+    <Color x:Key="TzBody">#4A3D2E</Color>
+    <Color x:Key="TzBodyMuted">#5F5241</Color>
+    <Color x:Key="TzMuted">#7A6B59</Color>
+    <Color x:Key="TzMuted2">#6B5C4A</Color>
 
-    <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}"/>
-    <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}"/>
-    <SolidColorBrush x:Key="Gray300Brush" Color="{StaticResource Gray300}"/>
-    <SolidColorBrush x:Key="Gray400Brush" Color="{StaticResource Gray400}"/>
-    <SolidColorBrush x:Key="Gray500Brush" Color="{StaticResource Gray500}"/>
-    <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
-    <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
-    <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+    <!-- v2 contrast pass: TzFaint and TzChevron both collapsed into TzMuted.
+         Kept as aliases so existing styles need no edit. -->
+    <Color x:Key="TzFaint">#7A6B59</Color>
+    <Color x:Key="TzChevron">#7A6B59</Color>
+
+    <!-- Hairlines over ink -->
+    <Color x:Key="TzHairlineSoft">#12221A12</Color>
+    <Color x:Key="TzHairline">#17221A12</Color>
+    <Color x:Key="TzRule">#1A221A12</Color>
+    <Color x:Key="TzBorder">#24221A12</Color>
+    <Color x:Key="TzBorderStrong">#29221A12</Color>
+    <Color x:Key="TzBorderDashed">#33221A12</Color>
+
+    <!-- Light over dark green -->
+    <Color x:Key="TzOnDark86">#DBFFFDF9</Color>
+    <Color x:Key="TzOnDark84">#D6FFFDF9</Color>
+    <Color x:Key="TzOnDark82">#D1FFFDF9</Color>
+    <Color x:Key="TzOnDark66">#A8FFFDF9</Color>
+    <Color x:Key="TzOnDark60">#99FFFDF9</Color>
+    <Color x:Key="TzOnDark50">#80FFFDF9</Color>
+    <Color x:Key="TzOnDark20">#33FFFDF9</Color>
+    <Color x:Key="TzOnDark14">#24FFFDF9</Color>
+    <Color x:Key="TzOnDark10">#1AFFFDF9</Color>
+
+    <!-- Scrim -->
+    <Color x:Key="TzScrim">#800E2018</Color>
+
+    <SolidColorBrush x:Key="TzGreenDeepBrush" Color="{StaticResource TzGreenDeep}"/>
+    <SolidColorBrush x:Key="TzGoldBrush" Color="{StaticResource TzGold}"/>
+    <SolidColorBrush x:Key="TzSurfaceBrush" Color="{StaticResource TzSurface}"/>
+    <SolidColorBrush x:Key="TzCreamBrush" Color="{StaticResource TzCream}"/>
+    <SolidColorBrush x:Key="TzHairlineBrush" Color="{StaticResource TzHairline}"/>
 </ResourceDictionary>
