@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <!-- Contracts only. This project must stay free of EF Core, ASP.NET and MAUI
+             so both the API and the mobile app can reference it without pulling in
+             the other side's dependencies. -->
+    </PropertyGroup>
+
+</Project>
