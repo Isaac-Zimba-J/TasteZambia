@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#512BD4</color>
-    <color name="colorPrimaryDark">#2B0B98</color>
-    <color name="colorAccent">#2B0B98</color>
+    <!-- Archive palette. colorPrimaryDark is the status bar; the .NET template's
+         #512BD4 purple appears nowhere in this design. -->
+    <color name="colorPrimary">#17402F</color>
+    <color name="colorPrimaryDark">#17402F</color>
+    <color name="colorAccent">#8A5A12</color>
 </resources>
