@@ -4,19 +4,11 @@ namespace TasteZambia.Mobile.Services;
 
 public sealed class ShellNavigationService : INavigationService
 {
-    /// <summary>
-    /// Absolute routes ("//home") are tab switches and must not animate - the
-    /// cross-fade reads as a flash. Relative routes are pushes onto the current
-    /// tab's stack and keep their slide, which is the expected affordance.
-    /// </summary>
-    private static bool ShouldAnimate(string route) => !route.StartsWith("//");
-
     public Task GoToAsync(string route)
-        => Shell.Current.GoToAsync(route, ShouldAnimate(route));
+        => Shell.Current.GoToAsync(route, animate: !route.StartsWith("//"));
 
     public Task GoToAsync(string route, IDictionary<string, object> parameters)
-        => Shell.Current.GoToAsync(route, ShouldAnimate(route), parameters);
+        => Shell.Current.GoToAsync(route, animate: !route.StartsWith("//"), parameters);
 
-    public Task GoBackAsync()
-        => Shell.Current.GoToAsync("..", animate: true);
+    public Task GoBackAsync() => Shell.Current.GoToAsync("..");
 }
