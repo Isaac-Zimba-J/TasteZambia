@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"><style>
+body{margin:0;background:#e8e1d4;font-family:Archivo,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#2f6a4d}a:hover{color:#c07f1e}
+*{box-sizing:border-box}
+.sc{overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.sc::-webkit-scrollbar{display:none}
+.hs{overflow-x:auto;scrollbar-width:none}
+.hs::-webkit-scrollbar{display:none}
+</style></helmet>
+<div style="padding:44px 48px 80px;min-width:max-content;background:
+  repeating-linear-gradient(45deg,rgba(23,64,47,.035) 0 1px,transparent 1px 22px),
+  repeating-linear-gradient(-45deg,rgba(23,64,47,.035) 0 1px,transparent 1px 22px),#e8e1d4">
+
+  <div style="display:flex;gap:56px;align-items:flex-start;margin-bottom:40px;max-width:1180px">
+    <div style="flex:0 0 320px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+        <img src="assets/logo-pot.png" alt="Taste Zambia" style="width:52px;height:52px;object-fit:contain;border-radius:12px">
+        <div>
+          <div style="font-family:Newsreader,serif;font-size:26px;font-weight:600;color:#17402f;line-height:1">Taste Zambia</div>
+          <div style="font:500 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#c07f1e;text-transform:uppercase;margin-top:4px">Heritage &amp; Flavours</div>
+        </div>
+      </div>
+      <p style="font:400 13.5px/1.65 Archivo,sans-serif;color:#5f5241;margin:0 0 12px;text-wrap:pretty">Eleven live screens, laid out bare. Every frame is tappable on its own — save a dish, open an ingredient, tick cooking steps, switch provinces, read a story, and move through both contribution flows.</p>
+      <p style="font:400 13.5px/1.65 Archivo,sans-serif;color:#5f5241;margin:0;text-wrap:pretty">Photography is yours where you supplied it; striped blocks mark where real photos still need to drop in.</p>
+    </div>
+    <div style="flex:0 0 260px">
+      <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#8b7c68;text-transform:uppercase;margin-bottom:12px">Direction</div>
+      <div style="font:400 13px/1.7 Archivo,sans-serif;color:#5f5241">Museum-quiet, not colourful. Deep green and cream carry the interface; gold appears only on actions. Local name is always the title, English the explanation underneath.</div>
+      <div style="display:flex;gap:7px;margin-top:16px">
+        <div style="width:26px;height:26px;border-radius:7px;background:#17402f"></div>
+        <div style="width:26px;height:26px;border-radius:7px;background:#2f6a4d"></div>
+        <div style="width:26px;height:26px;border-radius:7px;background:#c07f1e"></div>
+        <div style="width:26px;height:26px;border-radius:7px;background:#a3452a"></div>
+        <div style="width:26px;height:26px;border-radius:7px;background:#f7f1e6;border:1px solid rgba(34,26,18,.12)"></div>
+      </div>
+    </div>
+    <div style="flex:0 0 240px">
+      <div style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#8b7c68;text-transform:uppercase;margin-bottom:12px">Open items</div>
+      <div style="font:400 13px/1.7 Archivo,sans-serif;color:#5f5241">The province map slot is a labelled placeholder. It needs real provincial boundary data, which I will not draw by hand. Detail pages currently resolve to Ifisashi and Chibwabwa only.</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:40px;align-items:flex-start">
+    <sc-for list="{{ frames }}" as="f" hint-placeholder-count="7">
+      <div style="flex:none;width:390px">
+        <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:14px;padding-left:2px">
+          <span style="font:500 10px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#fff;background:#17402f;padding:5px 7px;border-radius:5px">{{ f.num }}</span>
+          <span style="font:600 13px/1.2 Archivo,sans-serif;color:#2c2318">{{ f.label }}</span>
+        </div>
+        <div style="position:relative;width:390px;height:812px;border-radius:30px;overflow:hidden;background:#fffdf9;box-shadow:0 24px 60px -18px rgba(34,26,18,.34),0 0 0 1px rgba(34,26,18,.09)">
+          <div class="sc" style="position:absolute;inset:0 0 66px 0">
+
+            <sc-if value="{{ f.isHome }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:16px 20px 10px;display:flex;align-items:center;justify-content:space-between;background:#fffdf9">
+                <div style="display:flex;align-items:center;gap:9px">
+                  <img src="assets/logo-pot.png" alt="" style="width:34px;height:34px;object-fit:contain">
+                  <div>
+                    <div style="font-family:Newsreader,serif;font-size:19px;font-weight:600;color:#17402f;line-height:1">Taste Zambia</div>
+                    <div style="font:500 8px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#c07f1e;text-transform:uppercase;margin-top:3px">Heritage &amp; Flavours</div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:34px;height:34px;border-radius:50%;border:1px solid rgba(34,26,18,.14);display:flex;align-items:center;justify-content:center">
+                    <div style="width:11px;height:11px;border:1.6px solid #57493a;border-radius:50%;position:relative"><div style="position:absolute;width:1.6px;height:6px;background:#57493a;right:-2px;bottom:-5px;transform:rotate(-45deg);border-radius:1px"></div></div>
+                  </div>
+                  <img src="assets/avatar-chanda.png" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover">
+                </div>
+              </div>
+
+              <div style="padding:6px 20px 0">
+                <div style="position:relative;border-radius:22px;overflow:hidden;height:340px">
+                  <img src="assets/spread-nshima.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+                  <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(14,32,24,.94) 0%,rgba(14,32,24,.72) 42%,rgba(14,32,24,.18) 78%,rgba(14,32,24,.05) 100%)"></div>
+                  <div style="position:absolute;inset:auto 0 0 0;padding:0 20px 20px">
+                    <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#e8bd77;text-transform:uppercase;margin-bottom:11px">Living cultural archive</div>
+                    <div style="font-family:Newsreader,serif;font-size:35px;line-height:1.05;font-weight:500;color:#fffdf9;letter-spacing:-.01em;margin-bottom:10px">Discover the Taste of Zambia</div>
+                    <div style="font:400 13px/1.55 Archivo,sans-serif;color:rgba(255,253,249,.86);margin-bottom:16px;text-wrap:pretty">Explore traditional recipes, discover local ingredients, and preserve the stories behind Zambian food.</div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;background:#c07f1e;border-radius:14px;padding:14px 18px;cursor:pointer" style-hover="background:#a96d13">
+                      <span style="font:600 14px/1 Archivo,sans-serif;color:#fffdf9;letter-spacing:.01em">Explore Zambian Food</span>
+                      <span style="font:400 15px/1 Archivo,sans-serif;color:#fffdf9">&#8594;</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:20px;padding:14px 4px 0">
+                  <div><span style="font-family:Newsreader,serif;font-size:17px;font-weight:600;color:#17402f">120+</span> <span style="font:400 11.5px Archivo,sans-serif;color:#7a6b59">Recipes</span></div>
+                  <div><span style="font-family:Newsreader,serif;font-size:17px;font-weight:600;color:#17402f">10</span> <span style="font:400 11.5px Archivo,sans-serif;color:#7a6b59">Provinces</span></div>
+                  <div><span style="font-family:Newsreader,serif;font-size:17px;font-weight:600;color:#17402f">45</span> <span style="font:400 11.5px Archivo,sans-serif;color:#7a6b59">Ingredients</span></div>
+                </div>
+              </div>
+
+              <div style="padding:26px 0 0">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 20px 13px">
+                  <div style="font-family:Newsreader,serif;font-size:21px;font-weight:600;color:#221a12">Food Categories</div>
+                  <div style="font:500 11px/1 Archivo,sans-serif;color:#c07f1e;cursor:pointer">View all</div>
+                </div>
+                <div class="hs" style="display:flex;gap:11px;padding:0 20px 4px">
+                  <sc-for list="{{ f.cats }}" as="c" hint-placeholder-count="0">
+                    <div style="flex:none;width:112px;height:136px;border-radius:16px;overflow:hidden;position:relative;cursor:pointer">
+                      <sc-if value="{{ c.pNshima }}"><img src="assets/spread-nshima.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                      <sc-if value="{{ c.pIfisashi }}"><img src="assets/ifisashi.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                      <sc-if value="{{ c.pChikanda }}"><img src="assets/chikanda.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                      <sc-if value="{{ c.noImg }}"><div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#ded4c2 0 6px,#e9e1d3 6px 12px)"></div></sc-if>
+                      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(14,32,24,.86),rgba(14,32,24,.06) 70%)"></div>
+                      <div style="position:absolute;inset:auto 0 0 0;padding:0 11px 11px;font:600 12.5px/1.25 Archivo,sans-serif;color:#fffdf9;text-wrap:pretty">{{ c.name }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="padding:26px 0 0">
+                <div style="padding:0 20px 13px">
+                  <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#a3452a;text-transform:uppercase;margin-bottom:7px">Heirloom flavours</div>
+                  <div style="display:flex;align-items:baseline;justify-content:space-between">
+                    <div style="font-family:Newsreader,serif;font-size:21px;font-weight:600;color:#221a12">Popular Zambian Dishes</div>
+                    <div style="font:500 11px/1 Archivo,sans-serif;color:#c07f1e;cursor:pointer">View all</div>
+                  </div>
+                </div>
+                <div class="hs" style="display:flex;gap:14px;padding:0 20px 6px">
+                  <sc-for list="{{ f.dishes }}" as="d" hint-placeholder-count="0">
+                    <div style="flex:none;width:236px;cursor:pointer" onClick="{{ d.open }}">
+                      <div style="position:relative;height:158px;border-radius:18px;overflow:hidden">
+                        <sc-if value="{{ d.pNshima }}"><img src="assets/spread-nshima.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                        <sc-if value="{{ d.pIfisashi }}"><img src="assets/ifisashi.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                        <sc-if value="{{ d.pChikanda }}"><img src="assets/chikanda.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                        <sc-if value="{{ d.noImg }}"><div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#ded4c2 0 7px,#e9e1d3 7px 14px);display:flex;align-items:flex-end;padding:11px"><span style="font:400 9px/1.3 'IBM Plex Mono',monospace;color:#8b7c68">{{ d.plabel }}</span></div></sc-if>
+                        <div style="position:absolute;top:11px;left:11px;background:rgba(14,32,24,.72);backdrop-filter:blur(6px);border-radius:20px;padding:5px 10px;font:500 9.5px/1 Archivo,sans-serif;color:#fffdf9;letter-spacing:.02em">{{ d.region }}</div>
+                        <div style="position:absolute;top:9px;right:9px;width:30px;height:30px;border-radius:50%;background:rgba(255,253,249,.92);display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1;color:{{ d.saveColor }}" onClick="{{ d.toggle }}">{{ d.saveGlyph }}</div>
+                      </div>
+                      <div style="padding:11px 2px 0">
+                        <div style="font-family:Newsreader,serif;font-size:21px;font-weight:600;color:#221a12;line-height:1.15">{{ d.name }}</div>
+                        <div style="font:400 12px/1.4 Archivo,sans-serif;color:#7a6b59;margin-top:3px">{{ d.en }}</div>
+                        <div style="font:500 11px/1 Archivo,sans-serif;color:#2f6a4d;margin-top:8px">{{ d.meta }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="margin:28px 20px 0;padding:20px;border-radius:20px;background:#f7f1e6;background-image:repeating-linear-gradient(45deg,rgba(23,64,47,.05) 0 1px,transparent 1px 16px)">
+                <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#2f6a4d;text-transform:uppercase;margin-bottom:12px">Food stories</div>
+                <sc-for list="{{ f.stories }}" as="s" hint-placeholder-count="2">
+                  <div style="display:flex;gap:13px;align-items:flex-start;padding:11px 0;border-top:1px solid rgba(34,26,18,.1);cursor:pointer">
+                    <div style="flex:none;width:52px;height:52px;border-radius:12px;background:repeating-linear-gradient(135deg,#ded4c2 0 6px,#e9e1d3 6px 12px)"></div>
+                    <div>
+                      <div style="font-family:Newsreader,serif;font-size:16px;font-weight:600;color:#221a12;line-height:1.25;text-wrap:pretty">{{ s.title }}</div>
+                      <div style="font:400 11px/1.4 Archivo,sans-serif;color:#7a6b59;margin-top:4px">{{ s.meta }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="height:26px"></div>
+            </sc-if>
+
+            <sc-if value="{{ f.isExplore }}">
+              <div style="padding:18px 20px 14px;background:#17402f">
+                <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#e8bd77;text-transform:uppercase;margin-bottom:9px">Terroir and lineage</div>
+                <div style="font-family:Newsreader,serif;font-size:28px;font-weight:500;color:#fffdf9;line-height:1.1;margin-bottom:14px">Explore Zambian Food</div>
+                <div style="display:flex;align-items:center;gap:10px;background:#fffdf9;border-radius:14px;padding:12px 14px">
+                  <div style="flex:none;width:13px;height:13px;border:1.7px solid #7a6b59;border-radius:50%;position:relative"><div style="position:absolute;width:1.7px;height:7px;background:#7a6b59;right:-2px;bottom:-6px;transform:rotate(-45deg);border-radius:1px"></div></div>
+                  <input value="{{ f.query }}" onChange="{{ f.setQuery }}" placeholder="Search Zambian dishes, ingredients or recipes..." style="flex:1;border:none;outline:none;background:transparent;font:400 13px Archivo,sans-serif;color:#221a12;min-width:0">
+                  <sc-if value="{{ f.hasQuery }}"><div onClick="{{ f.clearQuery }}" style="flex:none;font-size:15px;line-height:1;color:#9c8d79;cursor:pointer">&#215;</div></sc-if>
+                </div>
+              </div>
+
+              <div class="hs" style="display:flex;gap:8px;padding:14px 20px 4px">
+                <sc-for list="{{ f.chips }}" as="c" hint-placeholder-count="6">
+                  <div onClick="{{ c.go }}" style="flex:none;padding:8px 13px;border-radius:20px;cursor:pointer;font:500 11.5px/1 Archivo,sans-serif;background:{{ c.bg }};color:{{ c.fg }};border:1px solid {{ c.bd }}">{{ c.label }}</div>
+                </sc-for>
+              </div>
+
+              <div style="padding:16px 20px 4px;display:flex;align-items:baseline;justify-content:space-between">
+                <div style="font:500 11px/1 'IBM Plex Mono',monospace;color:#8b7c68">{{ f.resultCount }}</div>
+                <div style="font:500 11px/1 Archivo,sans-serif;color:#c07f1e;cursor:pointer">Sort</div>
+              </div>
+
+              <div style="padding:10px 20px 0;display:flex;flex-direction:column;gap:14px">
+                <sc-for list="{{ f.results }}" as="d" hint-placeholder-count="0">
+                  <div onClick="{{ d.open }}" style="display:flex;gap:14px;padding:12px;border-radius:20px;background:#fffdf9;border:1px solid rgba(34,26,18,.09);cursor:pointer" style-hover="border-color:rgba(23,64,47,.3)">
+                    <div style="flex:none;width:96px;height:96px;border-radius:15px;overflow:hidden;position:relative">
+                      <sc-if value="{{ d.pNshima }}"><img src="assets/spread-nshima.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                      <sc-if value="{{ d.pIfisashi }}"><img src="assets/ifisashi.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                      <sc-if value="{{ d.pChikanda }}"><img src="assets/chikanda.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                      <sc-if value="{{ d.noImg }}"><div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#ded4c2 0 6px,#e9e1d3 6px 12px)"></div></sc-if>
+                    </div>
+                    <div style="flex:1;min-width:0">
+                      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+                        <div style="min-width:0">
+                          <div style="font-family:Newsreader,serif;font-size:19px;font-weight:600;color:#221a12;line-height:1.15">{{ d.name }}</div>
+                          <div style="font:400 11.5px/1.3 Archivo,sans-serif;color:#7a6b59;margin-top:2px">{{ d.en }}</div>
+                        </div>
+                        <div onClick="{{ d.toggle }}" style="flex:none;font-size:15px;line-height:1;cursor:pointer;color:{{ d.saveColor }}">{{ d.saveGlyph }}</div>
+                      </div>
+                      <div style="font:400 11.5px/1.45 Archivo,sans-serif;color:#5f5241;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ d.desc }}</div>
+                      <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+                        <span style="flex:none;white-space:nowrap;font:500 10px/1 Archivo,sans-serif;color:#2f6a4d;background:#eef2ec;padding:5px 8px;border-radius:6px">{{ d.time }}</span>
+                        <span style="flex:none;white-space:nowrap;font:500 10px/1 Archivo,sans-serif;color:#8a6a1c;background:#f7eeda;padding:5px 8px;border-radius:6px">{{ d.diff }}</span>
+                        <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:400 10px/1.4 Archivo,sans-serif;color:#9c8d79">{{ d.region }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ f.noResults }}">
+                  <div style="padding:40px 10px;text-align:center;font:400 13px/1.6 Archivo,sans-serif;color:#8b7c68">Nothing in the archive matches that yet.<br>Try a region, an ingredient, or a local name.</div>
+                </sc-if>
+              </div>
+              <div style="height:26px"></div>
+            </sc-if>
+
+            <sc-if value="{{ f.isRecipe }}">
+              <div style="position:relative;height:322px">
+                <img src="assets/ifisashi.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+                <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(14,32,24,.9),rgba(14,32,24,.1) 55%,rgba(14,32,24,.35))"></div>
+                <div style="position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:center;justify-content:space-between">
+                  <div onClick="{{ f.rBack }}" style="width:36px;height:36px;border-radius:50%;background:rgba(255,253,249,.9);display:flex;align-items:center;justify-content:center;font:400 16px/1 Archivo,sans-serif;color:#221a12;cursor:pointer">&#8592;</div>
+                  <div onClick="{{ f.rToggleSave }}" style="width:36px;height:36px;border-radius:50%;background:rgba(255,253,249,.9);display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;cursor:pointer;color:{{ f.rSaveColor }}">{{ f.rSaveGlyph }}</div>
+                </div>
+                <div style="position:absolute;inset:auto 0 0 0;padding:0 20px 20px">
+                  <sc-if value="{{ f.verify }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:inline-block;background:rgba(232,189,119,.2);border:1px solid rgba(232,189,119,.5);border-radius:20px;padding:5px 11px;font:500 9.5px/1 Archivo,sans-serif;color:#e8bd77;letter-spacing:.04em;margin-bottom:11px">VERIFIED BY THE ARCHIVE</div>
+                  </sc-if>
+                  <div style="font-family:Newsreader,serif;font-size:40px;font-weight:500;color:#fffdf9;line-height:1;letter-spacing:-.015em">Ifisashi</div>
+                  <div style="font:400 13.5px/1.4 Archivo,sans-serif;color:rgba(255,253,249,.82);margin-top:7px">Traditional Zambian vegetable dish</div>
+                </div>
+              </div>
+
+              <div style="display:flex;padding:16px 20px;gap:2px;background:#fffdf9;border-bottom:1px solid rgba(34,26,18,.08)">
+                <div style="flex:1"><div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#9c8d79;text-transform:uppercase">Prep</div><div style="font:600 13px/1 Archivo,sans-serif;color:#221a12;margin-top:6px">20 min</div></div>
+                <div style="flex:1"><div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#9c8d79;text-transform:uppercase">Cook</div><div style="font:600 13px/1 Archivo,sans-serif;color:#221a12;margin-top:6px">30 min</div></div>
+                <div style="flex:1"><div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#9c8d79;text-transform:uppercase">Difficulty</div><div style="font:600 13px/1 Archivo,sans-serif;color:#221a12;margin-top:6px">Easy</div></div>
+                <div style="flex:1"><div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.1em;color:#9c8d79;text-transform:uppercase">Region</div><div style="font:600 13px/1 Archivo,sans-serif;color:#221a12;margin-top:6px">Pan-Zambian</div></div>
+              </div>
+
+              <div style="margin:20px;padding:20px;border-radius:20px;background:#f7f1e6;background-image:repeating-linear-gradient(45deg,rgba(23,64,47,.05) 0 1px,transparent 1px 16px)">
+                <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#2f6a4d;text-transform:uppercase;margin-bottom:10px">Cultural context</div>
+                <div style="font-family:Newsreader,serif;font-size:23px;font-weight:600;color:#221a12;line-height:1.2;margin-bottom:12px">The Story Behind This Dish</div>
+                <p style="font:400 13.5px/1.7 Archivo,sans-serif;color:#4a3d2e;margin:0 0 12px;text-wrap:pretty">Ifisashi is what Zambian cooking does with what the land gives: greens from the garden, groundnuts from the field, and nothing else it does not need. There is no oil in the traditional version. The fat comes out of the pounded groundnuts themselves as the pot simmers.</p>
+                <p style="font:400 13.5px/1.7 Archivo,sans-serif;color:#4a3d2e;margin:0 0 12px;text-wrap:pretty">The name is Bemba, but the dish is eaten in every province, and the greens change with what is growing. Pumpkin leaves in the wet season, cassava leaves in Luapula, bondwe wherever it comes up on its own. It is served with nshima and eaten by hand.</p>
+                <p style="font:400 13.5px/1.7 Archivo,sans-serif;color:#4a3d2e;margin:0;text-wrap:pretty">Households guard their own proportions. How coarse the groundnuts are pounded, whether tomato belongs in it at all, whether soda goes in to hold the colour of the leaves. These are the details that make one family's ifisashi recognisable from another's.</p>
+              </div>
+
+              <div style="padding:0 20px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:5px">
+                  <div style="font-family:Newsreader,serif;font-size:23px;font-weight:600;color:#221a12">Ingredients</div>
+                  <div style="font:400 11px/1 'IBM Plex Mono',monospace;color:#8b7c68">6 items</div>
+                </div>
+                <div style="font:400 11.5px/1.5 Archivo,sans-serif;color:#7a6b59;margin-bottom:12px">Tap an underlined ingredient to learn what it is, its local names, and where it grows.</div>
+                <div style="border-radius:18px;overflow:hidden;border:1px solid rgba(34,26,18,.09)">
+                  <sc-for list="{{ f.ingList }}" as="g" hint-placeholder-count="6">
+                    <div onClick="{{ g.go }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:#fffdf9;border-bottom:1px solid rgba(34,26,18,.07);cursor:pointer" style-hover="background:#faf6ee">
+                      <div style="min-width:0">
+                        <sc-if value="{{ g.linked }}" hint-placeholder-val="{{ true }}">
+                          <div style="font:600 14px/1.2 Archivo,sans-serif;color:#17402f;border-bottom:1.5px dotted #2f6a4d;display:inline-block">{{ g.name }}</div>
+                        </sc-if>
+                        <sc-if value="{{ g.plain }}">
+                          <div style="font:500 14px/1.2 Archivo,sans-serif;color:#221a12">{{ g.name }}</div>
+                        </sc-if>
+                        <div style="font:400 11px/1.3 Archivo,sans-serif;color:#8b7c68;margin-top:3px">{{ g.en }}</div>
+                      </div>
+                      <div style="flex:none;font:400 11.5px/1 'IBM Plex Mono',monospace;color:#5f5241;text-align:right">{{ g.qty }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="padding:26px 20px 0">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
+                  <div style="font-family:Newsreader,serif;font-size:23px;font-weight:600;color:#221a12">Cooking Instructions</div>
+                  <div style="font:500 10.5px/1 'IBM Plex Mono',monospace;color:#2f6a4d">{{ f.stepProgress }}</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <sc-for list="{{ f.steps }}" as="s" hint-placeholder-count="4">
+                    <div onClick="{{ s.toggle }}" style="display:flex;gap:13px;padding:15px;border-radius:18px;border:1px solid rgba(34,26,18,.09);cursor:pointer;background:{{ s.bg }}">
+                      <div style="flex:none;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font:600 13px/1 Archivo,sans-serif;background:{{ s.numBg }};color:{{ s.numFg }}">{{ s.num }}</div>
+                      <div style="flex:1;min-width:0">
+                        <div style="font:600 14px/1.25 Archivo,sans-serif;color:{{ s.titleColor }}">{{ s.title }}</div>
+                        <div style="font:400 12.5px/1.6 Archivo,sans-serif;color:#5f5241;margin-top:5px;text-wrap:pretty">{{ s.body }}</div>
+                      </div>
+                      <div style="flex:none;width:21px;height:21px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;color:#fffdf9;border:1.5px solid {{ s.boxBd }};background:{{ s.boxBg }}">{{ s.box }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="margin:26px 20px 0;border-radius:20px;overflow:hidden;background:#17402f">
+                <div style="display:flex;gap:4px;padding:6px;margin:14px 14px 0;border-radius:12px;background:rgba(255,253,249,.1)">
+                  <div onClick="{{ f.setTrad }}" style="flex:1;text-align:center;padding:9px;border-radius:9px;cursor:pointer;font:600 12px/1 Archivo,sans-serif;background:{{ f.tradBg }};color:{{ f.tradFg }}">The Traditional Way</div>
+                  <div onClick="{{ f.setModern }}" style="flex:1;text-align:center;padding:9px;border-radius:9px;cursor:pointer;font:600 12px/1 Archivo,sans-serif;background:{{ f.modBg }};color:{{ f.modFg }}">Modern Kitchen</div>
+                </div>
+                <sc-if value="{{ f.methodTrad }}" hint-placeholder-val="{{ true }}">
+                  <div style="padding:18px">
+                    <div style="font-family:Newsreader,serif;font-size:21px;font-weight:500;color:#fffdf9;margin-bottom:12px">Over charcoal, in a clay pot</div>
+                    <div style="display:flex;flex-direction:column;gap:11px">
+                      <div style="font:400 12.5px/1.65 Archivo,sans-serif;color:rgba(255,253,249,.84)">The pot is earthenware, set on a mbaula of glowing charcoal. Clay holds heat evenly and lets the relish reduce slowly without catching.</div>
+                      <div style="font:400 12.5px/1.65 Archivo,sans-serif;color:rgba(255,253,249,.84)">Groundnuts are roasted in a dry clay pan, winnowed by hand, then pounded in a wooden mortar with a heavy pestle until the flour begins to release its oil.</div>
+                      <div style="font:400 12.5px/1.65 Archivo,sans-serif;color:rgba(255,253,249,.84)">Greens are shredded with a knife against the palm, never chopped on a board, and stirred with a wooden mwiko.</div>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ f.methodModern }}">
+                  <div style="padding:18px">
+                    <div style="font-family:Newsreader,serif;font-size:21px;font-weight:500;color:#fffdf9;margin-bottom:12px">In a flat you rent abroad</div>
+                    <div style="display:flex;flex-direction:column;gap:11px">
+                      <div style="font:400 12.5px/1.65 Archivo,sans-serif;color:rgba(255,253,249,.84)">A heavy-based saucepan on medium heat stands in for the clay pot. Keep the lid on for the first five minutes, then off to reduce.</div>
+                      <div style="font:400 12.5px/1.65 Archivo,sans-serif;color:rgba(255,253,249,.84)">Pulse roasted peanuts in a blender in short bursts. Unsweetened natural peanut butter works if you thin it with water first; anything with sugar in it will not.</div>
+                      <div style="font:400 12.5px/1.65 Archivo,sans-serif;color:rgba(255,253,249,.84)">Frozen chopped spinach, collard greens or kale substitute for chibwabwa. Squeeze the water out before it goes in.</div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+
+              <div style="padding:26px 20px 0">
+                <div style="font-family:Newsreader,serif;font-size:23px;font-weight:600;color:#221a12;margin-bottom:4px">Regional Variations</div>
+                <div style="font:400 11.5px/1.5 Archivo,sans-serif;color:#7a6b59;margin-bottom:14px">The same dish, cooked differently across the country.</div>
+                <div style="display:flex;flex-direction:column;gap:0">
+                  <sc-for list="{{ f.variations }}" as="v" hint-placeholder-count="4">
+                    <div style="padding:14px 0;border-top:1px solid rgba(34,26,18,.1)">
+                      <div style="font:600 12.5px/1 Archivo,sans-serif;color:#a3452a;letter-spacing:.01em;margin-bottom:6px">{{ v.p }}</div>
+                      <div style="font:400 12.5px/1.6 Archivo,sans-serif;color:#4a3d2e;text-wrap:pretty">{{ v.b }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="margin:26px 20px 0;padding:16px;border-radius:18px;border:1px dashed rgba(34,26,18,.2);display:flex;gap:12px;align-items:center">
+                <img src="assets/avatar-chanda.png" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover">
+                <div style="min-width:0">
+                  <div style="font:400 11px/1.4 Archivo,sans-serif;color:#7a6b59">Contributed by</div>
+                  <div style="font:600 13px/1.3 Archivo,sans-serif;color:#221a12">Chanda M., Kitwe</div>
+                </div>
+              </div>
+              <div style="height:26px"></div>
+            </sc-if>
+
+            <sc-if value="{{ f.isIngredients }}">
+              <div style="padding:20px 20px 18px">
+                <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#a3452a;text-transform:uppercase;margin-bottom:9px">Botanical living archive</div>
+                <div style="font-family:Newsreader,serif;font-size:31px;font-weight:500;color:#221a12;line-height:1.05;letter-spacing:-.01em">Zambian Ingredients</div>
+                <div style="font:400 13px/1.6 Archivo,sans-serif;color:#5f5241;margin-top:9px;text-wrap:pretty">A visual encyclopedia of what Zambian cooking is actually made from. Local names first, English underneath.</div>
+              </div>
+              <div style="padding:0 20px;display:grid;grid-template-columns:1fr 1fr;gap:13px">
+                <sc-for list="{{ f.ingGrid }}" as="g" hint-placeholder-count="0">
+                  <div onClick="{{ g.go }}" style="cursor:pointer">
+                    <div style="position:relative;height:112px;border-radius:16px;overflow:hidden">
+                      <sc-if value="{{ g.pMarket }}"><img src="assets/market-ingredients.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                      <sc-if value="{{ g.noImg }}"><div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#ded4c2 0 6px,#e9e1d3 6px 12px)"></div></sc-if>
+                    </div>
+                    <div style="padding:9px 2px 0">
+                      <div style="font-family:Newsreader,serif;font-size:18px;font-weight:600;color:#221a12;line-height:1.15">{{ g.name }}</div>
+                      <div style="font:400 11px/1.35 Archivo,sans-serif;color:#7a6b59;margin-top:2px">{{ g.en }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin:22px 20px 0;padding:16px;border-radius:16px;background:#f7f1e6;font:400 12px/1.6 Archivo,sans-serif;color:#5f5241;text-wrap:pretty">Know a local name we are missing? Ingredient names in Tonga, Lozi, Kaonde, Lunda and Luvale are still incomplete. <span style="color:#c07f1e;font-weight:600">Contribute a name</span></div>
+              <div style="height:26px"></div>
+            </sc-if>
+
+            <sc-if value="{{ f.isIngredient }}">
+              <div style="position:relative;height:262px">
+                <img src="assets/market-ingredients.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
+                <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(14,32,24,.88),rgba(14,32,24,.05) 60%,rgba(14,32,24,.3))"></div>
+                <div onClick="{{ f.gBack }}" style="position:absolute;top:16px;left:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,253,249,.9);display:flex;align-items:center;justify-content:center;font:400 16px/1 Archivo,sans-serif;color:#221a12;cursor:pointer">&#8592;</div>
+                <div style="position:absolute;inset:auto 0 0 0;padding:0 20px 18px">
+                  <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#e8bd77;text-transform:uppercase;margin-bottom:9px">Indigenous ingredient</div>
+                  <div style="font-family:Newsreader,serif;font-size:40px;font-weight:500;color:#fffdf9;line-height:1;letter-spacing:-.015em">{{ f.gName }}</div>
+                  <div style="font:400 13.5px/1.4 Archivo,sans-serif;color:rgba(255,253,249,.82);margin-top:7px">English name: {{ f.gEn }}</div>
+                </div>
+              </div>
+
+              <div style="padding:20px">
+                <div style="font:400 14px/1.7 Archivo,sans-serif;color:#4a3d2e;text-wrap:pretty">{{ f.gDesc }}</div>
+              </div>
+
+              <div style="margin:0 20px;border-radius:18px;background:#17402f;padding:18px">
+                <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#e8bd77;text-transform:uppercase;margin-bottom:12px">Local names</div>
+                <sc-for list="{{ f.gLocals }}" as="l" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,253,249,.12)">
+                    <span style="font:400 11.5px/1.3 Archivo,sans-serif;color:rgba(255,253,249,.66)">{{ l.lang }}</span>
+                    <span style="font-family:Newsreader,serif;font-size:19px;font-weight:600;color:#fffdf9">{{ l.name }}</span>
+                  </div>
+                </sc-for>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:11px">
+                  <span style="font:400 11px/1.4 Archivo,sans-serif;color:rgba(255,253,249,.5)">{{ f.gPending }}</span>
+                  <span style="flex:none;font:600 10.5px/1 Archivo,sans-serif;color:#e8bd77;cursor:pointer">Suggest &#8594;</span>
+                </div>
+              </div>
+
+              <div style="padding:24px 20px 0">
+                <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#9c8d79;text-transform:uppercase;margin-bottom:8px">Where it is commonly found</div>
+                <div style="font:400 13px/1.65 Archivo,sans-serif;color:#4a3d2e">{{ f.gWhere }}</div>
+              </div>
+
+              <div style="margin:22px 20px 0;padding:18px;border-radius:18px;background:#f7f1e6;background-image:repeating-linear-gradient(45deg,rgba(23,64,47,.05) 0 1px,transparent 1px 16px)">
+                <div style="font-family:Newsreader,serif;font-size:20px;font-weight:600;color:#221a12;margin-bottom:9px">How it is traditionally prepared</div>
+                <div style="font:400 13px/1.7 Archivo,sans-serif;color:#4a3d2e;text-wrap:pretty">{{ f.gTrad }}</div>
+              </div>
+
+              <div style="padding:24px 20px 0">
+                <div style="font-family:Newsreader,serif;font-size:23px;font-weight:600;color:#221a12;margin-bottom:12px">Used in These Dishes</div>
+                <div style="display:flex;flex-direction:column;gap:11px">
+                  <sc-for list="{{ f.gUsed }}" as="u" hint-placeholder-count="0">
+                    <div onClick="{{ u.open }}" style="display:flex;gap:12px;align-items:center;padding:11px;border-radius:16px;background:#fffdf9;border:1px solid rgba(34,26,18,.09);cursor:pointer">
+                      <div style="flex:none;width:62px;height:62px;border-radius:13px;overflow:hidden;position:relative">
+                        <sc-if value="{{ u.pNshima }}"><img src="assets/spread-nshima.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                        <sc-if value="{{ u.pIfisashi }}"><img src="assets/ifisashi.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                        <sc-if value="{{ u.pChikanda }}"><img src="assets/chikanda.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></sc-if>
+                        <sc-if value="{{ u.noImg }}"><div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#ded4c2 0 5px,#e9e1d3 5px 10px)"></div></sc-if>
+                      </div>
+                      <div style="min-width:0">
+                        <div style="font-family:Newsreader,serif;font-size:18px;font-weight:600;color:#221a12;line-height:1.15">{{ u.name }}</div>
+                        <div style="font:400 11px/1.35 Archivo,sans-serif;color:#7a6b59;margin-top:3px">{{ u.en }}</div>
+                        <div style="font:500 10.5px/1 Archivo,sans-serif;color:#2f6a4d;margin-top:6px">{{ u.meta }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="height:26px"></div>
+            </sc-if>
+
+            <sc-if value="{{ f.isShare }}">
+              <div style="padding:20px 20px 0">
+                <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#a3452a;text-transform:uppercase;margin-bottom:9px">Community contribution</div>
+                <div style="font-family:Newsreader,serif;font-size:31px;font-weight:500;color:#221a12;line-height:1.05;letter-spacing:-.01em">Share a Recipe</div>
+                <div style="font:400 13px/1.6 Archivo,sans-serif;color:#5f5241;margin-top:9px;text-wrap:pretty">Add a dish to the public archive. Everything submitted is reviewed before it appears.</div>
+              </div>
+
+              <sc-if value="{{ f.sPending }}" hint-placeholder-val="{{ true }}">
+                <div style="padding:20px 20px 0">
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+                    <div style="font:600 12px/1 Archivo,sans-serif;color:#17402f">{{ f.sTitle }}</div>
+                    <div style="font:400 10.5px/1 'IBM Plex Mono',monospace;color:#8b7c68">{{ f.sStepLabel }}</div>
+                  </div>
+                  <div style="height:4px;border-radius:2px;background:rgba(34,26,18,.1);overflow:hidden">
+                    <div style="height:100%;background:#c07f1e;border-radius:2px;transition:width .35s cubic-bezier(.4,0,.2,1);width:{{ f.sPct }}"></div>
+                  </div>
+                </div>
+
+                <div style="padding:20px">
+                  <sc-if value="{{ f.isS1 }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;flex-direction:column;gap:16px">
+                      <div>
+                        <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Local name of the dish</div>
+                        <div style="padding:13px 14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font-family:Newsreader,serif;font-size:19px;font-weight:600;color:#221a12">Chibwabwa na Mbalala</div>
+                      </div>
+                      <div>
+                        <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Short description in English</div>
+                        <div style="padding:13px 14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:400 13px/1.5 Archivo,sans-serif;color:#5f5241">Pumpkin leaves cooked with pounded groundnuts and nothing else</div>
+                      </div>
+                      <div style="display:flex;gap:11px">
+                        <div style="flex:1">
+                          <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Province</div>
+                          <div style="padding:13px 14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:500 13px/1 Archivo,sans-serif;color:#221a12">Northern</div>
+                        </div>
+                        <div style="flex:1">
+                          <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Meal type</div>
+                          <div style="padding:13px 14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:500 13px/1 Archivo,sans-serif;color:#221a12">Relish</div>
+                        </div>
+                      </div>
+                      <div>
+                        <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Photos of the finished dish</div>
+                        <div style="display:flex;gap:10px">
+                          <div style="flex:none;width:84px;height:84px;border-radius:13px;background:repeating-linear-gradient(135deg,#ded4c2 0 6px,#e9e1d3 6px 12px)"></div>
+                          <div style="flex:1;height:84px;border-radius:13px;border:1px dashed rgba(34,26,18,.24);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer">
+                            <div style="font-size:19px;line-height:1;color:#9c8d79">+</div>
+                            <div style="font:400 10.5px/1 'IBM Plex Mono',monospace;color:#8b7c68">add photo</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ f.isS2 }}">
+                    <div style="display:flex;flex-direction:column;gap:16px">
+                      <div>
+                        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+                          <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e">Ingredients</div>
+                          <div style="font:500 10.5px/1 Archivo,sans-serif;color:#c07f1e;cursor:pointer">+ Add</div>
+                        </div>
+                        <div style="border-radius:13px;overflow:hidden;border:1px solid rgba(34,26,18,.13)">
+                          <div style="display:flex;justify-content:space-between;padding:12px 14px;background:#fffdf9;border-bottom:1px solid rgba(34,26,18,.08)"><span style="font:500 13px/1 Archivo,sans-serif;color:#17402f">Chibwabwa</span><span style="font:400 11.5px/1 'IBM Plex Mono',monospace;color:#5f5241">2 bundles</span></div>
+                          <div style="display:flex;justify-content:space-between;padding:12px 14px;background:#fffdf9;border-bottom:1px solid rgba(34,26,18,.08)"><span style="font:500 13px/1 Archivo,sans-serif;color:#17402f">Mbalala</span><span style="font:400 11.5px/1 'IBM Plex Mono',monospace;color:#5f5241">1 cup</span></div>
+                          <div style="display:flex;justify-content:space-between;padding:12px 14px;background:#fffdf9"><span style="font:500 13px/1 Archivo,sans-serif;color:#221a12">Salt</span><span style="font:400 11.5px/1 'IBM Plex Mono',monospace;color:#5f5241">To taste</span></div>
+                        </div>
+                        <div style="font:400 10.5px/1.5 Archivo,sans-serif;color:#8b7c68;margin-top:7px">Green names are already in the ingredient archive and will link automatically.</div>
+                      </div>
+                      <div>
+                        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+                          <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e">Cooking steps</div>
+                          <div style="font:500 10.5px/1 Archivo,sans-serif;color:#c07f1e;cursor:pointer">+ Add step</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:9px">
+                          <div style="display:flex;gap:11px;padding:13px;border-radius:13px;border:1px solid rgba(34,26,18,.13);background:#fffdf9">
+                            <div style="flex:none;width:26px;height:26px;border-radius:8px;background:#f7f1e6;display:flex;align-items:center;justify-content:center;font:600 12px/1 Archivo,sans-serif;color:#17402f">1</div>
+                            <div style="font:400 12.5px/1.6 Archivo,sans-serif;color:#4a3d2e;text-wrap:pretty">Shred the leaves fine and rinse them twice.</div>
+                          </div>
+                          <div style="display:flex;gap:11px;padding:13px;border-radius:13px;border:1px solid rgba(34,26,18,.13);background:#fffdf9">
+                            <div style="flex:none;width:26px;height:26px;border-radius:8px;background:#f7f1e6;display:flex;align-items:center;justify-content:center;font:600 12px/1 Archivo,sans-serif;color:#17402f">2</div>
+                            <div style="font:400 12.5px/1.6 Archivo,sans-serif;color:#4a3d2e;text-wrap:pretty">Pound the groundnuts until the oil starts to show.</div>
+                          </div>
+                          <div style="padding:13px;border-radius:13px;border:1px dashed rgba(34,26,18,.24);text-align:center;font:400 11.5px/1 Archivo,sans-serif;color:#8b7c68;cursor:pointer">Add step 3</div>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ f.isS3 }}">
+                    <div style="display:flex;flex-direction:column;gap:16px">
+                      <div>
+                        <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Where the dish comes from</div>
+                        <div style="padding:14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:400 13px/1.7 Archivo,sans-serif;color:#4a3d2e;text-wrap:pretty">Cooked in Mungwi and the villages around Kasama. It is a rainy-season dish because that is when the pumpkin leaves are at their best.</div>
+                      </div>
+                      <div>
+                        <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Cultural significance</div>
+                        <div style="padding:14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:400 13px/1.7 Archivo,sans-serif;color:#4a3d2e;text-wrap:pretty">This is the relish cooked when there is no money for meat, and it is not thought of as a lesser meal. It is what most people mean when they talk about eating well at home.</div>
+                      </div>
+                      <div>
+                        <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Traditional method, if you know it</div>
+                        <div style="padding:14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:400 13px/1.7 Archivo,sans-serif;color:#4a3d2e;text-wrap:pretty">Clay pot on charcoal. Groundnuts pounded in a mortar, not blended.</div>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:9px;font:400 11.5px/1.5 Archivo,sans-serif;color:#7a6b59">
+                        <div style="flex:none;width:18px;height:18px;border-radius:5px;border:1.5px solid #2f6a4d;background:#2f6a4d;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fffdf9;line-height:1">&#10003;</div>
+                        Credit the person who taught me this recipe
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ f.isS4 }}">
+                    <div>
+                      <div style="font:400 13px/1.7 Archivo,sans-serif;color:#4a3d2e;margin-bottom:18px;text-wrap:pretty">Before it goes public, your recipe passes through review. Here is what happens to it.</div>
+                      <div style="display:flex;flex-direction:column;gap:0">
+                        <sc-for list="{{ f.pipeline }}" as="s" hint-placeholder-count="0">
+                          <div style="display:flex;gap:13px;padding:13px 0;border-top:1px solid rgba(34,26,18,.1)">
+                            <div style="flex:none;width:9px;height:9px;border-radius:50%;background:#c07f1e;margin-top:5px"></div>
+                            <div style="min-width:0">
+                              <div style="font:600 12.5px/1.3 Archivo,sans-serif;color:#221a12">{{ s.label }}</div>
+                              <div style="font:400 11.5px/1.6 Archivo,sans-serif;color:#5f5241;margin-top:5px;text-wrap:pretty">{{ s.note }}</div>
+                            </div>
+                          </div>
+                        </sc-for>
+                      </div>
+                      <div style="margin-top:18px;padding:15px;border-radius:16px;background:#f7f1e6;font:400 12px/1.65 Archivo,sans-serif;color:#5f5241;text-wrap:pretty">Review usually takes under two weeks. You keep authorship of anything you submit and can withdraw it at any time.</div>
+                    </div>
+                  </sc-if>
+                </div>
+
+                <div style="padding:0 20px;display:flex;gap:11px">
+                  <sc-if value="{{ f.sCanBack }}">
+                    <div onClick="{{ f.sBack }}" style="flex:none;padding:15px 20px;border-radius:14px;border:1px solid rgba(34,26,18,.16);font:600 13px/1 Archivo,sans-serif;color:#4a3d2e;cursor:pointer">Back</div>
+                  </sc-if>
+                  <div onClick="{{ f.sNext }}" style="flex:1;text-align:center;padding:15px;border-radius:14px;background:#c07f1e;font:600 13.5px/1 Archivo,sans-serif;color:#fffdf9;cursor:pointer" style-hover="background:#a96d13">{{ f.sNextLabel }}</div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ f.sDone }}">
+                <div style="padding:24px 20px 0">
+                  <div style="padding:24px 20px;border-radius:22px;background:#17402f;background-image:repeating-linear-gradient(45deg,rgba(255,253,249,.045) 0 1px,transparent 1px 18px);text-align:center">
+                    <div style="width:52px;height:52px;border-radius:50%;background:rgba(232,189,119,.2);border:1px solid rgba(232,189,119,.5);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:22px;line-height:1;color:#e8bd77">&#10003;</div>
+                    <div style="font-family:Newsreader,serif;font-size:26px;font-weight:500;color:#fffdf9;line-height:1.15;margin-bottom:10px">Submitted for review</div>
+                    <div style="font:400 12.5px/1.7 Archivo,sans-serif;color:rgba(255,253,249,.82);text-wrap:pretty">Chibwabwa na Mbalala is now with the archive team. You will hear from us before anything is published.</div>
+                  </div>
+                  <div style="margin-top:20px;padding:16px;border-radius:16px;border:1px solid rgba(34,26,18,.1);background:#fffdf9">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                      <div style="font-family:Newsreader,serif;font-size:18px;font-weight:600;color:#221a12">Chibwabwa na Mbalala</div>
+                      <div style="flex:none;font:600 9.5px/1 Archivo,sans-serif;padding:5px 8px;border-radius:6px;letter-spacing:.03em;background:#f7eeda;color:#8a6a1c">IN REVIEW</div>
+                    </div>
+                    <div style="font:400 11px/1.4 Archivo,sans-serif;color:#8b7c68;margin-top:6px">Northern Province · submitted just now</div>
+                  </div>
+                  <div onClick="{{ f.sReset }}" style="margin-top:14px;text-align:center;padding:15px;border-radius:14px;border:1px solid rgba(34,26,18,.16);font:600 13px/1 Archivo,sans-serif;color:#4a3d2e;cursor:pointer">Share another recipe</div>
+                </div>
+              </sc-if>
+              <div style="height:26px"></div>
+            </sc-if>
+
+            <sc-if value="{{ f.isCulture }}">
+              <div style="padding:20px 20px 16px">
+                <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#a3452a;text-transform:uppercase;margin-bottom:9px">Oral and written record</div>
+                <div style="font-family:Newsreader,serif;font-size:31px;font-weight:500;color:#221a12;line-height:1.05;letter-spacing:-.01em">Food Stories</div>
+                <div style="font:400 13px/1.6 Archivo,sans-serif;color:#5f5241;margin-top:9px;text-wrap:pretty">What the recipes cannot hold: where a dish came from, who cooked it, and what it meant to eat it.</div>
+              </div>
+
+              <div onClick="{{ f.openStory }}" style="margin:0 20px;border-radius:22px;overflow:hidden;background:#fffdf9;border:1px solid rgba(34,26,18,.09);cursor:pointer">
+                <div style="height:186px;background:repeating-linear-gradient(135deg,#ded4c2 0 7px,#e9e1d3 7px 14px);display:flex;align-items:flex-end;padding:13px">
+                  <span style="font:400 9.5px/1.3 'IBM Plex Mono',monospace;color:#8b7c68">photo: woman stirring nshima with a mwiko</span>
+                </div>
+                <div style="padding:18px">
+                  <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#c07f1e;text-transform:uppercase;margin-bottom:10px">Archive essay</div>
+                  <div style="font-family:Newsreader,serif;font-size:27px;font-weight:600;color:#221a12;line-height:1.12;letter-spacing:-.01em;text-wrap:pretty">{{ f.leadTitle }}</div>
+                  <div style="font:400 13px/1.65 Archivo,sans-serif;color:#5f5241;margin-top:9px;text-wrap:pretty">{{ f.leadLede }}</div>
+                  <div style="font:400 11px/1.4 Archivo,sans-serif;color:#8b7c68;margin-top:12px">{{ f.leadBy }} · {{ f.leadMeta }}</div>
+                </div>
+              </div>
+
+              <div style="padding:24px 20px 0">
+                <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#8b7c68;text-transform:uppercase;margin-bottom:14px">More from the archive</div>
+                <div style="display:flex;flex-direction:column;gap:0">
+                  <sc-for list="{{ f.articles }}" as="a" hint-placeholder-count="0">
+                    <div onClick="{{ a.go }}" style="display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-top:1px solid rgba(34,26,18,.1);cursor:pointer">
+                      <div style="flex:none;width:74px;height:74px;border-radius:14px;background:repeating-linear-gradient(135deg,#ded4c2 0 6px,#e9e1d3 6px 12px)"></div>
+                      <div style="flex:1;min-width:0">
+                        <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.13em;color:#c07f1e;text-transform:uppercase;margin-bottom:6px">{{ a.kicker }}</div>
+                        <div style="font-family:Newsreader,serif;font-size:18px;font-weight:600;color:#221a12;line-height:1.2;text-wrap:pretty">{{ a.title }}</div>
+                        <div style="font:400 10.5px/1.4 Archivo,sans-serif;color:#8b7c68;margin-top:6px">{{ a.by }} · {{ a.meta }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="margin:22px 20px 0;padding:20px;border-radius:20px;background:#17402f;background-image:repeating-linear-gradient(45deg,rgba(255,253,249,.045) 0 1px,transparent 1px 18px)">
+                <div style="font-family:Newsreader,serif;font-size:21px;font-weight:500;color:#fffdf9;line-height:1.2;margin-bottom:8px">Record an elder telling it</div>
+                <div style="font:400 12.5px/1.65 Archivo,sans-serif;color:rgba(255,253,249,.8);margin-bottom:15px;text-wrap:pretty">Audio in any Zambian language. The archive keeps the recording alongside a written translation.</div>
+                <div style="display:inline-flex;align-items:center;gap:9px;background:#c07f1e;border-radius:13px;padding:13px 17px;cursor:pointer">
+                  <div style="width:9px;height:9px;border-radius:50%;background:#fffdf9"></div>
+                  <span style="font:600 13px/1 Archivo,sans-serif;color:#fffdf9">Start a recording</span>
+                </div>
+              </div>
+              <div style="height:26px"></div>
+            </sc-if>
+
+            <sc-if value="{{ f.isStory }}">
+              <div style="position:relative;height:250px;background:repeating-linear-gradient(135deg,#ded4c2 0 7px,#e9e1d3 7px 14px)">
+                <div onClick="{{ f.storyBack }}" style="position:absolute;top:16px;left:16px;width:36px;height:36px;border-radius:50%;background:rgba(255,253,249,.92);display:flex;align-items:center;justify-content:center;font:400 16px/1 Archivo,sans-serif;color:#221a12;cursor:pointer">&#8592;</div>
+                <div style="position:absolute;bottom:13px;left:16px;font:400 9.5px/1.3 'IBM Plex Mono',monospace;color:#8b7c68">photo: maize meal being sifted</div>
+              </div>
+
+              <div style="padding:22px 24px 0">
+                <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#c07f1e;text-transform:uppercase;margin-bottom:12px">Archive essay · Pan-Zambian</div>
+                <div style="font-family:Newsreader,serif;font-size:33px;font-weight:600;color:#221a12;line-height:1.08;letter-spacing:-.015em;text-wrap:pretty">The History of Nshima</div>
+                <div style="display:flex;align-items:center;gap:11px;margin-top:16px;padding-bottom:18px;border-bottom:1px solid rgba(34,26,18,.12)">
+                  <div style="flex:none;width:36px;height:36px;border-radius:50%;background:repeating-linear-gradient(135deg,#ded4c2 0 5px,#e9e1d3 5px 10px)"></div>
+                  <div>
+                    <div style="font:600 12.5px/1.2 Archivo,sans-serif;color:#221a12">Dr. Mutale Chileshe</div>
+                    <div style="font:400 10.5px/1.3 Archivo,sans-serif;color:#8b7c68;margin-top:2px">8 min read · Updated Aug 2026</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin:18px 24px 0;padding:14px;border-radius:15px;background:#f7f1e6;display:flex;align-items:center;gap:13px">
+                <div style="flex:none;width:40px;height:40px;border-radius:50%;background:#17402f;display:flex;align-items:center;justify-content:center">
+                  <div style="width:0;height:0;border-left:10px solid #fffdf9;border-top:6.5px solid transparent;border-bottom:6.5px solid transparent;margin-left:3px"></div>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="font:600 11.5px/1.2 Archivo,sans-serif;color:#221a12">Listen in Bemba</div>
+                  <div style="height:3px;border-radius:2px;background:rgba(34,26,18,.14);margin-top:8px;overflow:hidden"><div style="width:18%;height:100%;background:#c07f1e"></div></div>
+                </div>
+                <div style="flex:none;font:400 10.5px/1 'IBM Plex Mono',monospace;color:#7a6b59">12:40</div>
+              </div>
+
+              <div style="padding:22px 24px 0">
+                <p style="font-family:Newsreader,serif;font-size:19px;line-height:1.55;font-weight:400;color:#2c2318;margin:0 0 18px;text-wrap:pretty">The dish at the centre of every Zambian meal is younger than most people assume. Maize arrived in this part of Africa through trade, and for a long time it sat alongside older grains rather than replacing them.</p>
+                <p style="font:400 14px/1.8 Archivo,sans-serif;color:#3d3225;margin:0 0 16px;text-wrap:pretty">Before maize, the staples were millet and sorghum. They were pounded, sifted and stirred into a thick porridge by the same method still used today: water brought to the boil, a thin gruel made first, then more meal worked in with a wooden mwiko until the mixture pulls away from the sides of the pot.</p>
+                <p style="font:400 14px/1.8 Archivo,sans-serif;color:#3d3225;margin:0 0 16px;text-wrap:pretty">What changed was the grain, not the technique. Maize gave a higher yield and a whiter meal, and through the colonial period it was actively promoted over the older grains. Within two or three generations it had become the default, and nshima came to mean maize nshima specifically.</p>
+                <div style="margin:22px 0;padding:18px 20px;border-radius:16px;background:#f7f1e6;background-image:repeating-linear-gradient(45deg,rgba(23,64,47,.05) 0 1px,transparent 1px 16px)">
+                  <div style="font-family:Newsreader,serif;font-style:italic;font-size:20px;line-height:1.5;color:#17402f;text-wrap:pretty">The older grains never disappeared. In parts of Muchinga and North-Western Province, millet nshima is still what is served when the meal matters.</div>
+                </div>
+                <p style="font:400 14px/1.8 Archivo,sans-serif;color:#3d3225;margin:0 0 16px;text-wrap:pretty">Cassava followed a similar path in the north. In Luapula and Northern Province, nshima made from fermented, sun-dried cassava flour is the everyday version, and maize is the visitor. The name stays the same; the flour, the colour and the taste do not.</p>
+                <p style="font:400 14px/1.8 Archivo,sans-serif;color:#3d3225;margin:0;text-wrap:pretty">This is why the archive records nshima as a family of dishes rather than one recipe. What is constant is the method, the mwiko, and the fact that it is never eaten alone.</p>
+              </div>
+
+              <div style="padding:26px 24px 0">
+                <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#9c8d79;text-transform:uppercase;margin-bottom:12px">Recipes in this story</div>
+                <div style="display:flex;flex-direction:column;gap:9px">
+                  <div style="display:flex;align-items:center;gap:12px;padding:11px;border-radius:15px;background:#fffdf9;border:1px solid rgba(34,26,18,.09);cursor:pointer">
+                    <img src="assets/spread-nshima.png" alt="" style="flex:none;width:58px;height:58px;border-radius:12px;object-fit:cover">
+                    <div style="min-width:0">
+                      <div style="font-family:Newsreader,serif;font-size:18px;font-weight:600;color:#221a12;line-height:1.15">Nshima</div>
+                      <div style="font:400 11px/1.35 Archivo,sans-serif;color:#7a6b59;margin-top:3px">Maize meal staple</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:12px;padding:11px;border-radius:15px;background:#fffdf9;border:1px solid rgba(34,26,18,.09);cursor:pointer">
+                    <div style="flex:none;width:58px;height:58px;border-radius:12px;background:repeating-linear-gradient(135deg,#ded4c2 0 5px,#e9e1d3 5px 10px)"></div>
+                    <div style="min-width:0">
+                      <div style="font-family:Newsreader,serif;font-size:18px;font-weight:600;color:#221a12;line-height:1.15">Ubwali bwa Tute</div>
+                      <div style="font:400 11px/1.35 Archivo,sans-serif;color:#7a6b59;margin-top:3px">Cassava nshima</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin:24px 24px 0;padding:16px;border-radius:16px;border:1px dashed rgba(34,26,18,.2)">
+                <div style="font:600 12.5px/1.3 Archivo,sans-serif;color:#221a12;margin-bottom:5px">Do you remember it differently?</div>
+                <div style="font:400 11.5px/1.55 Archivo,sans-serif;color:#5f5241;text-wrap:pretty">The archive corrects itself from community memory. <span style="color:#c07f1e;font-weight:600">Add what you know</span></div>
+              </div>
+              <div style="height:26px"></div>
+            </sc-if>
+
+            <sc-if value="{{ f.isRegions }}">
+              <div style="padding:20px 20px 16px">
+                <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#a3452a;text-transform:uppercase;margin-bottom:9px">Regional discovery</div>
+                <div style="font-family:Newsreader,serif;font-size:31px;font-weight:500;color:#221a12;line-height:1.05;letter-spacing:-.01em">Taste Zambia by Region</div>
+                <div style="font:400 13px/1.6 Archivo,sans-serif;color:#5f5241;margin-top:9px;text-wrap:pretty">Ten provinces, each with its own staples, its own greens, and its own way of cooking them.</div>
+              </div>
+
+              <div style="margin:0 20px;height:196px;border-radius:20px;background:repeating-linear-gradient(135deg,#ded4c2 0 7px,#e9e1d3 7px 14px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:20px;text-align:center">
+                <div style="font:500 10.5px/1.4 'IBM Plex Mono',monospace;color:#7a6b59">stylized province map</div>
+                <div style="font:400 11px/1.5 Archivo,sans-serif;color:#8b7c68;max-width:230px;text-wrap:pretty">Awaiting real provincial boundary data. Not drawn by hand.</div>
+              </div>
+
+              <div class="hs" style="display:flex;gap:8px;padding:16px 20px 4px">
+                <sc-for list="{{ f.provList }}" as="p" hint-placeholder-count="0">
+                  <div onClick="{{ p.go }}" style="flex:none;padding:9px 14px;border-radius:20px;cursor:pointer;white-space:nowrap;font:500 11.5px/1 Archivo,sans-serif;background:{{ p.bg }};color:{{ p.fg }};border:1px solid {{ p.bd }}">{{ p.name }}</div>
+                </sc-for>
+              </div>
+
+              <div style="margin:16px 20px 0;padding:20px;border-radius:22px;background:#17402f;background-image:repeating-linear-gradient(45deg,rgba(255,253,249,.045) 0 1px,transparent 1px 18px)">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px">
+                  <div style="font-family:Newsreader,serif;font-size:29px;font-weight:500;color:#fffdf9;line-height:1.05">{{ f.pName }}</div>
+                  <div style="flex:none;font:400 10.5px/1 'IBM Plex Mono',monospace;color:#e8bd77">{{ f.pSeat }}</div>
+                </div>
+                <div style="font:400 13px/1.7 Archivo,sans-serif;color:rgba(255,253,249,.84);text-wrap:pretty">{{ f.pBlurb }}</div>
+                <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,253,249,.14)">
+                  <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#e8bd77;text-transform:uppercase;margin-bottom:11px">Common ingredients</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:7px">
+                    <sc-for list="{{ f.pIngs }}" as="g" hint-placeholder-count="0">
+                      <div style="padding:6px 11px;border-radius:16px;background:rgba(255,253,249,.1);font:500 11px/1 Archivo,sans-serif;color:rgba(255,253,249,.9)">{{ g.name }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,253,249,.14)">
+                  <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#e8bd77;text-transform:uppercase;margin-bottom:9px">Cooking tradition</div>
+                  <div style="font:400 12.5px/1.7 Archivo,sans-serif;color:rgba(255,253,249,.84);text-wrap:pretty">{{ f.pTrad }}</div>
+                </div>
+              </div>
+
+              <div style="padding:24px 20px 0">
+                <div style="font-family:Newsreader,serif;font-size:21px;font-weight:600;color:#221a12;margin-bottom:12px">Foods of {{ f.pName }} Province</div>
+                <div style="display:flex;flex-direction:column;gap:9px">
+                  <sc-for list="{{ f.pFoods }}" as="d" hint-placeholder-count="0">
+                    <div onClick="{{ d.open }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 15px;border-radius:15px;background:#fffdf9;border:1px solid rgba(34,26,18,.09);cursor:pointer" style-hover="border-color:rgba(23,64,47,.3)">
+                      <div style="min-width:0">
+                        <div style="font-family:Newsreader,serif;font-size:18px;font-weight:600;color:#221a12;line-height:1.15">{{ d.name }}</div>
+                        <sc-if value="{{ d.hasEn }}"><div style="font:400 11px/1.35 Archivo,sans-serif;color:#8b7c68;margin-top:3px">{{ d.en }}</div></sc-if>
+                      </div>
+                      <div style="flex:none;font:400 15px/1 Archivo,sans-serif;color:#c4b8a4">&#8250;</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="margin:22px 20px 0;padding:18px;border-radius:18px;background:#f7f1e6;background-image:repeating-linear-gradient(45deg,rgba(23,64,47,.05) 0 1px,transparent 1px 16px)">
+                <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#2f6a4d;text-transform:uppercase;margin-bottom:9px">Food stories from here</div>
+                <div style="font-family:Newsreader,serif;font-size:19px;font-weight:600;color:#221a12;line-height:1.2;margin-bottom:6px;text-wrap:pretty">Cooking Before the Modern Kitchen</div>
+                <div style="font:400 11.5px/1.4 Archivo,sans-serif;color:#7a6b59">Dr. Mutale Chileshe · 7 min read</div>
+              </div>
+              <div style="height:26px"></div>
+            </sc-if>
+
+            <sc-if value="{{ f.isFamily }}">
+              <div style="padding:20px 20px 0">
+                <div style="font:500 9px/1 'IBM Plex Mono',monospace;letter-spacing:.16em;color:#a3452a;text-transform:uppercase;margin-bottom:9px">Living archive</div>
+                <div style="font-family:Newsreader,serif;font-size:31px;font-weight:500;color:#221a12;line-height:1.05;letter-spacing:-.01em">Preserve a Family Recipe</div>
+                <div style="font:400 13px/1.6 Archivo,sans-serif;color:#5f5241;margin-top:9px;text-wrap:pretty">Write down a recipe the way it was taught to you, so it survives past the person who taught it.</div>
+              </div>
+
+              <div style="padding:20px 20px 0">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+                  <div style="font:600 12px/1 Archivo,sans-serif;color:#17402f">{{ f.formTitle }}</div>
+                  <div style="font:400 10.5px/1 'IBM Plex Mono',monospace;color:#8b7c68">{{ f.formStepLabel }}</div>
+                </div>
+                <div style="height:4px;border-radius:2px;background:rgba(34,26,18,.1);overflow:hidden">
+                  <div style="height:100%;background:#c07f1e;border-radius:2px;transition:width .35s cubic-bezier(.4,0,.2,1);width:{{ f.formPct }}"></div>
+                </div>
+              </div>
+
+              <div style="padding:20px">
+                <sc-if value="{{ f.isF1 }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;flex-direction:column;gap:16px">
+                    <div>
+                      <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Recipe name, in your own language</div>
+                      <div style="padding:13px 14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font-family:Newsreader,serif;font-size:19px;font-weight:600;color:#221a12">Ifisashi ya Banakulu</div>
+                    </div>
+                    <div>
+                      <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">What it is, in English</div>
+                      <div style="padding:13px 14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:400 13px/1.5 Archivo,sans-serif;color:#5f5241">Pumpkin leaves in groundnuts, the way my grandmother made it</div>
+                    </div>
+                    <div style="display:flex;gap:11px">
+                      <div style="flex:1">
+                        <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Region</div>
+                        <div style="padding:13px 14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:500 13px/1 Archivo,sans-serif;color:#221a12">Northern</div>
+                      </div>
+                      <div style="flex:1">
+                        <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Language</div>
+                        <div style="padding:13px 14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:500 13px/1 Archivo,sans-serif;color:#221a12">Bemba</div>
+                      </div>
+                    </div>
+                    <div>
+                      <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Photos</div>
+                      <div style="display:flex;gap:10px">
+                        <div style="flex:none;width:84px;height:84px;border-radius:13px;background:repeating-linear-gradient(135deg,#ded4c2 0 6px,#e9e1d3 6px 12px)"></div>
+                        <div style="flex:1;height:84px;border-radius:13px;border:1px dashed rgba(34,26,18,.24);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer">
+                          <div style="font-size:19px;line-height:1;color:#9c8d79">+</div>
+                          <div style="font:400 10.5px/1 'IBM Plex Mono',monospace;color:#8b7c68">add photo</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ f.isF2 }}">
+                  <div style="display:flex;flex-direction:column;gap:16px">
+                    <div>
+                      <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Who taught you this recipe</div>
+                      <div style="padding:13px 14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:500 14px/1 Archivo,sans-serif;color:#221a12">Banakulu Mwaba, my father's mother</div>
+                    </div>
+                    <div>
+                      <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Where she learned it</div>
+                      <div style="padding:13px 14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:400 13px/1.5 Archivo,sans-serif;color:#5f5241">Mungwi, outside Kasama. She was taught by her own mother.</div>
+                    </div>
+                    <div style="padding:16px;border-radius:16px;background:#f7f1e6;display:flex;gap:13px;align-items:center">
+                      <div style="flex:none;width:44px;height:44px;border-radius:50%;background:#17402f;display:flex;align-items:center;justify-content:center">
+                        <div style="width:0;height:0;border-left:11px solid #fffdf9;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px"></div>
+                      </div>
+                      <div style="min-width:0">
+                        <div style="font:600 12.5px/1.3 Archivo,sans-serif;color:#221a12">Record her telling it</div>
+                        <div style="font:400 11px/1.45 Archivo,sans-serif;color:#7a6b59;margin-top:3px">Audio in any language. Kept alongside the written recipe.</div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ f.isF3 }}">
+                  <div style="display:flex;flex-direction:column;gap:16px">
+                    <div>
+                      <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">The story behind it</div>
+                      <div style="padding:14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:400 13px/1.7 Archivo,sans-serif;color:#4a3d2e;text-wrap:pretty">She cooked this every time we arrived from Kitwe, before we had even put our bags down. She never measured the groundnuts. She said your hand learns the amount and your head forgets it.</div>
+                    </div>
+                    <div>
+                      <div style="font:600 11px/1 Archivo,sans-serif;color:#4a3d2e;margin-bottom:7px">Her method, as she did it</div>
+                      <div style="padding:14px;border-radius:13px;border:1px solid rgba(34,26,18,.14);background:#fffdf9;font:400 13px/1.7 Archivo,sans-serif;color:#4a3d2e;text-wrap:pretty">Clay pot on the mbaula. Groundnuts pounded, never blended. No tomato. She added the salt at the very end, off the heat.</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:9px;font:400 11.5px/1.5 Archivo,sans-serif;color:#7a6b59">
+                      <div style="flex:none;width:18px;height:18px;border-radius:5px;border:1.5px solid #2f6a4d;background:#2f6a4d;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fffdf9;line-height:1">&#10003;</div>
+                      Also add this to the Food Stories collection
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ f.isF4 }}">
+                  <div style="display:flex;flex-direction:column;gap:11px">
+                    <sc-for list="{{ f.privacy }}" as="p" hint-placeholder-count="3">
+                      <div onClick="{{ p.go }}" style="display:flex;gap:12px;padding:15px;border-radius:16px;cursor:pointer;border:1.5px solid {{ p.bd }};background:{{ p.bg }}">
+                        <div style="flex:none;width:19px;height:19px;border-radius:50%;border:1.5px solid {{ p.ring }};display:flex;align-items:center;justify-content:center;margin-top:1px">
+                          <div style="width:9px;height:9px;border-radius:50%;background:{{ p.dot }}"></div>
+                        </div>
+                        <div style="min-width:0">
+                          <div style="font:600 13.5px/1.2 Archivo,sans-serif;color:#221a12">{{ p.label }}</div>
+                          <div style="font:400 11.5px/1.5 Archivo,sans-serif;color:#5f5241;margin-top:5px;text-wrap:pretty">{{ p.note }}</div>
+                        </div>
+                      </div>
+                    </sc-for>
+                    <div style="margin-top:5px;padding:15px;border-radius:16px;background:#17402f;font:400 12px/1.65 Archivo,sans-serif;color:rgba(255,253,249,.84);text-wrap:pretty">Public submissions are read by the archive team, checked against regional sources, and credited to you and to the person who taught you. Nothing is edited without asking.</div>
+                  </div>
+                </sc-if>
+              </div>
+
+              <div style="padding:0 20px;display:flex;gap:11px">
+                <sc-if value="{{ f.canBack }}">
+                  <div onClick="{{ f.formBack }}" style="flex:none;padding:15px 20px;border-radius:14px;border:1px solid rgba(34,26,18,.16);font:600 13px/1 Archivo,sans-serif;color:#4a3d2e;cursor:pointer">Back</div>
+                </sc-if>
+                <div onClick="{{ f.formNext }}" style="flex:1;text-align:center;padding:15px;border-radius:14px;background:#c07f1e;font:600 13.5px/1 Archivo,sans-serif;color:#fffdf9;cursor:pointer" style-hover="background:#a96d13">{{ f.nextLabel }}</div>
+              </div>
+              <div style="height:26px"></div>
+            </sc-if>
+
+            <sc-if value="{{ f.isProfile }}">
+              <div style="padding:24px 20px 20px;background:#17402f;background-image:repeating-linear-gradient(45deg,rgba(255,253,249,.045) 0 1px,transparent 1px 18px)">
+                <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px">
+                  <img src="assets/avatar-chanda.png" alt="" style="width:62px;height:62px;border-radius:50%;object-fit:cover;border:2px solid rgba(232,189,119,.6)">
+                  <div style="min-width:0">
+                    <div style="font-family:Newsreader,serif;font-size:26px;font-weight:600;color:#fffdf9;line-height:1.05">Chanda Mwaba</div>
+                    <div style="font:400 12px/1.4 Archivo,sans-serif;color:rgba(255,253,249,.66);margin-top:4px">Kitwe, Copperbelt · Bemba, English</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:14px">
+                  <div style="flex:1"><div style="font-family:Newsreader,serif;font-size:22px;font-weight:600;color:#e8bd77">23</div><div style="font:400 10.5px/1.3 Archivo,sans-serif;color:rgba(255,253,249,.6);margin-top:2px">Cooked</div></div>
+                  <div style="flex:1"><div style="font-family:Newsreader,serif;font-size:22px;font-weight:600;color:#e8bd77">14</div><div style="font:400 10.5px/1.3 Archivo,sans-serif;color:rgba(255,253,249,.6);margin-top:2px">Favourites</div></div>
+                  <div style="flex:1"><div style="font-family:Newsreader,serif;font-size:22px;font-weight:600;color:#e8bd77">3</div><div style="font:400 10.5px/1.3 Archivo,sans-serif;color:rgba(255,253,249,.6);margin-top:2px">Contributed</div></div>
+                  <div style="flex:1"><div style="font-family:Newsreader,serif;font-size:22px;font-weight:600;color:#e8bd77">4</div><div style="font:400 10.5px/1.3 Archivo,sans-serif;color:rgba(255,253,249,.6);margin-top:2px">Preserved</div></div>
+                </div>
+              </div>
+
+              <div style="padding:20px 20px 0;display:flex;gap:11px">
+                <div onClick="{{ f.goShare }}" style="flex:1;padding:15px 14px;border-radius:16px;background:#c07f1e;cursor:pointer" style-hover="background:#a96d13">
+                  <div style="font:600 13px/1.25 Archivo,sans-serif;color:#fffdf9">Share a Recipe</div>
+                  <div style="font:400 10.5px/1.4 Archivo,sans-serif;color:rgba(255,253,249,.82);margin-top:4px">Add to the public archive</div>
+                </div>
+                <div onClick="{{ f.goFamily }}" style="flex:1;padding:15px 14px;border-radius:16px;border:1px solid rgba(34,26,18,.16);cursor:pointer" style-hover="border-color:rgba(23,64,47,.4)">
+                  <div style="font:600 13px/1.25 Archivo,sans-serif;color:#17402f">Preserve a Family Recipe</div>
+                  <div style="font:400 10.5px/1.4 Archivo,sans-serif;color:#7a6b59;margin-top:4px">Private, family or public</div>
+                </div>
+              </div>
+
+              <div style="padding:22px 20px 0">
+                <div style="font-family:Newsreader,serif;font-size:21px;font-weight:600;color:#221a12;margin-bottom:12px">My Collections</div>
+                <div style="display:flex;flex-direction:column;gap:9px">
+                  <sc-for list="{{ f.collections }}" as="c" hint-placeholder-count="4">
+                    <div style="display:flex;align-items:center;gap:13px;padding:14px 15px;border-radius:15px;background:#fffdf9;border:1px solid rgba(34,26,18,.09);cursor:pointer" style-hover="border-color:rgba(23,64,47,.3)">
+                      <div style="flex:none;width:9px;height:36px;border-radius:5px;background:{{ c.tint }}"></div>
+                      <div style="flex:1;min-width:0">
+                        <div style="font:600 13.5px/1.25 Archivo,sans-serif;color:#221a12">{{ c.label }}</div>
+                        <div style="font:400 11px/1.3 Archivo,sans-serif;color:#8b7c68;margin-top:3px">{{ c.count }}</div>
+                      </div>
+                      <div style="flex:none;font:400 15px/1 Archivo,sans-serif;color:#c4b8a4">&#8250;</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="padding:24px 20px 0">
+                <div style="font-family:Newsreader,serif;font-size:21px;font-weight:600;color:#221a12;margin-bottom:12px">My Contributions</div>
+                <div style="border-radius:16px;overflow:hidden;border:1px solid rgba(34,26,18,.09)">
+                  <sc-for list="{{ f.contributions }}" as="c" hint-placeholder-count="3">
+                    <div style="padding:14px 15px;background:#fffdf9;border-bottom:1px solid rgba(34,26,18,.07)">
+                      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                        <div style="font-family:Newsreader,serif;font-size:17px;font-weight:600;color:#221a12;line-height:1.15">{{ c.name }}</div>
+                        <div style="flex:none;font:600 9.5px/1 Archivo,sans-serif;padding:5px 8px;border-radius:6px;letter-spacing:.03em;background:{{ c.sbg }};color:{{ c.sfg }}">{{ c.status }}</div>
+                      </div>
+                      <div style="font:400 11px/1.4 Archivo,sans-serif;color:#8b7c68;margin-top:5px">{{ c.meta }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="padding:24px 20px 0">
+                <div style="font-family:Newsreader,serif;font-size:21px;font-weight:600;color:#221a12;margin-bottom:12px">Settings</div>
+                <div style="border-radius:16px;overflow:hidden;border:1px solid rgba(34,26,18,.09)">
+                  <sc-for list="{{ f.settingsRows }}" as="s" hint-placeholder-count="5">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 15px;background:#fffdf9;border-bottom:1px solid rgba(34,26,18,.07);cursor:pointer;font:500 13px/1 Archivo,sans-serif;color:#4a3d2e">
+                      {{ s }}
+                      <span style="font:400 15px/1 Archivo,sans-serif;color:#c4b8a4">&#8250;</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="height:26px"></div>
+            </sc-if>
+
+          </div>
+
+          <sc-if value="{{ f.sheetOpen }}">
+            <div onClick="{{ f.sheetClose }}" style="position:absolute;inset:0;background:rgba(14,32,24,.5);z-index:5"></div>
+            <div class="sc" style="position:absolute;inset:auto 0 0 0;max-height:78%;z-index:6;background:#fffdf9;border-radius:26px 26px 0 0;padding:0 20px 24px;box-shadow:0 -12px 40px rgba(14,32,24,.2)">
+              <div style="position:sticky;top:0;background:#fffdf9;padding:14px 0 12px">
+                <div style="width:38px;height:4px;border-radius:2px;background:rgba(34,26,18,.16);margin:0 auto 14px"></div>
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                  <div>
+                    <div style="font-family:Newsreader,serif;font-size:29px;font-weight:600;color:#221a12;line-height:1.05">{{ f.sheetName }}</div>
+                    <div style="font:400 12.5px/1.3 Archivo,sans-serif;color:#7a6b59;margin-top:4px">{{ f.sheetEn }}</div>
+                  </div>
+                  <div onClick="{{ f.sheetClose }}" style="flex:none;width:30px;height:30px;border-radius:50%;background:#f7f1e6;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;color:#5f5241;cursor:pointer">&#215;</div>
+                </div>
+              </div>
+              <div style="font:400 13px/1.65 Archivo,sans-serif;color:#4a3d2e;margin-bottom:16px;text-wrap:pretty">{{ f.sheetDesc }}</div>
+              <div style="border-radius:14px;background:#f7f1e6;padding:14px 15px;margin-bottom:14px">
+                <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#2f6a4d;text-transform:uppercase;margin-bottom:10px">Local names</div>
+                <sc-for list="{{ f.sheetLocals }}" as="l" hint-placeholder-count="2">
+                  <div style="display:flex;justify-content:space-between;gap:10px;padding:4px 0">
+                    <span style="font:400 11.5px/1.3 Archivo,sans-serif;color:#7a6b59">{{ l.lang }}</span>
+                    <span style="font-family:Newsreader,serif;font-size:15px;font-weight:600;color:#221a12">{{ l.name }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="margin-bottom:14px">
+                <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#9c8d79;text-transform:uppercase;margin-bottom:7px">Where it grows</div>
+                <div style="font:400 12.5px/1.6 Archivo,sans-serif;color:#4a3d2e">{{ f.sheetWhere }}</div>
+              </div>
+              <div style="margin-bottom:16px">
+                <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#9c8d79;text-transform:uppercase;margin-bottom:7px">Traditionally prepared</div>
+                <div style="font:400 12.5px/1.6 Archivo,sans-serif;color:#4a3d2e">{{ f.sheetTrad }}</div>
+              </div>
+              <div style="margin-bottom:16px">
+                <div style="font:500 8.5px/1 'IBM Plex Mono',monospace;letter-spacing:.14em;color:#9c8d79;text-transform:uppercase;margin-bottom:9px">Used in these dishes</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <sc-for list="{{ f.sheetUsed }}" as="u" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:12px;border:1px solid rgba(34,26,18,.1);cursor:pointer">
+                      <div style="flex:none;width:32px;height:32px;border-radius:9px;background:repeating-linear-gradient(135deg,#ded4c2 0 5px,#e9e1d3 5px 10px)"></div>
+                      <div>
+                        <div style="font-family:Newsreader,serif;font-size:15px;font-weight:600;color:#221a12;line-height:1.1">{{ u.name }}</div>
+                        <div style="font:400 10.5px/1.3 Archivo,sans-serif;color:#8b7c68;margin-top:2px">{{ u.en }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div onClick="{{ f.sheetFull }}" style="text-align:center;padding:14px;border-radius:13px;background:#17402f;font:600 13px/1 Archivo,sans-serif;color:#fffdf9;cursor:pointer">Open full ingredient profile</div>
+            </div>
+          </sc-if>
+
+          <div style="position:absolute;inset:auto 0 0 0;height:66px;background:rgba(255,253,249,.96);backdrop-filter:blur(12px);border-top:1px solid rgba(34,26,18,.09);display:flex;align-items:stretch">
+            <sc-for list="{{ f.nav }}" as="t" hint-placeholder-count="5">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer" onClick="{{ t.go }}">
+                <div style="width:5px;height:5px;border-radius:50%;background:{{ t.dot }}"></div>
+                <div style="font-size:10.5px;font-weight:{{ t.weight }};font-family:Archivo,sans-serif;color:{{ t.color }};letter-spacing:.01em">{{ t.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:5000,&quot;height&quot;:1100},&quot;titleLanguage&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Local name as title&quot;,&quot;English as title&quot;],&quot;default&quot;:&quot;Local name as title&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Cultural preservation&quot;},&quot;showVerification&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Cultural preservation&quot;}}">
+const IMG = {
+  ifisashi: 'assets/ifisashi.png',
+  nshima: 'assets/spread-nshima.png',
+  chikanda: 'assets/chikanda.png',
+  market: 'assets/market-ingredients.png',
+};
+
+const DISHES = [
+  { id:'ifisashi', name:'Ifisashi', en:'Groundnut and greens relish', region:'Pan-Zambian', time:'45 min', diff:'Easy', img:IMG.ifisashi, prep:'20 min', cook:'30 min',
+    desc:'Leafy greens simmered in pounded groundnuts until the sauce thickens and the oil rises. Eaten with nshima across the country.' },
+  { id:'nshima', name:'Nshima', en:'Maize meal staple', region:'Pan-Zambian', time:'30 min', diff:'Easy', img:IMG.nshima,
+    desc:'The staple at the centre of nearly every Zambian meal, stirred from maize meal and eaten by hand with relish.' },
+  { id:'chikanda', name:'Chikanda', en:'Wild orchid cake', region:'Northern and Muchinga', time:'1 hr 30', diff:'Medium', img:IMG.chikanda,
+    desc:'Ground orchid tubers cooked with groundnut flour and chilli into a firm loaf, sliced and served cold.' },
+  { id:'kapenta', name:'Kapenta', en:'Dried lake sardines', region:'Luapula', time:'25 min', diff:'Easy', plabel:'photo: fried kapenta with tomato',
+    desc:'Small dried fish from Lake Tanganyika and Lake Kariba, fried with onion and tomato into a salty, deeply savoury relish.' },
+  { id:'inkoko', name:'Inkoko ya Mumushi', en:'Village chicken', region:'Central', time:'1 hr 15', diff:'Medium', plabel:'photo: village chicken stew',
+    desc:'Free-range chicken cooked slowly with tomato and onion. Tougher and far more flavourful than farmed birds.' },
+  { id:'kandolo', name:'Kandolo', en:'Sweet potatoes', region:'Eastern', time:'35 min', diff:'Easy', plabel:'photo: boiled sweet potatoes',
+    desc:'Boiled or roasted and eaten at breakfast with tea, or pounded with groundnuts as a sweet afternoon dish.' },
+  { id:'munkoyo', name:'Munkoyo', en:'Fermented root drink', region:'North-Western', time:'3 days', diff:'Medium', plabel:'photo: munkoyo in a calabash',
+    desc:'Maize porridge fermented with munkoyo root into a lightly sour, faintly sweet drink served cool.' },
+  { id:'delele', name:'Delele', en:'Okra relish', region:'Southern', time:'30 min', diff:'Easy', plabel:'photo: okra relish',
+    desc:'Okra cooked with a pinch of bicarbonate of soda until it draws into a smooth relish. Divisive, and beloved.' },
+];
+
+const CATS = [
+  { name:'Traditional Meals', img:IMG.nshima },
+  { name:'Staple Foods' },
+  { name:'Vegetable Dishes', img:IMG.ifisashi },
+  { name:'Meat Dishes' },
+  { name:'Fish and Seafood' },
+  { name:'Snacks', img:IMG.chikanda },
+  { name:'Desserts' },
+  { name:'Traditional Drinks' },
+];
+
+const STORIES = [
+  { title:'The History of Nshima', meta:'Archive essay · 8 min read' },
+  { title:'Why Groundnuts Anchor Zambian Cooking', meta:'Archive essay · 6 min read' },
+  { title:'Foods We Ate Growing Up', meta:'Community voices · 12 contributions' },
+];
+
+const INGREDIENTS = [
+  { key:'chibwabwa', name:'Chibwabwa', en:'Pumpkin leaves', img:IMG.market,
+    locals:[['Bemba, Nyanja','Chibwabwa']], pending:'Tonga, Lozi, Kaonde, Lunda, Luvale',
+    desc:'The young leaves and tender shoots of the pumpkin plant, picked before the fruit is taken. Sold in tied bundles at every market and grown in almost every village garden.',
+    where:'Grown countrywide, most abundant in the rainy season from December to March.',
+    trad:'The leaves are stripped from their stalks, rolled tight and shredded fine with a knife, then rubbed between the palms with a little salt to soften them before cooking.',
+    used:['ifisashi','nshima','delele'] },
+  { key:'mbalala', name:'Mbalala', en:'Groundnuts', locals:[['Bemba','Mbalala'],['Nyanja','Nsawawa']], pending:'Tonga, Lozi',
+    desc:'Roasted and pounded into a coarse, oily flour that thickens relishes and supplies the fat in cooking where oil was never used.',
+    where:'Eastern Province is the heartland of groundnut farming; grown in every province.',
+    trad:'Roasted in a clay pan over coals, winnowed by hand, then pounded in a wooden mortar until the flour begins to release its oil.',
+    used:['ifisashi','chikanda','kandolo'] },
+  { key:'kapenta', name:'Kapenta', en:'Dried lake sardines', locals:[['Bemba','Kapenta'],['Nyanja','Kapenta']], pending:'Tonga, Lozi',
+    desc:'Small freshwater sardines caught at night under lamps, sun-dried whole on racks and sold by the tin.',
+    where:'Lake Tanganyika, Lake Mweru and Lake Kariba. Traded countrywide.',
+    trad:'Rinsed, then dry-fried without oil until crisp before tomato and onion are added.',
+    used:['kapenta','ifisashi'] },
+  { key:'tute', name:'Tute', en:'Cassava', locals:[['Bemba','Tute'],['Luvale','Mbombo']], pending:'Tonga, Nyanja',
+    desc:'A starchy root that stores in the ground for years, making it the food that carries households through a poor harvest.',
+    where:'Luapula, Northern and North-Western Provinces.',
+    trad:'Peeled, soaked for several days to ferment and remove bitterness, then sun-dried and pounded into flour.',
+    used:['nshima'] },
+  { key:'katapa', name:'Katapa', en:'Cassava leaves', locals:[['Bemba','Katapa']], pending:'Luvale, Lunda, Kaonde',
+    desc:'The leaves of the cassava plant, pounded rather than chopped, cooked long to soften and to drive off bitterness.',
+    where:'Luapula and Northern Provinces.',
+    trad:'Pounded in a mortar with a little water, then simmered a long while with groundnuts.',
+    used:['ifisashi'] },
+  { key:'chikanda', name:'Chikanda', en:'Wild orchid tubers', locals:[['Bemba','Chikanda']], pending:'Nyanja, Tonga',
+    desc:'Tubers of wild terrestrial orchids, foraged from grassland. Now under pressure from overharvesting.',
+    where:'Northern, Muchinga and Eastern Provinces.',
+    trad:'Peeled, boiled and pounded, then cooked with groundnut flour, soda and chilli until it sets firm.',
+    used:['chikanda'] },
+  { key:'impwa', name:'Impwa', en:'Garden eggs', locals:[['Bemba','Impwa'],['Nyanja','Sumu']], pending:'Tonga, Lozi',
+    desc:'Small pale African eggplants, firmer and more bitter than the purple kind, eaten raw with salt or cooked into relish.',
+    where:'Grown countrywide in home gardens.',
+    trad:'Sliced and cooked briefly with tomato so the bitterness stays present.',
+    used:['ifisashi'] },
+  { key:'bondwe', name:'Bondwe', en:'Amaranth greens', locals:[['Bemba','Bondwe'],['Nyanja','Bonongwe']], pending:'Tonga, Lozi',
+    desc:'A wild green that comes up on its own in cultivated ground. Gathered, not planted.',
+    where:'Countrywide, following the rains.',
+    trad:'Gathered young, cooked with groundnuts or with a little soda to hold the colour.',
+    used:['ifisashi'] },
+  { key:'kandolo', name:'Kandolo', en:'Sweet potatoes', locals:[['Bemba','Kandolo'],['Nyanja','Mbatatesi']], pending:'Tonga, Lozi',
+    desc:'Boiled or roasted in the coals, eaten with tea in the morning or pounded with groundnuts.',
+    where:'Eastern and Northern Provinces.',
+    trad:'Buried in hot ash and coals to roast slowly in the skin.',
+    used:['kandolo'] },
+];
+
+const RECIPE_INGREDIENTS = [
+  { key:'chibwabwa', qty:'2 large bundles' },
+  { key:'mbalala', qty:'1 cup, roasted' },
+  { key:null, name:'Onion', en:'Anyezi', qty:'1 medium, sliced' },
+  { key:null, name:'Tomatoes', en:'Tomato', qty:'3 ripe, chopped' },
+  { key:null, name:'Salt', en:'Mucele', qty:'To taste' },
+  { key:null, name:'Water', en:'Menshi', qty:'1 cup' },
+];
+
+const STEPS = [
+  { t:'Prepare the greens', b:'Strip the chibwabwa leaves from their stalks, roll them into a tight bundle and shred them finely. Rinse twice in cool water and leave to drain.' },
+  { t:'Pound the groundnuts', b:'Roast the mbalala lightly, rub off the skins, then pound in a mortar until they turn to a coarse, oily flour. A blender works, but stop before it becomes butter.' },
+  { t:'Build the base', b:'Soften the onion and tomato in a little water over medium heat until the tomato collapses into a thick sauce. No oil is needed.' },
+  { t:'Combine and simmer', b:'Add the greens with a splash of water and cover for five minutes, then stir the groundnut flour through. Simmer uncovered until it thickens and the oil rises to the surface.' },
+];
+
+const VARIATIONS = [
+  { p:'Copperbelt', b:'More tomato, and often a handful of kapenta dropped in with the greens.' },
+  { p:'Eastern Province', b:'Made with pounded cassava leaves in place of pumpkin leaves, cooked much longer.' },
+  { p:'Northern Province', b:'Groundnuts pounded coarse so the texture stays rough and nutty.' },
+  { p:'Family style', b:'Some households finish with a spoon of soda to keep the greens bright; others refuse it.' },
+];
+
+const FILTERS = ['All','Province','Main Ingredient','Difficulty','Cooking Time','Vegetarian','Traditional','Meal Type'];
+
+const PROVINCES = [
+  { name:'Central', seat:'Kabwe', blurb:'Maize country, and the province most associated with free-range village chicken cooked slowly over an open fire.',
+    foods:['Inkoko ya Mumushi','Nshima','Ifisashi'], ings:['Maize','Groundnuts','Village chicken'],
+    trad:'Chicken is cooked whole in a clay pot set directly in the coals, the broth reduced rather than thickened.' },
+  { name:'Copperbelt', seat:'Ndola', blurb:'The most urban food culture in the country. Mining towns drew people from every province, and the cooking absorbed all of it.',
+    foods:['Kapenta','Ifisashi','Nshima'], ings:['Kapenta','Tomatoes','Cooking oil'],
+    trad:'Relishes here carry more tomato and more oil than their village versions, a change that came with wage kitchens.' },
+  { name:'Eastern', seat:'Chipata', blurb:'The groundnut heartland. Almost every relish in the province passes through pounded groundnuts at some point.',
+    foods:['Chikanda','Kandolo','Ifisashi'], ings:['Groundnuts','Sweet potatoes','Pumpkin leaves'],
+    trad:'Groundnuts are roasted in a dry clay pan, winnowed in a flat basket, then pounded in a wooden mortar.' },
+  { name:'Luapula', seat:'Mansa', blurb:'Fish and cassava. The Luapula river, Lake Mweru and the Bangweulu swamps supply most of what is eaten here.',
+    foods:['Kapenta','Katapa','Nshima'], ings:['Cassava','Kapenta','Cassava leaves'],
+    trad:'Cassava is soaked for days to ferment, sun-dried on rocks, then pounded into flour for nshima.' },
+  { name:'Lusaka', seat:'Lusaka', blurb:'Every province cooks here. The capital is where regional dishes meet, get shortened for time, and turn into street food.',
+    foods:['Nshima','Kapenta','Delele'], ings:['Maize meal','Tomatoes','Rape leaves'],
+    trad:'Market kitchens serve nshima with a choice of relishes from four or five provinces at one counter.' },
+  { name:'Muchinga', seat:'Chinsali', blurb:'Foraged food. Wild orchid tubers and rainy-season mushrooms are gathered here in quantities found almost nowhere else.',
+    foods:['Chikanda','Nshima','Ifisashi'], ings:['Wild orchid tubers','Bowa mushrooms','Millet'],
+    trad:'Mushrooms are dried on grass mats above the cooking fire so they keep through the dry season.' },
+  { name:'Northern', seat:'Kasama', blurb:'Bemba cooking at its source. Cassava, groundnuts and pounded leaves, with long cooking times and little added fat.',
+    foods:['Ifisashi','Katapa','Chikanda'], ings:['Cassava','Groundnuts','Cassava leaves'],
+    trad:'Leaves are pounded in a mortar rather than chopped, then simmered long enough to lose all bitterness.' },
+  { name:'North-Western', seat:'Solwezi', blurb:'Cassava, wild fruit and honey. Home of munkoyo, the fermented root drink served cool from a calabash.',
+    foods:['Munkoyo','Nshima','Katapa'], ings:['Munkoyo root','Cassava','Wild honey'],
+    trad:'Munkoyo root is crushed and stirred into cooled maize porridge, then left to ferment for two or three days.' },
+  { name:'Southern', seat:'Choma', blurb:'Cattle country. Soured milk sits alongside the relish here in a way it does not elsewhere in Zambia.',
+    foods:['Delele','Nshima','Ifisashi'], ings:['Maize','Soured milk','Okra'],
+    trad:'Fresh milk is left to sour in a covered gourd and eaten with nshima, needing no cooking at all.' },
+  { name:'Western', seat:'Mongu', blurb:'The Barotse floodplain. Fish from the Zambezi, rice grown on the plain, and wild fruit from the sandveld.',
+    foods:['Nshima','Kapenta','Delele'], ings:['Freshwater fish','Rice','Wild fruit'],
+    trad:'Fish is smoked over a slow fire on raised racks, a method that carries it through the flood season.' },
+];
+
+const ARTICLES = [
+  { id:'nshima', kicker:'Archive essay', title:'The History of Nshima', by:'Dr. Mutale Chileshe', meta:'8 min read · Pan-Zambian', big:true,
+    lede:'The dish at the centre of every Zambian meal is younger than most people assume.' },
+  { id:'groundnuts', kicker:'Archive essay', title:'Why Groundnuts Anchor Zambian Cooking', by:'Namakau Sitali', meta:'6 min read · Eastern Province' },
+  { id:'methods', kicker:'Technique', title:'Traditional Cooking Methods in Zambia', by:'Archive team', meta:'11 min read · Countrywide' },
+  { id:'growingup', kicker:'Community voices', title:'Foods We Ate Growing Up', by:'12 contributors', meta:'Audio and text · Open for submissions' },
+  { id:'passeddown', kicker:'Family archive', title:'Recipes Passed Down Through Generations', by:'Archive team', meta:'9 min read · 24 family recipes' },
+  { id:'beforekitchens', kicker:'Archive essay', title:'Cooking Before the Modern Kitchen', by:'Dr. Mutale Chileshe', meta:'7 min read · Countrywide' },
+];
+
+const SHARE_STEPS = ['Recipe basics', 'Ingredients and method', 'Cultural background', 'Submit for review'];
+
+const NAV = [
+  { key:'home', label:'Home', also:[] },
+  { key:'explore', label:'Explore', also:['recipe','ingredients','ingredient'] },
+  { key:'regions', label:'Regions', also:[] },
+  { key:'culture', label:'Culture', also:['story'] },
+  { key:'profile', label:'Profile', also:['family','share'] },
+];
+
+const FRAMES = [
+  { label:'Home', screen:'home' },
+  { label:'Explore and Search', screen:'explore' },
+  { label:'Recipe — Ifisashi', screen:'recipe' },
+  { label:'Zambian Ingredients', screen:'ingredients' },
+  { label:'Ingredient — Chibwabwa', screen:'ingredient' },
+  { label:'Explore by Region', screen:'regions' },
+  { label:'Food Stories', screen:'culture' },
+  { label:'Story — The History of Nshima', screen:'story' },
+  { label:'Share a Recipe', screen:'share' },
+  { label:'Preserve a Family Recipe', screen:'family' },
+  { label:'Profile', screen:'profile' },
+];
+
+class Component extends DCLogic {
+  state = {
+    frames: FRAMES.map(f => ({
+      screen: f.screen, saved: { ifisashi: true, chikanda: false }, steps: {},
+      query: '', filter: 'All', method: 'traditional', sheet: null,
+      formStep: 1, privacy: 'Shared with family',
+      province: 6, shareStep: 1, submitted: false,
+    })),
+  };
+
+  up(i, patch) {
+    this.setState(s => {
+      const fr = s.frames.slice();
+      fr[i] = Object.assign({}, fr[i], typeof patch === 'function' ? patch(fr[i]) : patch);
+      return { frames: fr };
+    });
+  }
+
+  flags(img) {
+    return {
+      hasImg: !!img, noImg: !img,
+      pNshima: img === IMG.nshima, pIfisashi: img === IMG.ifisashi,
+      pChikanda: img === IMG.chikanda, pMarket: img === IMG.market,
+    };
+  }
+
+  swap(local, en) {
+    const eng = (this.props.titleLanguage ?? 'Local name as title') === 'English as title';
+    return eng ? { name: en, en: local } : { name: local, en: en };
+  }
+
+  dishVM(i, f, d) {
+    const on = !!f.saved[d.id];
+    const s = this.swap(d.name, d.en);
+    return {
+      id: d.id, name: s.name, en: s.en, region: d.region, desc: d.desc,
+      plabel: d.plabel || 'photo needed',
+      ...this.flags(d.img),
+      meta: d.time + '  ·  ' + d.diff, time: d.time, diff: d.diff,
+      saveGlyph: on ? '\u2665' : '\u2661', saveColor: on ? '#a3452a' : '#57493a',
+      toggle: (e) => { if (e) e.stopPropagation(); this.up(i, p => ({ saved: Object.assign({}, p.saved, { [d.id]: !p.saved[d.id] }) })); },
+      open: () => this.up(i, { screen: 'recipe' }),
+    };
+  }
+
+  vmExplore(i, f) {
+    const q = f.query.trim().toLowerCase();
+    const list = DISHES.filter(d => !q || (d.name + ' ' + d.en + ' ' + d.region + ' ' + d.desc).toLowerCase().includes(q));
+    return {
+      query: f.query,
+      setQuery: (e) => this.up(i, { query: e.target.value }),
+      clearQuery: () => this.up(i, { query: '' }),
+      hasQuery: !!q,
+      resultCount: list.length + (list.length === 1 ? ' recipe' : ' recipes'),
+      chips: FILTERS.map(c => {
+        const on = c === f.filter;
+        return {
+          label: c, bg: on ? '#17402f' : '#fffdf9', fg: on ? '#fffdf9' : '#4a3d2e',
+          bd: on ? '#17402f' : 'rgba(34,26,18,.16)',
+          go: () => this.up(i, { filter: c }),
+        };
+      }),
+      results: list.map(d => this.dishVM(i, f, d)),
+      noResults: list.length === 0,
+    };
+  }
+
+  vmRecipe(i, f) {
+    const d = DISHES[0];
+    const on = !!f.saved[d.id];
+    const sheet = f.sheet ? INGREDIENTS.find(x => x.key === f.sheet) : null;
+    const done = STEPS.filter((s, n) => f.steps[n]).length;
+    return {
+      r: this.dishVM(i, f, d),
+      rSaveGlyph: on ? '\u2665' : '\u2661',
+      rSaveColor: on ? '#a3452a' : '#4a3d2e',
+      rToggleSave: () => this.up(i, p => ({ saved: Object.assign({}, p.saved, { [d.id]: !p.saved[d.id] }) })),
+      rBack: () => this.up(i, { screen: 'explore' }),
+      ingList: RECIPE_INGREDIENTS.map(x => {
+        const ref = x.key ? INGREDIENTS.find(y => y.key === x.key) : null;
+        return {
+          name: ref ? ref.name : x.name,
+          en: ref ? ref.en : x.en,
+          qty: x.qty,
+          linked: !!ref,
+          plain: !ref,
+          go: ref ? (() => this.up(i, { sheet: ref.key })) : (() => {}),
+        };
+      }),
+      stepProgress: done + ' of ' + STEPS.length + ' steps done',
+      steps: STEPS.map((s, n) => ({
+        num: String(n + 1),
+        title: s.t, body: s.b,
+        done: !!f.steps[n],
+        bg: f.steps[n] ? '#eef2ec' : '#fffdf9',
+        numBg: f.steps[n] ? '#2f6a4d' : '#f7f1e6',
+        numFg: f.steps[n] ? '#fffdf9' : '#17402f',
+        box: f.steps[n] ? '\u2713' : '',
+        boxBd: f.steps[n] ? '#2f6a4d' : 'rgba(34,26,18,.22)',
+        boxBg: f.steps[n] ? '#2f6a4d' : 'transparent',
+        titleColor: f.steps[n] ? '#7a6b59' : '#221a12',
+        toggle: () => this.up(i, p => ({ steps: Object.assign({}, p.steps, { [n]: !p.steps[n] }) })),
+      })),
+      methodTrad: f.method === 'traditional',
+      methodModern: f.method === 'modern',
+      tradBg: f.method === 'traditional' ? '#17402f' : 'transparent',
+      tradFg: f.method === 'traditional' ? '#fffdf9' : '#5f5241',
+      modBg: f.method === 'modern' ? '#17402f' : 'transparent',
+      modFg: f.method === 'modern' ? '#fffdf9' : '#5f5241',
+      setTrad: () => this.up(i, { method: 'traditional' }),
+      setModern: () => this.up(i, { method: 'modern' }),
+      variations: VARIATIONS.map(v => ({ p: v.p, b: v.b })),
+      sheetOpen: !!sheet,
+      sheetName: sheet ? sheet.name : '',
+      sheetEn: sheet ? sheet.en : '',
+      sheetDesc: sheet ? sheet.desc : '',
+      sheetWhere: sheet ? sheet.where : '',
+      sheetTrad: sheet ? sheet.trad : '',
+      sheetLocals: sheet ? sheet.locals.map(l => ({ lang: l[0], name: l[1] })) : [],
+      sheetUsed: sheet ? sheet.used.map(id => {
+        const r = DISHES.find(x => x.id === id);
+        return { name: r.name, en: r.en };
+      }) : [],
+      sheetClose: () => this.up(i, { sheet: null }),
+      sheetFull: () => this.up(i, { sheet: null, screen: 'ingredient' }),
+    };
+  }
+
+  vmIngredient(i, f) {
+    const g = INGREDIENTS[0];
+    return {
+      ingGrid: INGREDIENTS.map(x => {
+        const s = this.swap(x.name, x.en);
+        return Object.assign({ name: s.name, en: s.en,
+          go: () => this.up(i, { screen: 'ingredient' }) }, this.flags(x.img));
+      }),
+      gName: g.name, gEn: g.en, gDesc: g.desc, gWhere: g.where, gTrad: g.trad,
+      gLocals: g.locals.map(l => ({ lang: l[0], name: l[1] })),
+      gPending: g.pending,
+      gUsed: g.used.map(id => {
+        const r = DISHES.find(x => x.id === id);
+        return Object.assign(this.dishVM(i, f, r), {});
+      }),
+      gBack: () => this.up(i, { screen: 'ingredients' }),
+    };
+  }
+
+  vmArchive(i, f) {
+    const steps = ['The recipe', 'Who taught you', 'The story', 'Who can see it'];
+    const n = f.formStep;
+    return {
+      formTitle: steps[n - 1],
+      formStepLabel: 'Step ' + n + ' of 4',
+      formPct: (n / 4) * 100 + '%',
+      isF1: n === 1, isF2: n === 2, isF3: n === 3, isF4: n === 4,
+      formNext: () => this.up(i, { formStep: Math.min(4, n + 1) }),
+      formBack: () => this.up(i, { formStep: Math.max(1, n - 1) }),
+      canBack: n > 1,
+      nextLabel: n === 4 ? 'Save to the archive' : 'Continue',
+      privacy: ['Private to me', 'Shared with family', 'Public in the archive'].map(p => {
+        const on = p === f.privacy;
+        return {
+          label: p,
+          note: p === 'Private to me' ? 'Only you can open it. Nothing is reviewed or published.'
+            : p === 'Shared with family' ? 'Anyone you invite by name can read and add to it.'
+            : 'Goes to the archive team for verification before it appears publicly.',
+          bd: on ? '#17402f' : 'rgba(34,26,18,.14)',
+          bg: on ? '#eef2ec' : '#fffdf9',
+          dot: on ? '#17402f' : 'transparent',
+          ring: on ? '#17402f' : 'rgba(34,26,18,.24)',
+          go: () => this.up(i, { privacy: p }),
+        };
+      }),
+      collections: [
+        { label:'My Favourite Zambian Foods', count:'14 recipes', tint:'#a3452a' },
+        { label:'Recipes I Want to Try', count:'9 recipes', tint:'#c07f1e' },
+        { label:"Recipes I've Cooked", count:'23 recipes', tint:'#2f6a4d' },
+        { label:'My Family Recipes', count:'4 preserved', tint:'#17402f' },
+      ],
+      contributions: [
+        { name:'Ubwali bwa Cassava', status:'Published', sbg:'#eef2ec', sfg:'#2f6a4d', meta:'Luapula · verified 12 Aug 2026' },
+        { name:"Grandmother's Ifisashi", status:'In review', sbg:'#f7eeda', sfg:'#8a6a1c', meta:'Submitted 2 Sep 2026' },
+        { name:'Munkoyo', status:'Draft', sbg:'#f0ece4', sfg:'#7a6b59', meta:'Missing photos and ingredients' },
+      ],
+      settingsRows: ['Language — English', 'Offline recipes', 'Notifications', 'Account and privacy', 'About the archive'],
+      goShare: () => this.up(i, { screen: 'share' }),
+      goFamily: () => this.up(i, { screen: 'family' }),
+    };
+  }
+
+  vmRegions(i, f) {
+    const p = PROVINCES[f.province];
+    return {
+      provList: PROVINCES.map((x, n) => {
+        const on = n === f.province;
+        return {
+          name: x.name,
+          bg: on ? '#17402f' : '#fffdf9',
+          fg: on ? '#fffdf9' : '#4a3d2e',
+          bd: on ? '#17402f' : 'rgba(34,26,18,.14)',
+          go: () => this.up(i, { province: n }),
+        };
+      }),
+      pName: p.name, pSeat: p.seat, pBlurb: p.blurb, pTrad: p.trad,
+      pFoods: p.foods.map(x => {
+        const r = DISHES.find(d => d.name === x);
+        const en = r ? r.en : ({ Katapa: 'Cassava leaf relish' })[x] || '';
+        return { name: x, en: en, hasEn: !!en, open: () => this.up(i, { screen: 'recipe' }) };
+      }),
+      pIngs: p.ings.map(x => ({ name: x })),
+    };
+  }
+
+  vmCulture(i, f) {
+    return {
+      lead: ARTICLES[0],
+      leadTitle: ARTICLES[0].title, leadBy: ARTICLES[0].by, leadMeta: ARTICLES[0].meta, leadLede: ARTICLES[0].lede,
+      openStory: () => this.up(i, { screen: 'story' }),
+      articles: ARTICLES.slice(1).map(a => ({
+        kicker: a.kicker, title: a.title, by: a.by, meta: a.meta,
+        go: () => this.up(i, { screen: 'story' }),
+      })),
+      storyBack: () => this.up(i, { screen: 'culture' }),
+    };
+  }
+
+  vmShare(i, f) {
+    const n = f.shareStep;
+    return {
+      sTitle: SHARE_STEPS[n - 1],
+      sStepLabel: 'Step ' + n + ' of 4',
+      sPct: (n / 4) * 100 + '%',
+      isS1: n === 1 && !f.submitted, isS2: n === 2 && !f.submitted,
+      isS3: n === 3 && !f.submitted, isS4: n === 4 && !f.submitted,
+      sPending: !f.submitted, sDone: f.submitted,
+      sCanBack: n > 1,
+      sNextLabel: n === 4 ? 'Submit for review' : 'Continue',
+      sNext: () => n === 4 ? this.up(i, { submitted: true }) : this.up(i, { shareStep: n + 1 }),
+      sBack: () => this.up(i, { shareStep: Math.max(1, n - 1) }),
+      sReset: () => this.up(i, { submitted: false, shareStep: 1 }),
+      pipeline: [
+        { label:'Submitted', note:'Your recipe leaves your device and enters the review queue.', on:true },
+        { label:'Checked against regional sources', note:'The archive team compares names, ingredients and method against records for the province you named.', on:true },
+        { label:'Contributor contacted if anything is unclear', note:'We ask rather than edit. Nothing is changed without your reply.', on:false },
+        { label:'Published and credited', note:'Credited to you, and to the person who taught you, in the public archive.', on:false },
+      ],
+    };
+  }
+
+  renderVals() {
+    const frames = this.state.frames.map((f, i) => {
+      const vm = {
+        num: String(i + 1).padStart(2, '0'),
+        verify: (this.props.showVerification ?? true) === true,
+        label: FRAMES[i].label,
+        isHome: f.screen === 'home',
+        isExplore: f.screen === 'explore',
+        isRecipe: f.screen === 'recipe',
+        isIngredients: f.screen === 'ingredients',
+        isIngredient: f.screen === 'ingredient',
+        isFamily: f.screen === 'family',
+        isProfile: f.screen === 'profile',
+        isRegions: f.screen === 'regions',
+        isCulture: f.screen === 'culture',
+        isStory: f.screen === 'story',
+        isShare: f.screen === 'share',
+        nav: NAV.map(t => {
+          const active = t.key === f.screen || t.also.indexOf(f.screen) > -1;
+          return {
+            label: t.label, weight: active ? 600 : 400,
+            color: active ? '#17402f' : '#9c8d79',
+            dot: active ? '#c07f1e' : 'transparent',
+            go: () => this.up(i, { screen: t.key, sheet: null }),
+          };
+        }),
+        cats: CATS.map(c => Object.assign({ name: c.name }, this.flags(c.img))),
+        dishes: DISHES.slice(0, 6).map(d => this.dishVM(i, f, d)),
+        stories: STORIES.slice(0, 3).map(s => ({ title: s.title, meta: s.meta })),
+      };
+      Object.assign(vm, this.vmExplore(i, f), this.vmRecipe(i, f), this.vmIngredient(i, f), this.vmArchive(i, f), this.vmRegions(i, f), this.vmCulture(i, f), this.vmShare(i, f));
+      return vm;
+    });
+    return { frames };
+  }
+}
+
+</script>
+</body>
+</html>

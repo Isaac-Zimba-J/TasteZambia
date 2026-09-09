@@ -1,0 +1,43 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35004.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasteZambia.API", "TasteZambia.API\TasteZambia.API.csproj", "{A1163AA6-EC35-467B-A818-C2AA1E8DBF84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasteZambia.APP", "TasteZambia.APP\TasteZambia.APP.csproj", "{92F1BA62-52DE-419E-80B9-7B24D4335D5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasteZambia.Mobile", "TasteZambia.Mobile\TasteZambia.Mobile.csproj", "{54367010-E910-4483-9A84-CAC181EA5BB6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{ADCE2F55-3B0C-42F4-8DED-D7EDFC75DA50}"
+	ProjectSection(SolutionItems) = preProject
+		compose.yaml = compose.yaml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A1163AA6-EC35-467B-A818-C2AA1E8DBF84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1163AA6-EC35-467B-A818-C2AA1E8DBF84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1163AA6-EC35-467B-A818-C2AA1E8DBF84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1163AA6-EC35-467B-A818-C2AA1E8DBF84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92F1BA62-52DE-419E-80B9-7B24D4335D5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92F1BA62-52DE-419E-80B9-7B24D4335D5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92F1BA62-52DE-419E-80B9-7B24D4335D5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92F1BA62-52DE-419E-80B9-7B24D4335D5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54367010-E910-4483-9A84-CAC181EA5BB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54367010-E910-4483-9A84-CAC181EA5BB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54367010-E910-4483-9A84-CAC181EA5BB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54367010-E910-4483-9A84-CAC181EA5BB6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A1163AA6-EC35-467B-A818-C2AA1E8DBF84} = {ADCE2F55-3B0C-42F4-8DED-D7EDFC75DA50}
+		{92F1BA62-52DE-419E-80B9-7B24D4335D5A} = {ADCE2F55-3B0C-42F4-8DED-D7EDFC75DA50}
+		{54367010-E910-4483-9A84-CAC181EA5BB6} = {ADCE2F55-3B0C-42F4-8DED-D7EDFC75DA50}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,7 @@
+﻿services:
+  tastezambia.api:
+    image: tastezambia.api
+    build:
+      context: .
+      dockerfile: TasteZambia.API/Dockerfile
+
