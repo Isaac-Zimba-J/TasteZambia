@@ -67,6 +67,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<RegionsView>();
         builder.Services.AddSingleton<CultureViewModel>();
         builder.Services.AddSingleton<CultureView>();
+        builder.Services.AddSingleton<ProfileViewModel>();
         builder.Services.AddSingleton<ProfileView>();
 
         // Detail screens are transient: they carry a route parameter and must
