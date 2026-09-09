@@ -17,6 +17,9 @@ public partial class MainShellPage : ContentPage
         ["regions"] = (typeof(RegionsView), "regions"),
         ["culture"] = (typeof(CultureView), "culture"),
         ["profile"] = (typeof(ProfileView), "profile"),
+
+        // Detail routes keep their parent tab lit.
+        ["recipe"]  = (typeof(RecipeView),  "explore"),
     };
 
     /// <summary>Views pushed over the current section, most recent last.</summary>

@@ -67,6 +67,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<CultureView>();
         builder.Services.AddSingleton<ProfileView>();
 
+        // Detail screens are transient: they carry a route parameter and must
+        // rebuild for whichever dish or ingredient was opened.
+        builder.Services.AddTransient<RecipeViewModel>();
+        builder.Services.AddTransient<RecipeView>();
+
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
