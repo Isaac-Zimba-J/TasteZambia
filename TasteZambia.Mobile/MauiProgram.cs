@@ -65,6 +65,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<ExploreView>();
         builder.Services.AddSingleton<RegionsViewModel>();
         builder.Services.AddSingleton<RegionsView>();
+        builder.Services.AddSingleton<CultureViewModel>();
         builder.Services.AddSingleton<CultureView>();
         builder.Services.AddSingleton<ProfileView>();
 
@@ -76,6 +77,8 @@ public static class MauiProgram
         builder.Services.AddTransient<IngredientsView>();
         builder.Services.AddTransient<IngredientViewModel>();
         builder.Services.AddTransient<IngredientView>();
+        builder.Services.AddTransient<StoryViewModel>();
+        builder.Services.AddTransient<StoryView>();
 
 #if DEBUG
         builder.Logging.AddDebug();

@@ -2,12 +2,12 @@ using TasteZambia.Core.ViewModels;
 
 namespace TasteZambia.Mobile.Views.Sections;
 
-public partial class CultureView : ContentView
+public partial class StoryView : ContentView
 {
-    private readonly CultureViewModel _viewModel;
+    private readonly StoryViewModel _viewModel;
     private bool _loaded;
 
-    public CultureView(CultureViewModel viewModel)
+    public StoryView(StoryViewModel viewModel)
     {
         InitializeComponent();
         BindingContext = _viewModel = viewModel;

@@ -1,9 +1,93 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="TasteZambia.Mobile.Views.Sections.CultureView">
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Sections.CultureView"
+             x:DataType="vm:CultureViewModel">
 
-    <!-- Section stub. Built out in a later task. -->
-    <Label Text="Culture" Style="{StaticResource DisplayTitle}"
-           HorizontalOptions="Center" VerticalOptions="Center"/>
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <VerticalStackLayout Padding="20,20,20,16" Spacing="9">
+                <Label Text="Oral and written record" Style="{StaticResource KickerLabel}"/>
+                <Label Text="Food Stories" Style="{StaticResource DisplayTitle}" CharacterSpacing="-0.31"/>
+                <Label Text="What the recipes cannot hold: where a dish came from, who cooked it, and what it meant to eat it."
+                       Style="{StaticResource BodyText}" TextColor="{StaticResource TzBodyMuted}"/>
+            </VerticalStackLayout>
+
+            <!-- Lead article -->
+            <Border Style="{StaticResource Card}" Margin="20,0" StrokeShape="RoundRectangle 22" Padding="0">
+                <VerticalStackLayout Spacing="0">
+                    <controls:PhotoOrPlaceholder HeightRequest="186" CornerRadius="0"
+                                                 Caption="{Binding LeadCaption}"/>
+                    <VerticalStackLayout Padding="18" Spacing="0">
+                        <Label Text="{Binding LeadKicker}" Style="{StaticResource KickerLabel}"
+                               CharacterSpacing="1.26" TextColor="{StaticResource TzGold}" Margin="0,0,0,10"/>
+                        <Label Text="{Binding LeadTitle}" FontFamily="NewsreaderSemiBold" FontSize="27"
+                               LineHeight="1.12" CharacterSpacing="-0.27" TextColor="{StaticResource TzInk}"/>
+                        <Label Text="{Binding LeadLede}" Margin="0,9,0,0" FontFamily="ArchivoRegular"
+                               FontSize="13" LineHeight="1.65" TextColor="{StaticResource TzBodyMuted}"/>
+                        <Label Text="{Binding LeadByline}" Margin="0,12,0,0" Style="{StaticResource MetaText}"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenLeadCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <!-- More from the archive -->
+            <VerticalStackLayout Padding="20,24,20,0" Spacing="0">
+                <Label Text="More from the archive" Style="{StaticResource KickerLabel}"
+                       TextColor="{StaticResource TzMuted2}" Margin="0,0,0,14"/>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Articles}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ArticleRowViewModel">
+                            <Grid Padding="0,15" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                                <BoxView Grid.ColumnSpan="2" HeightRequest="1" VerticalOptions="Start"
+                                         Margin="0,-15,0,0" Color="{StaticResource TzRule}"/>
+                                <controls:PhotoOrPlaceholder WidthRequest="74" HeightRequest="74"
+                                                             CornerRadius="14" ShowCaption="False"
+                                                             ImageAsset="{Binding ImageAsset}"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                    <Label Text="{Binding Kicker}" Style="{StaticResource MicroLabel}"
+                                           CharacterSpacing="1.11" TextColor="{StaticResource TzGold}"
+                                           Margin="0,0,0,6"/>
+                                    <Label Text="{Binding TitleText}" FontFamily="NewsreaderSemiBold"
+                                           FontSize="18" LineHeight="1.2" TextColor="{StaticResource TzInk}"/>
+                                    <Label Text="{Binding Byline}" Margin="0,6,0,0" FontFamily="ArchivoRegular"
+                                           FontSize="10.5" LineHeight="1.4" TextColor="{StaticResource TzMuted2}"/>
+                                </VerticalStackLayout>
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenCommand}"/>
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Record an elder -->
+            <Border Style="{StaticResource DeepPanel}" Margin="20,22,20,0">
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="Record an elder telling it" FontFamily="NewsreaderMedium" FontSize="21"
+                           LineHeight="1.2" TextColor="{StaticResource TzSurface}" Margin="0,0,0,8"/>
+                    <Label Text="Audio in any Zambian language. The archive keeps the recording alongside a written translation."
+                           FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.65"
+                           TextColor="{StaticResource TzOnDark82}" Margin="0,0,0,15"/>
+                    <Border BackgroundColor="{StaticResource TzGold}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 13" Padding="17,13" HorizontalOptions="Start">
+                        <HorizontalStackLayout Spacing="9">
+                            <BoxView WidthRequest="9" HeightRequest="9" CornerRadius="4.5"
+                                     Color="{StaticResource TzSurface}" VerticalOptions="Center"/>
+                            <Label Text="Start a recording" FontFamily="ArchivoSemiBold" FontSize="13"
+                                   TextColor="{StaticResource TzSurface}"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </Border>
+
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentView>
