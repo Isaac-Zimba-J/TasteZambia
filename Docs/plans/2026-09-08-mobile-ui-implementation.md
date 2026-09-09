@@ -214,7 +214,7 @@ cp "$SRC/ifisashi.png"            "$DST/ifisashi.png"
 cp "$SRC/chikanda.png"            "$DST/chikanda.png"
 cp "$SRC/market-ingredients.png"  "$DST/market_ingredients.png"
 cp "$SRC/avatar-chanda.png"       "$DST/avatar_chanda.png"
-cp "$SRC/logo-pot.png"            "$DST/logo_pot.png"
+cp "$SRC/logo-pot.png"            "$DST/logo.png"
 rm -f "$DST/dotnet_bot.png"
 ls "$DST"
 ```
@@ -236,7 +236,7 @@ Replace the `<ItemGroup>` containing icon/splash/image entries in `TasteZambia.M
     <MauiImage Update="Resources\Images\chikanda.png"           BaseSize="536,396"/>
     <MauiImage Update="Resources\Images\market_ingredients.png" BaseSize="542,405"/>
     <MauiImage Update="Resources\Images\avatar_chanda.png"      BaseSize="529,529"/>
-    <MauiImage Update="Resources\Images\logo_pot.png"           BaseSize="531,519"/>
+    <MauiImage Update="Resources\Images\logo.png"           BaseSize="531,519"/>
 
     <MauiFont Include="Resources\Fonts\*"/>
     <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)"/>
@@ -3055,7 +3055,7 @@ Expected: PASS, 4 tests.
 
                 <!-- Header -->
                 <Grid Padding="20,16,20,10" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="9">
-                    <Image Source="logo_pot.png" WidthRequest="34" HeightRequest="34" Aspect="AspectFit"/>
+                    <Image Source="logo.png" WidthRequest="34" HeightRequest="34" Aspect="AspectFit"/>
                     <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
                         <Label Text="Taste Zambia" FontFamily="NewsreaderSemiBold" FontSize="19"
                                LineHeight="1" TextColor="{StaticResource TzGreenDeep}"/>
@@ -8166,7 +8166,7 @@ at the top of this task.
 
     <Grid Padding="40">
         <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="0">
-            <Image Source="logo_pot.png" WidthRequest="104" HeightRequest="104"
+            <Image Source="logo.png" WidthRequest="104" HeightRequest="104"
                    Aspect="AspectFit" Margin="0,0,0,26"/>
             <Label Text="Taste Zambia" FontFamily="NewsreaderMedium" FontSize="38"
                    LineHeight="1" CharacterSpacing="-0.57"

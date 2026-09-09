@@ -7,12 +7,18 @@
        Shell.NavBarIsVisible="False"
        Shell.TabBarIsVisible="False">
 
-    <!-- Shell owns routing only. The design's bottom bar has no icons and a dot
-         indicator, and appears on detail screens too, so it is drawn by
-         BottomNavBar rather than Shell's native TabBar. -->
-    <ShellContent Route="home"    ContentTemplate="{DataTemplate views:HomePage}"/>
-    <ShellContent Route="explore" ContentTemplate="{DataTemplate views:ExplorePage}"/>
-    <ShellContent Route="regions" ContentTemplate="{DataTemplate views:RegionsPage}"/>
-    <ShellContent Route="culture" ContentTemplate="{DataTemplate views:CulturePage}"/>
-    <ShellContent Route="profile" ContentTemplate="{DataTemplate views:ProfilePage}"/>
+    <!-- Shell owns routing only; the design's bottom bar has no icons, uses a dot
+         indicator, and appears on detail screens too, so BottomNavBar draws it.
+
+         These five MUST sit inside a TabBar. As top-level ShellContent items each
+         is a separate root, and "//route" then tears down and rebuilds the whole
+         content - which is visible as a flash on every tab change. Inside a TabBar
+         Shell retains the pages and simply switches between them. -->
+    <TabBar>
+        <ShellContent Route="home"    ContentTemplate="{DataTemplate views:HomePage}"/>
+        <ShellContent Route="explore" ContentTemplate="{DataTemplate views:ExplorePage}"/>
+        <ShellContent Route="regions" ContentTemplate="{DataTemplate views:RegionsPage}"/>
+        <ShellContent Route="culture" ContentTemplate="{DataTemplate views:CulturePage}"/>
+        <ShellContent Route="profile" ContentTemplate="{DataTemplate views:ProfilePage}"/>
+    </TabBar>
 </Shell>

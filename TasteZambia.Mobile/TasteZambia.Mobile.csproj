@@ -49,10 +49,10 @@
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#17402F" />
+        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\Images\logo.png" Color="#FFFDF9" ForegroundScale="0.62" />
 
         <!-- Splash Screen -->
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#17402F" BaseSize="128,128" />
+        <MauiSplashScreen Include="Resources\Images\logo.png" Color="#FFFDF9" BaseSize="180,176" />
 
         <!-- Images -->
         <MauiImage Include="Resources\Images\*" />
@@ -61,7 +61,7 @@
         <MauiImage Update="Resources\Images\chikanda.png"           BaseSize="536,396" />
         <MauiImage Update="Resources\Images\market_ingredients.png" BaseSize="542,405" />
         <MauiImage Update="Resources\Images\avatar_chanda.png"      BaseSize="529,529" />
-        <MauiImage Update="Resources\Images\logo_pot.png"           BaseSize="531,519" />
+        <MauiImage Update="Resources\Images\logo.png"               BaseSize="352,344" />
 
         <!-- Custom Fonts -->
         <MauiFont Include="Resources\Fonts\*.ttf" />
