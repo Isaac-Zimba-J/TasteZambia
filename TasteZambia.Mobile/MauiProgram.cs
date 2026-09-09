@@ -63,6 +63,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<HomeView>();
         builder.Services.AddSingleton<ExploreViewModel>();
         builder.Services.AddSingleton<ExploreView>();
+        builder.Services.AddSingleton<RegionsViewModel>();
         builder.Services.AddSingleton<RegionsView>();
         builder.Services.AddSingleton<CultureView>();
         builder.Services.AddSingleton<ProfileView>();
