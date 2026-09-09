@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Sections.IngredientsView"
+             x:DataType="vm:IngredientsViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <VerticalStackLayout Padding="20,20,20,18" Spacing="9">
+                <Label Text="Botanical living archive" Style="{StaticResource KickerLabel}"/>
+                <Label Text="Zambian Ingredients" Style="{StaticResource DisplayTitle}" CharacterSpacing="-0.31"/>
+                <Label Text="A visual encyclopedia of what Zambian cooking is actually made from. Local names first, English underneath."
+                       Style="{StaticResource BodyText}" TextColor="{StaticResource TzBodyMuted}"/>
+            </VerticalStackLayout>
+
+            <!-- Two-column grid. Vertical scroll belongs to the page's ScrollView, so this
+                 is a wrapping FlexLayout rather than a CollectionView - same-axis nesting
+                 is the MAUI trap. Tile width is (390 - 40 padding - 13 gap) / 2. -->
+            <FlexLayout Padding="20,0" Wrap="Wrap" JustifyContent="SpaceBetween"
+                        BindableLayout.ItemsSource="{Binding Items}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:IngredientTileViewModel">
+                        <VerticalStackLayout WidthRequest="168" Margin="0,0,0,13" Spacing="0">
+                            <controls:PhotoOrPlaceholder HeightRequest="112" CornerRadius="16"
+                                                         ShowCaption="False" ImageAsset="{Binding ImageAsset}"/>
+                            <Label Text="{Binding Title}" Margin="2,9,2,0"
+                                   FontFamily="NewsreaderSemiBold" FontSize="18" LineHeight="1.15"
+                                   TextColor="{StaticResource TzInk}"/>
+                            <Label Text="{Binding Subtitle}" Margin="2,2,2,0"
+                                   Style="{StaticResource EnglishSubtitle}"/>
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenCommand}"/>
+                            </VerticalStackLayout.GestureRecognizers>
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
+
+            <Border Margin="20,22,20,0" BackgroundColor="{StaticResource TzCream}"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="16">
+                <Label FontFamily="ArchivoRegular" FontSize="12" LineHeight="1.6"
+                       TextColor="{StaticResource TzBodyMuted}">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="Know a local name we are missing? Ingredient names in Tonga, Lozi, Kaonde, Lunda and Luvale are still incomplete. "/>
+                            <Span Text="Contribute a name" FontFamily="ArchivoSemiBold"
+                                  TextColor="{StaticResource TzGold}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </Border>
+
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

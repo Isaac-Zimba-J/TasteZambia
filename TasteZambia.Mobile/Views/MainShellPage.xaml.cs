@@ -19,7 +19,9 @@ public partial class MainShellPage : ContentPage
         ["profile"] = (typeof(ProfileView), "profile"),
 
         // Detail routes keep their parent tab lit.
-        ["recipe"]  = (typeof(RecipeView),  "explore"),
+        ["recipe"]      = (typeof(RecipeView),      "explore"),
+        ["ingredients"] = (typeof(IngredientsView), "explore"),
+        ["ingredient"]  = (typeof(IngredientView),  "explore"),
     };
 
     /// <summary>Views pushed over the current section, most recent last.</summary>

@@ -71,6 +71,10 @@ public static class MauiProgram
         // rebuild for whichever dish or ingredient was opened.
         builder.Services.AddTransient<RecipeViewModel>();
         builder.Services.AddTransient<RecipeView>();
+        builder.Services.AddTransient<IngredientsViewModel>();
+        builder.Services.AddTransient<IngredientsView>();
+        builder.Services.AddTransient<IngredientViewModel>();
+        builder.Services.AddTransient<IngredientView>();
 
 #if DEBUG
         builder.Logging.AddDebug();
