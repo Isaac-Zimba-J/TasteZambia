@@ -4,6 +4,7 @@ using TasteZambia.Core.Services;
 using TasteZambia.Mobile.Services;
 using TasteZambia.Mobile.Views;
 using TasteZambia.Mobile.Views.Sections;
+using TasteZambia.Core.ViewModels;
 
 namespace TasteZambia.Mobile;
 
@@ -56,6 +57,7 @@ public static class MauiProgram
         // Sections are singletons: the host keeps them alive so switching back to a
         // tab restores it as the user left it, rather than rebuilding it.
         builder.Services.AddSingleton<MainShellPage>();
+        builder.Services.AddSingleton<HomeViewModel>();
         builder.Services.AddSingleton<HomeView>();
         builder.Services.AddSingleton<ExploreView>();
         builder.Services.AddSingleton<RegionsView>();

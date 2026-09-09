@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TasteZambia.Mobile.Controls.WizardProgress"
+             x:Name="Root">
+
+    <VerticalStackLayout Spacing="8" BindingContext="{x:Reference Root}">
+        <Grid ColumnDefinitions="*,Auto" VerticalOptions="End">
+            <Label Text="{Binding StepTitle}"
+                   FontFamily="ArchivoSemiBold" FontSize="12"
+                   TextColor="{StaticResource TzGreenDeep}"/>
+            <Label Grid.Column="1"
+                   Text="{Binding StepLabel}"
+                   FontFamily="PlexMonoRegular" FontSize="10.5"
+                   TextColor="{StaticResource TzMuted2}"/>
+        </Grid>
+
+        <!-- Track fill uses TzGoldDecor: it is decoration, not an action. -->
+        <Grid HeightRequest="4" ColumnDefinitions="*,*">
+            <Border Grid.ColumnSpan="2" BackgroundColor="{StaticResource TzRule}"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 2" Padding="0"/>
+            <Border x:Name="Fill" Grid.Column="0" BackgroundColor="{StaticResource TzGoldDecor}"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 2" Padding="0"
+                    HorizontalOptions="Fill"/>
+        </Grid>
+    </VerticalStackLayout>
+</ContentView>
