@@ -1,3 +1,4 @@
+using FluentIcons.Maui;
 using Microsoft.Extensions.Logging;
 using TasteZambia.Core.Data;
 using TasteZambia.Core.Services;
@@ -15,6 +16,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseFluentIcons()
             .ConfigureFonts(fonts =>
             {
                 // Newsreader and Archivo ship from Google Fonts as variable fonts only.

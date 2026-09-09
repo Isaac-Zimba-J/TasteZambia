@@ -29,3 +29,17 @@ public sealed class HexToColorConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();
 }
+
+/// <summary>
+/// Maps a saved/unsaved flag to a Fluent icon variant, so the heart fills when saved.
+/// Lives here rather than in TasteZambia.Core: the Core layer stays free of both MAUI
+/// and the icon library.
+/// </summary>
+public sealed class BoolToIconVariantConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is true ? FluentIcons.Common.IconVariant.Filled : FluentIcons.Common.IconVariant.Regular;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}

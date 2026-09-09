@@ -60,12 +60,12 @@
 
         <!-- Images -->
         <MauiImage Include="Resources\Images\*" />
-        <MauiImage Update="Resources\Images\spread_nshima.png"      BaseSize="533,293" />
-        <MauiImage Update="Resources\Images\ifisashi.png"           BaseSize="531,393" />
-        <MauiImage Update="Resources\Images\chikanda.png"           BaseSize="536,396" />
+        <MauiImage Update="Resources\Images\spread_nshima.png" BaseSize="533,293" />
+        <MauiImage Update="Resources\Images\ifisashi.png" BaseSize="531,393" />
+        <MauiImage Update="Resources\Images\chikanda.png" BaseSize="536,396" />
         <MauiImage Update="Resources\Images\market_ingredients.png" BaseSize="542,405" />
-        <MauiImage Update="Resources\Images\avatar_chanda.png"      BaseSize="529,529" />
-        <MauiImage Update="Resources\Images\logo.png"               BaseSize="352,344" />
+        <MauiImage Update="Resources\Images\avatar_chanda.png" BaseSize="529,529" />
+        <MauiImage Update="Resources\Images\logo.png" BaseSize="352,344" />
 
         <!-- Custom Fonts -->
         <MauiFont Include="Resources\Fonts\*.ttf" />
@@ -75,6 +75,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentIcons.Maui" Version="2.1.339.1" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
     </ItemGroup>

@@ -44,13 +44,9 @@ public sealed partial class DishItemViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SaveGlyph))]
     [NotifyPropertyChangedFor(nameof(SaveColorHex))]
     [NotifyPropertyChangedFor(nameof(SaveSemanticLabel))]
     private bool _isSaved;
-
-    /// <summary>Filled heart when saved, outline heart when not.</summary>
-    public string SaveGlyph => IsSaved ? "♥" : "♡";
 
     public string SaveColorHex => IsSaved ? "#A3452A" : "#57493A";
 
