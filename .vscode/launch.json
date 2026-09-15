@@ -1,0 +1,19 @@
+{
+  // F5 with breakpoints. Pick the phone from the device selector in the
+  // status bar first (bottom-right, next to "Debug Any CPU").
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET MAUI: Debug on phone",
+      "type": "maui",
+      "request": "launch",
+      "preLaunchTask": "maui: Build"
+    },
+    {
+      "name": ".NET Meteor: Debug on phone",
+      "type": "dotnet-meteor.debugger",
+      "request": "launch",
+      "preLaunchTask": "dotnet-meteor: Build"
+    }
+  ]
+}

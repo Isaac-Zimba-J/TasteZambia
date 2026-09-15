@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "ms-dotnettools.dotnet-maui",
+    "ms-dotnettools.csdevkit",
+    "nromanov.dotnet-meteor"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  // Run with Cmd+Shift+B (default task) or Terminal -> Run Task...
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Android: Deploy (Wireless)",
+      "detail": "Find the phone on Wi-Fi, connect, build arm64 and launch",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/android.sh",
+      "args": ["wireless"],
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Android: Deploy (USB)",
+      "detail": "Build arm64 and launch over the cable",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/android.sh",
+      "args": ["usb"],
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Android: Connect wireless",
+      "detail": "Reconnect wireless debugging after the phone sleeps",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/android.sh",
+      "args": ["connect"],
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Android: Build only",
+      "detail": "Compile for android-arm64 without deploying",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/android.sh",
+      "args": ["build"],
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Tests: Core",
+      "detail": "Run the TasteZambia.Core unit tests",
+      "type": "shell",
+      "command": "/usr/local/share/dotnet/dotnet",
+      "args": ["test", "${workspaceFolder}/TasteZambia.Core.Tests/TasteZambia.Core.Tests.csproj"],
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}
