@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TasteZambia.API.Common.Endpoints;
 using TasteZambia.API.Data;
 using TasteZambia.API.Data.Seed;
 using TasteZambia.API.Repositories;
@@ -18,10 +19,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IArchiveVersionService, ArchiveVersionService>();
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -36,18 +34,17 @@ if (app.Environment.IsDevelopment())
     await ArchiveSeeder.SeedAsync(db);
 }
 
-// Configure the HTTP request pipeline.
+app.UseExceptionHandler();
+app.UseStatusCodePages();
+
 if (app.Environment.IsDevelopment())
-{
     app.MapOpenApi();
-}
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
+// No UseHttpsRedirection: Kestrel serves HTTP inside the container and TLS
+// terminates at the ingress. Leaving it on breaks container health checks.
+app.MapArchiveEndpoints();
 
 app.Run();
+
 // WebApplicationFactory needs a reachable entry point.
 public partial class Program;
