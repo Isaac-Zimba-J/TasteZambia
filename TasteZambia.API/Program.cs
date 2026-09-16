@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TasteZambia.API.Data;
+using TasteZambia.API.Data.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,16 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Development only. Production runs migrations as a deliberate deploy step -
+// never let a scaling event race two instances into the same migration.
+if (app.Environment.IsDevelopment())
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<TasteZambiaDbContext>();
+    await db.Database.MigrateAsync();
+    await ArchiveSeeder.SeedAsync(db);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
