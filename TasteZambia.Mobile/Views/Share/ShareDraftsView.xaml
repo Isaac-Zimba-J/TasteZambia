@@ -10,7 +10,7 @@
     <ScrollView>
         <VerticalStackLayout Spacing="0">
             <Grid Padding="20,18,20,0">
-                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="Transparent"
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" CircleBackground="Transparent"
                                        SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
                                        HorizontalOptions="Start" Command="{Binding BackCommand}"/>
             </Grid>

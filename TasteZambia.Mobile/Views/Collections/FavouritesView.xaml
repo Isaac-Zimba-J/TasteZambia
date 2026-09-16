@@ -9,7 +9,7 @@
     <ScrollView>
         <VerticalStackLayout Spacing="0">
             <VerticalStackLayout Padding="20,18,20,16" Spacing="0">
-                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="Transparent"
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" CircleBackground="Transparent"
                                        Margin="0,0,0,16" SemanticLabel="Back to profile"
                                        IconColor="{StaticResource TzInk}" HorizontalOptions="Start"
                                        Command="{Binding BackToProfileCommand}"/>
@@ -31,7 +31,7 @@
                                             <Label Text="{Binding Dish.Subtitle}" Style="{StaticResource EnglishSubtitle}"/>
                                         </VerticalStackLayout>
                                         <controls:CircleButton Grid.Column="1" Icon="Heart" Diameter="26" IconSize="Size16"
-                                                               Background="Transparent" VerticalOptions="Start"
+                                                               CircleBackground="Transparent" VerticalOptions="Start"
                                                                SemanticLabel="{Binding Dish.SaveSemanticLabel}"
                                                                IconVariant="{Binding Dish.IsSaved, Converter={StaticResource BoolToIconVariant}}"
                                                                IconColor="{Binding Dish.SaveColorHex, Converter={StaticResource HexToColor}}"

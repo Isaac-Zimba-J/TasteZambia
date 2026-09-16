@@ -4,7 +4,7 @@
              xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
              x:Class="TasteZambia.Mobile.Controls.PhotoOrPlaceholder">
 
-    <Border x:Name="Clip" StrokeThickness="0" Padding="0">
+    <Border x:Name="ClipBorder" StrokeThickness="0" Padding="0">
         <Grid>
             <Image x:Name="Photo" Aspect="AspectFill" IsVisible="False"/>
 

@@ -13,7 +13,7 @@
           BackgroundColor="Transparent">
         <Border WidthRequest="{Binding Diameter}"
                 HeightRequest="{Binding Diameter}"
-                BackgroundColor="{Binding Background}"
+                BackgroundColor="{Binding CircleBackground}"
                 StrokeThickness="0"
                 StrokeShape="{Binding Shape}"
                 Padding="0"

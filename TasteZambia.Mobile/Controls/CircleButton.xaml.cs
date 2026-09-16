@@ -22,8 +22,8 @@ public partial class CircleButton : ContentView
         BindableProperty.Create(nameof(Diameter), typeof(double), typeof(CircleButton), 36.0,
             propertyChanged: (b, _, _) => ((CircleButton)b).OnPropertyChanged(nameof(Shape)));
 
-    public static readonly BindableProperty BackgroundProperty =
-        BindableProperty.Create(nameof(Background), typeof(Color), typeof(CircleButton),
+    public static readonly BindableProperty CircleBackgroundProperty =
+        BindableProperty.Create(nameof(CircleBackground), typeof(Color), typeof(CircleButton),
             Color.FromArgb("#E6FFFDF9"));
 
     public static readonly BindableProperty CommandProperty =
@@ -38,7 +38,7 @@ public partial class CircleButton : ContentView
     public Color IconColor { get => (Color)GetValue(IconColorProperty); set => SetValue(IconColorProperty, value); }
     public IconSize IconSize { get => (IconSize)GetValue(IconSizeProperty); set => SetValue(IconSizeProperty, value); }
     public double Diameter { get => (double)GetValue(DiameterProperty); set => SetValue(DiameterProperty, value); }
-    public new Color Background { get => (Color)GetValue(BackgroundProperty); set => SetValue(BackgroundProperty, value); }
+    public Color CircleBackground { get => (Color)GetValue(CircleBackgroundProperty); set => SetValue(CircleBackgroundProperty, value); }
     public ICommand? Command { get => (ICommand?)GetValue(CommandProperty); set => SetValue(CommandProperty, value); }
 
     /// <summary>Screen readers need words, not a shape.</summary>

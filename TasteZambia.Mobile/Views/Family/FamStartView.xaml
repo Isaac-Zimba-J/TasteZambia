@@ -9,7 +9,7 @@
     <ScrollView>
         <VerticalStackLayout Spacing="0">
             <VerticalStackLayout Padding="22,22,22,20" BackgroundColor="{StaticResource TzGreenDeep}" Spacing="0">
-                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="{StaticResource TzOnDark14}"
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" CircleBackground="{StaticResource TzOnDark14}"
                                        SemanticLabel="Go back" IconColor="{StaticResource TzSurface}"
                                        HorizontalOptions="Start" Margin="0,0,0,16" Command="{Binding BackCommand}"/>
                 <Label Text="Family archive" Style="{StaticResource KickerLabel}"

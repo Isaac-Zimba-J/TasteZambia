@@ -34,7 +34,7 @@
                            BackgroundColor="Transparent"
                            ReturnType="Search"/>
                     <controls:CircleButton Grid.Column="2" Icon="Dismiss" Diameter="24" IconSize="Size16"
-                                           Background="Transparent"
+                                           CircleBackground="Transparent"
                                            IsVisible="{Binding HasQuery}"
                                            SemanticLabel="Clear search"
                                            IconColor="{StaticResource TzMuted}"
@@ -122,7 +122,7 @@
                                                FontSize="11.5" LineHeight="1.3" TextColor="{StaticResource TzMuted}"/>
                                     </VerticalStackLayout>
                                     <controls:CircleButton Grid.Column="1" Icon="Heart" Diameter="26" IconSize="Size16"
-                                                           Background="Transparent" VerticalOptions="Start"
+                                                           CircleBackground="Transparent" VerticalOptions="Start"
                                                            SemanticLabel="{Binding SaveSemanticLabel}"
                                                            IconVariant="{Binding IsSaved, Converter={StaticResource BoolToIconVariant}}"
                                                            IconColor="{Binding SaveColorHex, Converter={StaticResource HexToColor}}"

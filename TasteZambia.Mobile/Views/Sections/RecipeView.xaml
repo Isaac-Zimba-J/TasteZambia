@@ -365,7 +365,7 @@
                             </VerticalStackLayout>
                             <controls:CircleButton Grid.Column="1" Icon="Dismiss" Diameter="30" IconSize="Size16"
                                                    VerticalOptions="Start" SemanticLabel="Close ingredient details"
-                                                   Background="{StaticResource TzCream}"
+                                                   CircleBackground="{StaticResource TzCream}"
                                                    IconColor="{StaticResource TzBodyMuted}"
                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeViewModel}}, Path=CloseSheetCommand}"/>
                         </Grid>

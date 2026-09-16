@@ -22,7 +22,7 @@
                            FontSize="8" CharacterSpacing="1.12" TextColor="{StaticResource TzGold}"/>
                 </VerticalStackLayout>
                 <controls:CircleButton Grid.Column="2" Icon="Search" Diameter="34"
-                                       Background="Transparent"
+                                       CircleBackground="Transparent"
                                        SemanticLabel="Search recipes"
                                        IconColor="{StaticResource TzBodyMuted}"
                                        Command="{Binding OpenExploreCommand}"/>

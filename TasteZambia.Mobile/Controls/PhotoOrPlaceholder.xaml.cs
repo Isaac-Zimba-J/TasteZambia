@@ -37,7 +37,7 @@ public partial class PhotoOrPlaceholder : ContentView
 
     private void Apply()
     {
-        Clip.StrokeShape = new RoundRectangle { CornerRadius = CornerRadius };
+        ClipBorder.StrokeShape = new RoundRectangle { CornerRadius = CornerRadius };
 
         var hasPhoto = !string.IsNullOrEmpty(ImageAsset);
         Photo.IsVisible = hasPhoto;
