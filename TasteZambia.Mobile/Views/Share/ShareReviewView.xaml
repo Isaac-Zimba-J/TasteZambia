@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             xmlns:models="clr-namespace:TasteZambia.Core.Models;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Share.ShareReviewView"
+             x:DataType="vm:ShareReviewViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <VerticalStackLayout Padding="20,18,20,18" BackgroundColor="{StaticResource TzGreenDeep}" Spacing="0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="{StaticResource TzOnDark14}"
+                                       SemanticLabel="Go back" IconColor="{StaticResource TzSurface}"
+                                       HorizontalOptions="Start" Margin="0,0,0,14" Command="{Binding BackCommand}"/>
+                <Border HorizontalOptions="Start" BackgroundColor="#33E8BD77" Stroke="#80E8BD77" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20" Padding="11,5" Margin="0,0,0,13">
+                    <Label Text="IN REVIEW" FontFamily="ArchivoMedium" FontSize="9.5" CharacterSpacing="0.38"
+                           TextColor="{StaticResource TzGoldLight}"/>
+                </Border>
+                <Label Text="{Binding DishName}" FontFamily="NewsreaderMedium" FontSize="28" LineHeight="1.1"
+                       TextColor="{StaticResource TzSurface}"/>
+                <Label Text="{Binding SubmittedMeta}" Margin="0,7,0,0" FontFamily="ArchivoRegular" FontSize="12"
+                       LineHeight="1.5" TextColor="{StaticResource TzOnDark66}"/>
+            </VerticalStackLayout>
+
+            <!-- Timeline: dot + connector in column 0, content in column 1. -->
+            <VerticalStackLayout Padding="20,22,20,0" Spacing="0">
+                <Label Text="Where it is now" Style="{StaticResource MicroLabel}" Margin="0,0,0,14"/>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Timeline}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:ReviewStep">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                                <Grid Grid.Column="0" WidthRequest="11" RowDefinitions="Auto,*">
+                                    <BoxView WidthRequest="11" HeightRequest="11" CornerRadius="5.5" Margin="0,4,0,0"
+                                             Color="{Binding DotHex, Converter={StaticResource HexToColor}}"/>
+                                    <BoxView Grid.Row="1" WidthRequest="1.5" HorizontalOptions="Center"
+                                             IsVisible="{Binding IsNotLast}" Color="{StaticResource TzRule}"/>
+                                </Grid>
+                                <VerticalStackLayout Grid.Column="1" Padding="0,0,0,20" Spacing="5">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                        <Label Text="{Binding Label}" FontFamily="ArchivoSemiBold" FontSize="13" LineHeight="1.25"
+                                               TextColor="{Binding LabelHex, Converter={StaticResource HexToColor}}"/>
+                                        <Label Grid.Column="1" Text="{Binding When}" FontFamily="PlexMonoRegular" FontSize="10"
+                                               TextColor="{StaticResource TzMuted2}" VerticalOptions="End"/>
+                                    </Grid>
+                                    <Label Text="{Binding Note}" FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6"
+                                           TextColor="{StaticResource TzBodyMuted}"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Reviewer -->
+            <Border Style="{StaticResource Card}" Margin="20,4,20,0" StrokeShape="RoundRectangle 16" Padding="16">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                    <controls:PhotoOrPlaceholder WidthRequest="38" HeightRequest="38" CornerRadius="19" ShowCaption="False"/>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Text="Reviewing your submission" Style="{StaticResource MetaText}" FontSize="10.5"/>
+                        <Label Text="{Binding ReviewerName}" FontFamily="ArchivoSemiBold" FontSize="13" LineHeight="1.25"
+                               TextColor="{StaticResource TzInk}"/>
+                        <Label Text="{Binding ReviewerScope}" Style="{StaticResource MetaText}" FontSize="10.5"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource SecondaryAction}" Margin="20">
+                <Label Text="Withdraw submission" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                       HorizontalOptions="Center" TextColor="{StaticResource TzBody}"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding WithdrawCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+            <BoxView HeightRequest="6" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

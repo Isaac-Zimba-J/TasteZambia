@@ -346,4 +346,35 @@ public static class SeedData
         new("Contributor contacted if anything is unclear", "We ask rather than edit. Nothing is changed without your reply.", false),
         new("Published and credited", "Credited to you, and to the person who taught you, in the public archive.", false),
     ];
+    public static readonly IReadOnlyList<RecipeDraft> Drafts =
+    [
+        new("Chibwabwa na Mbalala", 85, "Needs one more cooking step",           "Edited 2 hours ago", "#2F6A4D"),
+        new("Munkoyo",              40, "Needs photos and the fermenting times", "Edited 4 days ago",  "#C07F1E"),
+        new("Ubwali bwa Tute",      15, "Only the name and province so far",     "Edited 3 weeks ago", "#A3452A"),
+    ];
+
+    public static readonly IReadOnlyList<ReviewStep> SubmissionTimeline =
+    [
+        new("Submitted", "2 Sep 2026",
+            "Left your device and entered the queue.", ReviewState.Done, true),
+        new("Read by the archive team", "3 Sep 2026",
+            "Reviewed by Namakau Sitali, Northern Province records.", ReviewState.Done, true),
+        new("Checked against regional sources", "In progress",
+            "Names, ingredients and method compared against the provincial record.", ReviewState.InProgress, true),
+        new("Published and credited", "Expected mid-September",
+            "Credited to you and to whoever taught you the dish.", ReviewState.Pending, false),
+    ];
+
+    public static readonly IReadOnlyList<FlaggedField> FlaggedFields =
+    [
+        new("Local name",
+            "Is this dish called Chibwabwa na Mbalala in Mungwi specifically, or is that the Kasama town name? Our Northern records have both.",
+            "Chibwabwa na Mbalala"),
+        new("Cooking step 2",
+            "You say pound until the oil shows. Roughly how long does that take by hand? Readers abroad will be using a blender.",
+            "Pound the groundnuts until the oil starts to show."),
+    ];
+
+    public const string PublishedCredit =
+        "Recorded by Chanda Mwaba, Kitwe. As taught by Banakulu Mwaba of Mungwi, Northern Province. Verified against provincial records, September 2026.";
 }

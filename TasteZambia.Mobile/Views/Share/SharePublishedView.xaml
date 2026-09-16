@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Share.SharePublishedView"
+             x:DataType="vm:SharePublishedViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <Grid HeightRequest="262">
+                <Image Source="ifisashi.png" Aspect="AspectFill"/>
+                <BoxView>
+                    <BoxView.Background>
+                        <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                            <GradientStop Color="#EB0E2018" Offset="0.0"/>
+                            <GradientStop Color="#140E2018" Offset="0.6"/>
+                            <GradientStop Color="#4D0E2018" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </BoxView.Background>
+                </BoxView>
+                <controls:CircleButton Margin="16" Padding="0,16,0,0" HorizontalOptions="Start" VerticalOptions="Start"
+                                       Icon="ArrowLeft" SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
+                                       Command="{Binding BackCommand}"/>
+                <VerticalStackLayout Padding="20,0,20,18" VerticalOptions="End" Spacing="0">
+                    <Border HorizontalOptions="Start" BackgroundColor="#33E8BD77" Stroke="#80E8BD77" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20" Padding="11,5" Margin="0,0,0,12">
+                        <Label Text="PUBLISHED IN THE ARCHIVE" FontFamily="ArchivoMedium" FontSize="9.5"
+                               CharacterSpacing="0.38" TextColor="{StaticResource TzGoldLight}"/>
+                    </Border>
+                    <Label Text="{Binding DishName}" FontFamily="NewsreaderMedium" FontSize="32" LineHeight="1.05"
+                           TextColor="{StaticResource TzSurface}"/>
+                    <Label Text="{Binding Subtitle}" Margin="0,6,0,0" FontFamily="ArchivoRegular" FontSize="12.5"
+                           LineHeight="1.4" TextColor="{StaticResource TzOnDark82}"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border Style="{StaticResource DeepPanel}" Margin="20" Padding="18" StrokeShape="RoundRectangle 18">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Credit" Style="{StaticResource MicroLabel}" TextColor="{StaticResource TzGoldLight}"/>
+                    <Label Text="{Binding Credit}" FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.7"
+                           TextColor="{StaticResource TzOnDark86}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <VerticalStackLayout Padding="20,0" Spacing="12">
+                <Label Text="Since publishing" Style="{StaticResource MicroLabel}"/>
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="11">
+                    <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 15" Padding="15">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="{Binding OpenedCount}" FontFamily="NewsreaderSemiBold" FontSize="23" TextColor="{StaticResource TzGreenDeep}"/>
+                            <Label Text="Opened" Style="{StaticResource MetaText}" FontSize="10.5"/>
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource Card}" StrokeShape="RoundRectangle 15" Padding="15">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="{Binding SavedCount}" FontFamily="NewsreaderSemiBold" FontSize="23" TextColor="{StaticResource TzGreenDeep}"/>
+                            <Label Text="Saved" Style="{StaticResource MetaText}" FontSize="10.5"/>
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource Card}" StrokeShape="RoundRectangle 15" Padding="15">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="{Binding CookedCount}" FontFamily="NewsreaderSemiBold" FontSize="23" TextColor="{StaticResource TzGreenDeep}"/>
+                            <Label Text="Cooked" Style="{StaticResource MetaText}" FontSize="10.5"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </VerticalStackLayout>
+
+            <Border Margin="20" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 16" Padding="16">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="A reader has suggested a variation" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                           LineHeight="1.3" TextColor="{StaticResource TzInk}"/>
+                    <Label FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6" TextColor="{StaticResource TzBodyMuted}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Someone from Kasama says their family adds impwa to this. As the contributor, you decide whether it joins your entry. "/>
+                                <Span Text="Review it" FontFamily="ArchivoSemiBold" TextColor="{StaticResource TzGold}"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </VerticalStackLayout>
+            </Border>
+            <BoxView HeightRequest="6" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

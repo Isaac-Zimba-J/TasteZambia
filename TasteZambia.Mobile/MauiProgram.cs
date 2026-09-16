@@ -6,6 +6,7 @@ using TasteZambia.Mobile.Services;
 using TasteZambia.Mobile.Views;
 using TasteZambia.Mobile.Views.Sections;
 using TasteZambia.Mobile.Views.Onboarding;
+using TasteZambia.Mobile.Views.Share;
 using TasteZambia.Core.ViewModels;
 
 namespace TasteZambia.Mobile;
@@ -98,6 +99,16 @@ public static class MauiProgram
         builder.Services.AddTransient<ShareView>();
         builder.Services.AddTransient<FamilyViewModel>();
         builder.Services.AddTransient<FamilyView>();
+        builder.Services.AddTransient<ShareStartViewModel>();
+        builder.Services.AddTransient<ShareStartView>();
+        builder.Services.AddTransient<DraftsViewModel>();
+        builder.Services.AddTransient<ShareDraftsView>();
+        builder.Services.AddTransient<ShareReviewViewModel>();
+        builder.Services.AddTransient<ShareReviewView>();
+        builder.Services.AddTransient<ShareChangesViewModel>();
+        builder.Services.AddTransient<ShareChangesView>();
+        builder.Services.AddTransient<SharePublishedViewModel>();
+        builder.Services.AddTransient<SharePublishedView>();
 
 #if DEBUG
         builder.Logging.AddDebug();

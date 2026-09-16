@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:ic="clr-namespace:FluentIcons.Maui;assembly=FluentIcons.Maui"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Share.ShareStartView"
+             x:DataType="vm:ShareStartViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <Grid Padding="20,18,20,0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="Transparent"
+                                       SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
+                                       HorizontalOptions="Start" Command="{Binding BackCommand}"/>
+            </Grid>
+
+            <VerticalStackLayout Padding="20,12,20,16" Spacing="9">
+                <Label Text="Contribute" Style="{StaticResource KickerLabel}"/>
+                <Label Text="Add to the archive" Style="{StaticResource DisplayTitle}" CharacterSpacing="-0.31"/>
+                <Label Text="Two ways in. One is for the public record. The other is for your family, and it stays yours."
+                       Style="{StaticResource BodyText}" TextColor="{StaticResource TzBodyMuted}"/>
+            </VerticalStackLayout>
+
+            <!-- Share a Recipe -->
+            <Border Style="{StaticResource DeepPanel}" Margin="20,0,20,12">
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="Share a Recipe" FontFamily="NewsreaderMedium" FontSize="24"
+                           LineHeight="1.1" TextColor="{StaticResource TzSurface}" Margin="0,0,0,8"/>
+                    <Label Text="Goes to the archive team, is checked against provincial records, then published publicly with your name on it."
+                           FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.7"
+                           TextColor="{StaticResource TzOnDark82}" Margin="0,0,0,14"/>
+                    <FlexLayout Wrap="Wrap">
+                        <Border BackgroundColor="{StaticResource TzOnDark10}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Padding="10,5" Margin="0,0,7,7">
+                            <Label Text="Reviewed" FontFamily="ArchivoMedium" FontSize="10" TextColor="{StaticResource TzOnDark86}"/>
+                        </Border>
+                        <Border BackgroundColor="{StaticResource TzOnDark10}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Padding="10,5" Margin="0,0,7,7">
+                            <Label Text="Public" FontFamily="ArchivoMedium" FontSize="10" TextColor="{StaticResource TzOnDark86}"/>
+                        </Border>
+                        <Border BackgroundColor="{StaticResource TzOnDark10}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Padding="10,5" Margin="0,0,7,7">
+                            <Label Text="Credited to you" FontFamily="ArchivoMedium" FontSize="10" TextColor="{StaticResource TzOnDark86}"/>
+                        </Border>
+                    </FlexLayout>
+                </VerticalStackLayout>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoShareCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <!-- Preserve a Family Recipe -->
+            <Border Style="{StaticResource Card}" Margin="20,0" Padding="20" StrokeShape="RoundRectangle 20">
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="Preserve a Family Recipe" FontFamily="NewsreaderSemiBold" FontSize="24"
+                           LineHeight="1.1" TextColor="{StaticResource TzInk}" Margin="0,0,0,8"/>
+                    <Label Text="Written down for your own family. Private, shared with relatives, or offered to the public archive — you choose, and you can change it later."
+                           FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.7"
+                           TextColor="{StaticResource TzBodyMuted}" Margin="0,0,0,14"/>
+                    <FlexLayout Wrap="Wrap">
+                        <Border BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Padding="10,5" Margin="0,0,7,7">
+                            <Label Text="Private by default" FontFamily="ArchivoMedium" FontSize="10" TextColor="{StaticResource TzBodyMuted}"/>
+                        </Border>
+                        <Border BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14" Padding="10,5" Margin="0,0,7,7">
+                            <Label Text="Audio and photos" FontFamily="ArchivoMedium" FontSize="10" TextColor="{StaticResource TzBodyMuted}"/>
+                        </Border>
+                    </FlexLayout>
+                </VerticalStackLayout>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoPreserveCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <!-- Drafts row -->
+            <Border Margin="20,22,20,0" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 16" Padding="16">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="{Binding DraftsLabel}" FontFamily="ArchivoSemiBold" FontSize="13"
+                               LineHeight="1.25" TextColor="{StaticResource TzInk}"/>
+                        <Label Text="Nothing is submitted until you say so" Style="{StaticResource MetaText}"/>
+                    </VerticalStackLayout>
+                    <ic:FluentIcon Grid.Column="1" Icon="ChevronRight" IconSize="Size16"
+                                   ForegroundColor="{StaticResource TzChevron}" VerticalOptions="Center"/>
+                </Grid>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoDraftsCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <!-- Your record so far -->
+            <VerticalStackLayout Padding="20,24,20,0" Spacing="12">
+                <Label Text="Your record so far" Style="{StaticResource MicroLabel}"/>
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="11">
+                    <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 15" Padding="15">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="{Binding PublishedCount}" FontFamily="NewsreaderSemiBold" FontSize="24" TextColor="{StaticResource TzGreenDeep}"/>
+                            <Label Text="Published" Style="{StaticResource MetaText}" FontSize="10.5"/>
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource Card}" StrokeShape="RoundRectangle 15" Padding="15">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="{Binding InReviewCount}" FontFamily="NewsreaderSemiBold" FontSize="24" TextColor="{StaticResource TzGoldDecor}"/>
+                            <Label Text="In review" Style="{StaticResource MetaText}" FontSize="10.5"/>
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource Card}" StrokeShape="RoundRectangle 15" Padding="15">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="{Binding PreservedCount}" FontFamily="NewsreaderSemiBold" FontSize="24" TextColor="{StaticResource TzClay}"/>
+                            <Label Text="Preserved" Style="{StaticResource MetaText}" FontSize="10.5"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </VerticalStackLayout>
+
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

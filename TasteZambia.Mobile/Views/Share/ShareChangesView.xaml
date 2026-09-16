@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             xmlns:models="clr-namespace:TasteZambia.Core.Models;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Share.ShareChangesView"
+             x:DataType="vm:ShareChangesViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <VerticalStackLayout Padding="20,18,20,18" BackgroundColor="{StaticResource TzGoldTint}" Spacing="0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="Transparent"
+                                       SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
+                                       HorizontalOptions="Start" Margin="0,0,0,14" Command="{Binding BackCommand}"/>
+                <Border HorizontalOptions="Start" BackgroundColor="#1FA3452A" Stroke="#59A3452A" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20" Padding="11,5" Margin="0,0,0,13">
+                    <Label Text="CHANGES REQUESTED" FontFamily="ArchivoMedium" FontSize="9.5" CharacterSpacing="0.38"
+                           TextColor="{StaticResource TzClayText}"/>
+                </Border>
+                <Label Text="Two questions before we publish" FontFamily="NewsreaderSemiBold" FontSize="28"
+                       LineHeight="1.1" TextColor="{StaticResource TzInk}"/>
+                <Label Text="Nothing was changed. The reviewer has asked rather than edited." Margin="0,9,0,0"
+                       FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.6" TextColor="{StaticResource TzBodyMuted}"/>
+            </VerticalStackLayout>
+
+            <Border Style="{StaticResource Card}" Margin="20" StrokeShape="RoundRectangle 16" Padding="16">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                    <controls:PhotoOrPlaceholder WidthRequest="34" HeightRequest="34" CornerRadius="17"
+                                                 ShowCaption="False" VerticalOptions="Start"/>
+                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                        <Label Text="{Binding ReviewerName}" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                               LineHeight="1.25" TextColor="{StaticResource TzInk}"/>
+                        <Label Text="{Binding ReviewerNote}" FontFamily="ArchivoRegular" FontSize="12"
+                               LineHeight="1.65" TextColor="{StaticResource TzBody}"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <VerticalStackLayout Padding="20,0" Spacing="12" BindableLayout.ItemsSource="{Binding Flagged}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:FlaggedField">
+                        <Border Stroke="#47A3452A" StrokeThickness="1" StrokeShape="RoundRectangle 18" Padding="16"
+                                BackgroundColor="{StaticResource TzSurface}">
+                            <VerticalStackLayout Spacing="0">
+                                <Label Text="{Binding Field}" Style="{StaticResource MicroLabel}"
+                                       TextColor="{StaticResource TzClay}" Margin="0,0,0,10"/>
+                                <Label Text="{Binding Question}" FontFamily="ArchivoRegular" FontSize="12.5"
+                                       LineHeight="1.65" TextColor="{StaticResource TzBody}"/>
+                                <Border Margin="0,12,0,0" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 11" Padding="12">
+                                    <Label FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.5"
+                                           TextColor="{StaticResource TzBodyMuted}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="Your entry: "/>
+                                                <Span Text="{Binding CurrentValue}"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </Border>
+                                <Border Margin="0,11,0,0" Stroke="{StaticResource TzBorderDashed}" StrokeThickness="1"
+                                        StrokeDashArray="4,3" StrokeShape="RoundRectangle 11" Padding="11"
+                                        BackgroundColor="Transparent">
+                                    <Label Text="Reply or edit this field" FontFamily="ArchivoMedium" FontSize="11.5"
+                                           HorizontalOptions="Center" TextColor="{StaticResource TzGold}"/>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Border Style="{StaticResource PrimaryAction}" Margin="20">
+                <Label Text="Resubmit for review" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                       HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ResubmitCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+            <BoxView HeightRequest="6" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

@@ -9,11 +9,17 @@ public interface IContributionService
     ContributionDraft StartFamilyDraft();
     Task<Contribution> SubmitAsync(ContributionDraft draft, CancellationToken ct = default);
     IReadOnlyList<ReviewStage> ReviewPipeline { get; }
+    IReadOnlyList<RecipeDraft> Drafts { get; }
+    IReadOnlyList<ReviewStep> Timeline { get; }
+    IReadOnlyList<FlaggedField> FlaggedFields { get; }
 }
 
 public sealed class ContributionService : IContributionService
 {
     public IReadOnlyList<ReviewStage> ReviewPipeline => SeedData.ReviewPipeline;
+    public IReadOnlyList<RecipeDraft> Drafts => SeedData.Drafts;
+    public IReadOnlyList<ReviewStep> Timeline => SeedData.SubmissionTimeline;
+    public IReadOnlyList<FlaggedField> FlaggedFields => SeedData.FlaggedFields;
 
     /// <summary>Pre-filled to match the walkthrough content in the design.</summary>
     public ContributionDraft StartShareDraft() => new()
