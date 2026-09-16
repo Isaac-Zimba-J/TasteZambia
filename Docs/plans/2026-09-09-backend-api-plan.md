@@ -68,7 +68,11 @@ Features/  →  Services/  →  Repositories/  →  Data/TasteZambiaDbContext
 - **Host port is 5434, not 5432.** A native PostgreSQL 16 owns 5432 on this machine and
   another project's container owns 5433. Inside Compose the API still reaches `db:5432`.
 - All ids are `string` slugs matching the design (`ifisashi`, `chibwabwa`) — they are stable, human-readable and already used by the mobile seed data.
-- Every table carries `RowVersion` (`xmin` mapped as concurrency token) and `UpdatedAt` (`timestamptz`). These two columns are what Stage 5's delta sync will read; nothing else needs to change later.
+- Every table carries `UpdatedAt` (`timestamptz`) and uses Postgres' `xmin` system column as its concurrency token.
+  *Revised during execution:* Npgsql 10 removed `UseXminAsConcurrencyToken()`. The current form is a
+  `uint` property mapped to column `xmin` with store type `xid`, `ValueGeneratedOnAddOrUpdate` and
+  `IsConcurrencyToken`. It is a shadow property via `UseXminConcurrency()` in `ArchiveConfigurations.cs`,
+  so entities carry no `Version` field. These two columns are what Stage 5's delta sync will read; nothing else needs to change later.
 - Content is seeded from the design canvas verbatim. **Do not paraphrase archive copy** — it is the cultural record.
 
 ### API conventions
