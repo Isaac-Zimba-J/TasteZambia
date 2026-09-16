@@ -377,4 +377,52 @@ public static class SeedData
 
     public const string PublishedCredit =
         "Recorded by Chanda Mwaba, Kitwe. As taught by Banakulu Mwaba of Mungwi, Northern Province. Verified against provincial records, September 2026.";
+    public static readonly IReadOnlyList<SavedEntry> Saved =
+    [
+        new("ifisashi", "Saved March 2026",    "The one I cook most"),
+        new("chikanda", "Saved March 2026",    ""),
+        new("nshima",   "Saved January 2026",  ""),
+        new("kapenta",  "Saved January 2026",  "Mum makes this better"),
+        new("inkoko",   "Saved December 2025", ""),
+        new("delele",   "Saved December 2025", ""),
+    ];
+
+    public static readonly IReadOnlyList<WishlistEntry> Wishlist =
+    [
+        new("munkoyo",  "Grandfather used to make this. No one in the family wrote it down."),
+        new("chikanda", "Want to try it before buying it at the market again."),
+        new("kandolo",  ""),
+        new("inkoko",   "For when the family visits at Christmas."),
+        new("delele",   ""),
+    ];
+
+    public static readonly IReadOnlyList<CookedEntry> Cooked =
+    [
+        new("nshima",   "Cooked 31 times", "Yesterday",     ""),
+        new("ifisashi", "Cooked 18 times", "Last week",     "Less water than the recipe says. Mine came out thin the first time."),
+        new("kapenta",  "Cooked 7 times",  "Two weeks ago", ""),
+        new("kandolo",  "Cooked 4 times",  "August",        "Roasting beats boiling."),
+        new("delele",   "Cooked 2 times",  "July",          ""),
+    ];
+
+    public static readonly IReadOnlyList<LanguageStatus> LanguageStatuses =
+    [
+        new("English", "Current interface language",           true),
+        new("Bemba",   "Recipe and ingredient names available", false),
+        new("Nyanja",  "Recipe and ingredient names available", false),
+        new("Tonga",   "In progress · names being collected",   false),
+        new("Lozi",    "In progress · names being collected",   false),
+        new("Kaonde",  "Not started",                           false),
+        new("Lunda",   "Not started",                           false),
+        new("Luvale",  "Not started",                           false),
+    ];
+
+    public static readonly IReadOnlyList<SettingToggle> SettingToggles =
+    [
+        new("Keep recipes for offline cooking", "Saved and family recipes stay on this device. 38 MB used.", true),
+        new("Download photos too",              "Uses more storage. Turn off on a limited data plan.",       true),
+        new("New stories from the archive",     "About twice a month.",                                      true),
+        new("Replies from the archive team",    "When a reviewer asks you something.",                       true),
+        new("Family recipe activity",           "When a relative adds a note or a photo.",                   false),
+    ];
 }

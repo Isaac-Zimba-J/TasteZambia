@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Collections.CookedView"
+             x:DataType="vm:CookedViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <VerticalStackLayout Padding="20,18,20,16" Spacing="0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="Transparent"
+                                       Margin="0,0,0,16" SemanticLabel="Back to profile"
+                                       IconColor="{StaticResource TzInk}" HorizontalOptions="Start"
+                                       Command="{Binding BackToProfileCommand}"/>
+                <Label Text="{Binding CountLabel}" Style="{StaticResource KickerLabel}" TextColor="{StaticResource TzGreenMid}" Margin="0,0,0,9"/>
+                <Label Text="Recipes I’ve Cooked" Style="{StaticResource DisplayTitle}" FontSize="30" CharacterSpacing="-0.3"/>
+                <Label Text="Marked automatically when you finish all the steps in a recipe." Margin="0,9,0,0"
+                       Style="{StaticResource BodySmall}"/>
+            </VerticalStackLayout>
+
+            <!-- Rule-separated rows, not cards, per the design. -->
+            <VerticalStackLayout Padding="20,0" Spacing="0" BindableLayout.ItemsSource="{Binding Items}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CookedRowViewModel">
+                        <Grid Padding="0,15" ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                            <BoxView Grid.ColumnSpan="2" HeightRequest="1" VerticalOptions="Start" Margin="0,-15,0,0"
+                                     Color="{StaticResource TzRule}"/>
+                            <controls:PhotoOrPlaceholder WidthRequest="60" HeightRequest="60" CornerRadius="13"
+                                                         ShowCaption="False" ImageAsset="{Binding Dish.ImageAsset}" VerticalOptions="Start"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                <Label Text="{Binding Dish.Title}" Style="{StaticResource CardTitle}"/>
+                                <HorizontalStackLayout Spacing="9" Margin="0,5,0,0">
+                                    <Label Text="{Binding Times}" FontFamily="ArchivoMedium" FontSize="10.5" TextColor="{StaticResource TzGreenMid}"/>
+                                    <Label Text="{Binding Last}" FontFamily="ArchivoRegular" FontSize="10.5" TextColor="{StaticResource TzMuted2}"/>
+                                </HorizontalStackLayout>
+                                <Border IsVisible="{Binding HasNote}" Margin="0,9,0,0" BackgroundColor="{StaticResource TzCream}"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 11" Padding="12,11">
+                                    <Label Text="{Binding Note}" FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6"
+                                           TextColor="{StaticResource TzBody}"/>
+                                </Border>
+                            </VerticalStackLayout>
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Dish.OpenCommand}"/>
+                            </Grid.GestureRecognizers>
+                        </Grid>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Border Margin="20,22,20,0" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="16">
+                <Label Text="Your notes stay private. If you want to add one to the public recipe instead, submit it as a variation."
+                       FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.65" TextColor="{StaticResource TzBodyMuted}"/>
+            </Border>
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Collections.WantToTryView"
+             x:DataType="vm:WantToTryViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <VerticalStackLayout Padding="20,18,20,16" Spacing="0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="Transparent"
+                                       Margin="0,0,0,16" SemanticLabel="Back to profile"
+                                       IconColor="{StaticResource TzInk}" HorizontalOptions="Start"
+                                       Command="{Binding BackToProfileCommand}"/>
+                <Label Text="{Binding CountLabel}" Style="{StaticResource KickerLabel}" TextColor="{StaticResource TzGold}" Margin="0,0,0,9"/>
+                <Label Text="Recipes I Want to Try" Style="{StaticResource DisplayTitle}" FontSize="30" CharacterSpacing="-0.3"/>
+                <Label Text="Add a note about why, so the list still makes sense in a year." Margin="0,9,0,0"
+                       Style="{StaticResource BodySmall}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Padding="20,0" Spacing="11" BindableLayout.ItemsSource="{Binding Items}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:WishlistRowViewModel">
+                        <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 18" Padding="15">
+                            <VerticalStackLayout Spacing="0">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                    <VerticalStackLayout Spacing="3">
+                                        <Label Text="{Binding Dish.Title}" FontFamily="NewsreaderSemiBold" FontSize="19" LineHeight="1.15"
+                                               TextColor="{StaticResource TzInk}"/>
+                                        <Label Text="{Binding Dish.Subtitle}" Style="{StaticResource EnglishSubtitle}"/>
+                                    </VerticalStackLayout>
+                                    <controls:PillLabel Grid.Column="1" Text="{Binding Dish.TimeLabel}" VerticalOptions="Start"
+                                                        PillBackground="{StaticResource TzGreenTint}" TextColor="{StaticResource TzGreenMid}"/>
+                                </Grid>
+                                <Border IsVisible="{Binding HasWhy}" Margin="0,11,0,0" BackgroundColor="{StaticResource TzCream}"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="12">
+                                    <Label Text="{Binding Why}" FontFamily="ArchivoRegular" FontSize="12" LineHeight="1.6"
+                                           TextColor="{StaticResource TzBody}"/>
+                                </Border>
+                                <HorizontalStackLayout Spacing="8" Margin="0,12,0,0">
+                                    <Border BackgroundColor="{StaticResource TzGold}" StrokeThickness="0" StrokeShape="RoundRectangle 11" Padding="13,9">
+                                        <Label Text="Cook this next" FontFamily="ArchivoSemiBold" FontSize="11" TextColor="{StaticResource TzSurface}"/>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Dish.OpenCommand}"/>
+                                        </Border.GestureRecognizers>
+                                    </Border>
+                                    <Border Stroke="{StaticResource TzBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 11" Padding="13,9">
+                                        <Label Text="Remove" FontFamily="ArchivoMedium" FontSize="11" TextColor="{StaticResource TzMuted}"/>
+                                    </Border>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Collections.FavouritesView"
+             x:DataType="vm:FavouritesViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <VerticalStackLayout Padding="20,18,20,16" Spacing="0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="Transparent"
+                                       Margin="0,0,0,16" SemanticLabel="Back to profile"
+                                       IconColor="{StaticResource TzInk}" HorizontalOptions="Start"
+                                       Command="{Binding BackToProfileCommand}"/>
+                <Label Text="{Binding CountLabel}" Style="{StaticResource KickerLabel}" Margin="0,0,0,9"/>
+                <Label Text="My Favourite Zambian Foods" Style="{StaticResource DisplayTitle}" FontSize="30" CharacterSpacing="-0.3"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Padding="20,0" Spacing="12" BindableLayout.ItemsSource="{Binding Items}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SavedRowViewModel">
+                        <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 18" Padding="12">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                                <controls:PhotoOrPlaceholder WidthRequest="74" HeightRequest="74" CornerRadius="14"
+                                                             ShowCaption="False" ImageAsset="{Binding Dish.ImageAsset}"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label Text="{Binding Dish.Title}" Style="{StaticResource CardTitle}"/>
+                                            <Label Text="{Binding Dish.Subtitle}" Style="{StaticResource EnglishSubtitle}"/>
+                                        </VerticalStackLayout>
+                                        <controls:CircleButton Grid.Column="1" Icon="Heart" Diameter="26" IconSize="Size16"
+                                                               Background="Transparent" VerticalOptions="Start"
+                                                               SemanticLabel="{Binding Dish.SaveSemanticLabel}"
+                                                               IconVariant="{Binding Dish.IsSaved, Converter={StaticResource BoolToIconVariant}}"
+                                                               IconColor="{Binding Dish.SaveColorHex, Converter={StaticResource HexToColor}}"
+                                                               Command="{Binding Dish.ToggleSaveCommand}"/>
+                                    </Grid>
+                                    <Label Text="{Binding Note}" IsVisible="{Binding HasNote}" Margin="0,6,0,0"
+                                           FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.5" TextColor="{StaticResource TzBody}"/>
+                                    <Label Text="{Binding When}" Margin="0,8,0,0" FontFamily="PlexMonoRegular" FontSize="10"
+                                           TextColor="{StaticResource TzMuted2}"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Dish.OpenCommand}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

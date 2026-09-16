@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:ic="clr-namespace:FluentIcons.Maui;assembly=FluentIcons.Maui"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             xmlns:models="clr-namespace:TasteZambia.Core.Models;assembly=TasteZambia.Core"
+             xmlns:sys="clr-namespace:System;assembly=netstandard"
+             x:Class="TasteZambia.Mobile.Views.Collections.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <VerticalStackLayout Padding="20,18,20,16" Spacing="0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="Transparent"
+                                       Margin="0,0,0,16" SemanticLabel="Back to profile"
+                                       IconColor="{StaticResource TzInk}" HorizontalOptions="Start"
+                                       Command="{Binding BackToProfileCommand}"/>
+                <Label Text="Settings" Style="{StaticResource DisplayTitle}" FontSize="30" CharacterSpacing="-0.3"/>
+            </VerticalStackLayout>
+
+            <!-- Language -->
+            <VerticalStackLayout Padding="20,6,20,0" Spacing="0">
+                <Label Text="Language" Style="{StaticResource MicroLabel}" Margin="0,0,0,8"/>
+                <Label Text="The interface is in English. Dish and ingredient names appear in their own language throughout, and more are added as the community contributes them."
+                       FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6" TextColor="{StaticResource TzBodyMuted}" Margin="0,0,0,12"/>
+                <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Languages}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:LanguageStatus">
+                            <Border StrokeThickness="1.5" StrokeShape="RoundRectangle 14" Padding="14,13">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsCurrent}" Value="True">
+                                        <Setter Property="Stroke" Value="{StaticResource TzGreenDeep}"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource TzGreenTint}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsCurrent}" Value="False">
+                                        <Setter Property="Stroke" Value="{StaticResource TzHairline}"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource TzSurface}"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <VerticalStackLayout Spacing="3">
+                                        <Label Text="{Binding Name}" FontFamily="ArchivoSemiBold" FontSize="13" LineHeight="1.2" TextColor="{StaticResource TzInk}"/>
+                                        <Label Text="{Binding Note}" Style="{StaticResource MetaText}" FontSize="10.5"/>
+                                    </VerticalStackLayout>
+                                    <Border Grid.Column="1" WidthRequest="18" HeightRequest="18" IsVisible="{Binding IsCurrent}"
+                                            BackgroundColor="{StaticResource TzGreenDeep}" StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 9" Padding="0" VerticalOptions="Center">
+                                        <ic:FluentIcon Icon="Checkmark" IconSize="Size12" ForegroundColor="{StaticResource TzSurface}"
+                                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+                <Border Margin="0,12,0,0" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="14">
+                    <Label FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6" TextColor="{StaticResource TzBodyMuted}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Speak one of the languages marked in progress? "/>
+                                <Span Text="Help complete it" FontFamily="ArchivoSemiBold" TextColor="{StaticResource TzGold}"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Storage and notifications -->
+            <VerticalStackLayout Padding="20,26,20,0" Spacing="12">
+                <Label Text="Storage and notifications" Style="{StaticResource MicroLabel}"/>
+                <Border Stroke="{StaticResource TzHairline}" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="0"
+                        BackgroundColor="{StaticResource TzSurface}">
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Toggles}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:SettingToggle">
+                                <Grid Padding="15,14" ColumnDefinitions="*,Auto" ColumnSpacing="14">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="{Binding Label}" FontFamily="ArchivoMedium" FontSize="12.5" LineHeight="1.25" TextColor="{StaticResource TzInk}"/>
+                                        <Label Text="{Binding Note}" FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.45" TextColor="{StaticResource TzMuted}"/>
+                                    </VerticalStackLayout>
+                                    <Switch Grid.Column="1" IsToggled="{Binding IsOn}" OnColor="{StaticResource TzGreenMid}"
+                                            ThumbColor="{StaticResource TzSurface}" VerticalOptions="Center"/>
+                                    <BoxView Grid.ColumnSpan="2" HeightRequest="1" VerticalOptions="End" Margin="0,0,0,-14"
+                                             Color="{StaticResource TzHairlineSoft}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Account -->
+            <VerticalStackLayout Padding="20,26,20,0" Spacing="12">
+                <Label Text="Account" Style="{StaticResource MicroLabel}"/>
+                <Border Stroke="{StaticResource TzHairline}" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="0"
+                        BackgroundColor="{StaticResource TzSurface}">
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding AccountRows}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="sys:String">
+                                <Grid Padding="15,14" ColumnDefinitions="*,Auto">
+                                    <Label Text="{Binding}" FontFamily="ArchivoMedium" FontSize="12.5" TextColor="{StaticResource TzBody}" VerticalOptions="Center"/>
+                                    <ic:FluentIcon Grid.Column="1" Icon="ChevronRight" IconSize="Size16" ForegroundColor="{StaticResource TzChevron}" VerticalOptions="Center"/>
+                                    <BoxView Grid.ColumnSpan="2" HeightRequest="1" VerticalOptions="End" Margin="0,0,0,-14" Color="{StaticResource TzHairlineSoft}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <Border Style="{StaticResource DeepPanel}" Margin="20,24,20,0" Padding="18" StrokeShape="RoundRectangle 18">
+                <VerticalStackLayout Spacing="9">
+                    <Label Text="Your recipes stay yours" FontFamily="NewsreaderMedium" FontSize="19" LineHeight="1.25" TextColor="{StaticResource TzSurface}"/>
+                    <Label Text="Anything you contribute can be withdrawn, and you can export every recipe, photo and recording you have added at any time."
+                           FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.65" TextColor="{StaticResource TzOnDark82}"/>
+                </VerticalStackLayout>
+            </Border>
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>
