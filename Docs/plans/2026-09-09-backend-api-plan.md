@@ -62,7 +62,11 @@ Features/  →  Services/  →  Repositories/  →  Data/TasteZambiaDbContext
 - DTO changes are **additive**. Never remove or rename a field on `v1`; add a `v2` route instead. The mobile app compiles against these types, so a removal is a client build break.
 
 ### Data
-- PostgreSQL 17, one database, one schema, one `DbContext`.
+- PostgreSQL 16 (`postgres:16-alpine`), one database, one schema, one `DbContext`.
+  *Revised during execution:* the plan said 17, but 16-alpine was already local and the
+  17 pull stalled; nothing in Stage 1 distinguishes them.
+- **Host port is 5434, not 5432.** A native PostgreSQL 16 owns 5432 on this machine and
+  another project's container owns 5433. Inside Compose the API still reaches `db:5432`.
 - All ids are `string` slugs matching the design (`ifisashi`, `chibwabwa`) — they are stable, human-readable and already used by the mobile seed data.
 - Every table carries `RowVersion` (`xmin` mapped as concurrency token) and `UpdatedAt` (`timestamptz`). These two columns are what Stage 5's delta sync will read; nothing else needs to change later.
 - Content is seeded from the design canvas verbatim. **Do not paraphrase archive copy** — it is the cultural record.
@@ -147,14 +151,14 @@ Replace `compose.yaml`:
 ```yaml
 services:
   db:
-    image: postgres:17-alpine
+    image: postgres:16-alpine
     container_name: tastezambia-db
     environment:
       POSTGRES_DB: tastezambia
       POSTGRES_USER: tastezambia
       POSTGRES_PASSWORD: localdev
     ports:
-      - "5432:5432"
+      - "5434:5432"   # 5432 is the machine's native Postgres
     volumes:
       - tastezambia-pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -186,6 +190,9 @@ volumes:
 Run: `docker compose up -d db && docker compose ps`
 Expected: `tastezambia-db` reports `healthy` within ~15s. If Docker is not running, start it — the rest of this task depends on the database.
 
+> `docker` is not on this shell's PATH; it lives at `/usr/local/bin/docker`. If the daemon is
+> down, `open -a Docker` starts Docker Desktop.
+
 - [ ] **Step 3: Add the packages**
 
 ```bash
@@ -210,7 +217,7 @@ dotnet tool install --global dotnet-ef   # skip if already installed
     }
   },
   "ConnectionStrings": {
-    "Archive": "Host=localhost;Port=5432;Database=tastezambia;Username=tastezambia;Password=localdev"
+    "Archive": "Host=localhost;Port=5434;Database=tastezambia;Username=tastezambia;Password=localdev"
   }
 }
 ```

@@ -1,7 +1,34 @@
-﻿services:
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: tastezambia-db
+    environment:
+      POSTGRES_DB: tastezambia
+      POSTGRES_USER: tastezambia
+      POSTGRES_PASSWORD: localdev
+    ports:
+      - "5434:5432"
+    volumes:
+      - tastezambia-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tastezambia -d tastezambia"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   tastezambia.api:
     image: tastezambia.api
     build:
       context: .
       dockerfile: TasteZambia.API/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Archive: "Host=db;Port=5432;Database=tastezambia;Username=tastezambia;Password=localdev"
+    ports:
+      - "8080:8080"
 
+volumes:
+  tastezambia-pgdata:

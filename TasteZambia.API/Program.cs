@@ -21,3 +21,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+// WebApplicationFactory needs a reachable entry point.
+public partial class Program;
