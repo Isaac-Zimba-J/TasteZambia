@@ -36,6 +36,11 @@ public static class ApiRoutes
         public const string ArticleById = $"{Articles}/{{id}}";
     }
 
+    public static class Categories
+    {
+        public const string Collection = $"{Root}/categories";
+    }
+
     public static class Sync
     {
         /// <summary>Delta endpoint: pass ?since={cursor} to receive only what changed.</summary>
