@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:ic="clr-namespace:FluentIcons.Maui;assembly=FluentIcons.Maui"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             xmlns:models="clr-namespace:TasteZambia.Core.Models;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Family.FamDraftView"
+             x:DataType="vm:FamDraftViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <Grid Padding="20,18,20,0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="Transparent"
+                                       SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
+                                       HorizontalOptions="Start" Command="{Binding BackCommand}"/>
+            </Grid>
+
+            <VerticalStackLayout Padding="20,12,20,16" Spacing="0">
+                <Border HorizontalOptions="Start" BackgroundColor="{StaticResource TzDraftBg}" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 20" Padding="11,5" Margin="0,0,0,13">
+                    <Label Text="DRAFT · AUTOSAVED" FontFamily="ArchivoMedium" FontSize="9.5" CharacterSpacing="0.38"
+                           TextColor="{StaticResource TzMuted2}"/>
+                </Border>
+                <Label Text="{Binding RecipeName}" FontFamily="NewsreaderSemiBold" FontSize="29" LineHeight="1.08"
+                       TextColor="{StaticResource TzInk}"/>
+                <Label Text="{Binding Meta}" Margin="0,7,0,0" FontFamily="ArchivoRegular" FontSize="12.5"
+                       LineHeight="1.5" TextColor="{StaticResource TzMuted}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Padding="20,0" Spacing="8">
+                <ProgressBar Progress="{Binding Fraction}" HeightRequest="5"
+                             ProgressColor="{StaticResource TzGreenMid}" BackgroundColor="{StaticResource TzRule}"/>
+                <Label Text="{Binding ProgressLabel}" FontFamily="PlexMonoRegular" FontSize="11" TextColor="{StaticResource TzMuted}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Padding="20,20,20,0" Spacing="10" BindableLayout.ItemsSource="{Binding Checklist}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:DraftChecklistItem">
+                        <Border StrokeThickness="1" StrokeShape="RoundRectangle 15" Padding="14">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsDone}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource TzGreenTint}"/>
+                                    <Setter Property="Stroke" Value="#332F6A4D"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsDone}" Value="False">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource TzSurface}"/>
+                                    <Setter Property="Stroke" Value="{StaticResource TzBorder}"/>
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Border WidthRequest="20" HeightRequest="20" StrokeShape="RoundRectangle 6" Padding="0"
+                                        VerticalOptions="Center">
+                                    <Border.Triggers>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsDone}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{StaticResource TzGreenMid}"/>
+                                            <Setter Property="StrokeThickness" Value="0"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Border" Binding="{Binding IsDone}" Value="False">
+                                            <Setter Property="BackgroundColor" Value="Transparent"/>
+                                            <Setter Property="Stroke" Value="{StaticResource TzBorderDashed}"/>
+                                            <Setter Property="StrokeThickness" Value="1.5"/>
+                                        </DataTrigger>
+                                    </Border.Triggers>
+                                    <ic:FluentIcon Icon="Checkmark" IconSize="Size12" IsVisible="{Binding IsDone}"
+                                                   ForegroundColor="{StaticResource TzSurface}"
+                                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                    <Label Text="{Binding Label}" FontFamily="ArchivoMedium" FontSize="12.5" LineHeight="1.3">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsDone}" Value="True">
+                                                <Setter Property="TextColor" Value="{StaticResource TzStoryBody}"/>
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsDone}" Value="False">
+                                                <Setter Property="TextColor" Value="{StaticResource TzInk}"/>
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <Label Text="{Binding Detail}" IsVisible="{Binding HasDetail}"
+                                           FontFamily="ArchivoRegular" FontSize="11" LineHeight="1.4"
+                                           TextColor="{StaticResource TzMuted}"/>
+                                </VerticalStackLayout>
+                                <ic:FluentIcon Grid.Column="2" Icon="ChevronRight" IconSize="Size16"
+                                               IsVisible="{Binding IsDone, Converter={StaticResource InvertedBool}}"
+                                               ForegroundColor="{StaticResource TzMuted}" VerticalOptions="Center"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <!-- Audio uploaded, transcription pending -->
+            <Border Style="{StaticResource DeepPanel}" Margin="20,22,20,0" Padding="16" StrokeShape="RoundRectangle 18">
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="Audio uploaded" Style="{StaticResource MicroLabel}"
+                           TextColor="{StaticResource TzGoldLight}" Margin="0,0,0,13"/>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Border WidthRequest="38" HeightRequest="38" BackgroundColor="{StaticResource TzOnDark14}"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 19" Padding="0">
+                            <ic:FluentIcon Icon="Play" IconVariant="Filled" IconSize="Size16"
+                                           ForegroundColor="{StaticResource TzSurface}"
+                                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                            <Label Text="{Binding Recording.Speaker}" FontFamily="ArchivoSemiBold" FontSize="12"
+                                   LineHeight="1.2" TextColor="{StaticResource TzSurface}"/>
+                            <BoxView HeightRequest="3" CornerRadius="1.5" Color="{StaticResource TzOnDark20}"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="{Binding Recording.Duration}" VerticalOptions="Center"
+                               FontFamily="PlexMonoRegular" FontSize="10.5" TextColor="{StaticResource TzOnDark66}"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" Color="{StaticResource TzOnDark14}" Margin="0,14,0,13"/>
+                    <Label Text="{Binding TranscriptionNote}" FontFamily="ArchivoRegular" FontSize="11.5"
+                           LineHeight="1.6" TextColor="{StaticResource TzOnDark66}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Grid Padding="20" ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                <Border Style="{StaticResource SecondaryAction}" Padding="18,15">
+                    <Label Text="Leave as draft" FontFamily="ArchivoSemiBold" FontSize="12.5" TextColor="{StaticResource TzBody}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding BackCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource PrimaryAction}">
+                    <Label Text="Finish and save" FontFamily="ArchivoSemiBold" FontSize="13"
+                           HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding FinishCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+            <BoxView HeightRequest="6" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

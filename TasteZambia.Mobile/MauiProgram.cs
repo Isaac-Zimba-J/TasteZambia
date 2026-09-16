@@ -7,6 +7,7 @@ using TasteZambia.Mobile.Views;
 using TasteZambia.Mobile.Views.Sections;
 using TasteZambia.Mobile.Views.Onboarding;
 using TasteZambia.Mobile.Views.Share;
+using TasteZambia.Mobile.Views.Family;
 using TasteZambia.Core.ViewModels;
 
 namespace TasteZambia.Mobile;
@@ -53,6 +54,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<ICookingProgressService, CookingProgressService>();
         builder.Services.AddSingleton<IPreferenceService, PreferenceService>();
         builder.Services.AddSingleton<IContributionService, ContributionService>();
+        // Singleton: a privacy change on famPublic must be visible everywhere.
+        builder.Services.AddSingleton<IFamilyArchiveService, FamilyArchiveService>();
         // One instance, resolved as both the concrete type (App attaches the host
         // to it) and the interface the ViewModels depend on.
         builder.Services.AddSingleton<AppNavigationService>();
@@ -109,6 +112,16 @@ public static class MauiProgram
         builder.Services.AddTransient<ShareChangesView>();
         builder.Services.AddTransient<SharePublishedViewModel>();
         builder.Services.AddTransient<SharePublishedView>();
+        builder.Services.AddTransient<FamStartViewModel>();
+        builder.Services.AddTransient<FamStartView>();
+        builder.Services.AddTransient<FamDraftViewModel>();
+        builder.Services.AddTransient<FamDraftView>();
+        builder.Services.AddTransient<FamSavedViewModel>();
+        builder.Services.AddTransient<FamSavedView>();
+        builder.Services.AddTransient<FamSharedViewModel>();
+        builder.Services.AddTransient<FamSharedView>();
+        builder.Services.AddTransient<FamPublicViewModel>();
+        builder.Services.AddTransient<FamPublicView>();
 
 #if DEBUG
         builder.Logging.AddDebug();

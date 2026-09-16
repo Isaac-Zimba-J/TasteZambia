@@ -94,6 +94,6 @@ public sealed partial class ProfileViewModel(
     }
 
     [RelayCommand] private Task OpenShare() => Navigation.GoToAsync("shareStart");
-    [RelayCommand] private Task OpenFamily() => Navigation.GoToAsync("family");
+    [RelayCommand] private Task OpenFamily() => Navigation.GoToAsync("famStart");
     [RelayCommand] private Task OpenSettings() => Navigation.GoToAsync("settings");
 }

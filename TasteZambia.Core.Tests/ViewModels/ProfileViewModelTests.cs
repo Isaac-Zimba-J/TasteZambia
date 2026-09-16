@@ -74,7 +74,7 @@ public class ProfileViewModelTests
         vm.OpenFamilyCommand.Execute(null);
         vm.OpenSettingsCommand.Execute(null);
 
-        Assert.Equal(["shareStart", "family", "settings"], nav.Routes);
+        Assert.Equal(["shareStart", "famStart", "settings"], nav.Routes);
     }
 
     [Fact]

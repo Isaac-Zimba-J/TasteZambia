@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             xmlns:models="clr-namespace:TasteZambia.Core.Models;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Family.FamPublicView"
+             x:DataType="vm:FamPublicViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <VerticalStackLayout Padding="20,18,20,18" BackgroundColor="{StaticResource TzGreenDeep}" Spacing="0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="{StaticResource TzOnDark14}"
+                                       SemanticLabel="Go back" IconColor="{StaticResource TzSurface}"
+                                       HorizontalOptions="Start" Margin="0,0,0,14" Command="{Binding BackCommand}"/>
+                <Border HorizontalOptions="Start" BackgroundColor="#33E8BD77" Stroke="#80E8BD77" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20" Padding="11,5" Margin="0,0,0,13">
+                    <Label Text="NOW IN THE PUBLIC ARCHIVE" FontFamily="ArchivoMedium" FontSize="9.5" CharacterSpacing="0.38"
+                           TextColor="{StaticResource TzGoldLight}"/>
+                </Border>
+                <Label Text="{Binding Headline}" FontFamily="NewsreaderMedium" FontSize="30" LineHeight="1.06"
+                       TextColor="{StaticResource TzSurface}"/>
+                <Label Text="{Binding Intro}" Margin="0,9,0,0" FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.6"
+                       TextColor="{StaticResource TzOnDark82}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Padding="20,22,20,0" Spacing="0">
+                <Label Text="How it got here" Style="{StaticResource MicroLabel}" Margin="0,0,0,14"/>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Provenance}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:ProvenanceStep">
+                            <Grid Padding="0,12" ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                                <BoxView Grid.ColumnSpan="2" HeightRequest="1" VerticalOptions="Start" Margin="0,-12,0,0"
+                                         Color="{StaticResource TzRule}"/>
+                                <BoxView WidthRequest="9" HeightRequest="9" CornerRadius="4.5" Margin="0,5,0,0" VerticalOptions="Start"
+                                         Color="{Binding DotHex, Converter={StaticResource HexToColor}}"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Label Text="{Binding Label}" FontFamily="ArchivoSemiBold" FontSize="12.5" LineHeight="1.25"
+                                           TextColor="{StaticResource TzInk}"/>
+                                    <Label Text="{Binding Detail}" FontFamily="ArchivoRegular" FontSize="11" LineHeight="1.5"
+                                           TextColor="{StaticResource TzBodyMuted}"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+                <BoxView HeightRequest="1" Color="{StaticResource TzRule}"/>
+            </VerticalStackLayout>
+
+            <Border Margin="20,22,20,0" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 18" Padding="18">
+                <VerticalStackLayout Spacing="0">
+                    <Label Text="Permanent credit" Style="{StaticResource MicroLabel}" TextColor="{StaticResource TzGreenMid}" Margin="0,0,0,11"/>
+                    <Label Text="{Binding Credit}" FontFamily="NewsreaderSemiBold" FontSize="19" LineHeight="1.3" TextColor="{StaticResource TzInk}"/>
+                    <Label Text="{Binding CreditNote}" Margin="0,9,0,0" FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6"
+                           TextColor="{StaticResource TzBodyMuted}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource SecondaryAction}" Margin="20">
+                <Label Text="Make private again" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                       HorizontalOptions="Center" TextColor="{StaticResource TzBody}"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding MakePrivateCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+            <BoxView HeightRequest="6" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

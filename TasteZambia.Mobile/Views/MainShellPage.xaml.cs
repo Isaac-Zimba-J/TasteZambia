@@ -1,5 +1,6 @@
 using TasteZambia.Mobile.Views.Sections;
 using TasteZambia.Mobile.Views.Share;
+using TasteZambia.Mobile.Views.Family;
 
 namespace TasteZambia.Mobile.Views;
 
@@ -31,6 +32,11 @@ public partial class MainShellPage : ContentPage
         ["shareReview"]    = (typeof(ShareReviewView),    "profile"),
         ["shareChanges"]   = (typeof(ShareChangesView),   "profile"),
         ["sharePublished"] = (typeof(SharePublishedView), "profile"),
+        ["famStart"]  = (typeof(FamStartView),  "profile"),
+        ["famDraft"]  = (typeof(FamDraftView),  "profile"),
+        ["famSaved"]  = (typeof(FamSavedView),  "profile"),
+        ["famShared"] = (typeof(FamSharedView), "profile"),
+        ["famPublic"] = (typeof(FamPublicView), "profile"),
     };
 
     /// <summary>Views pushed over the current section, most recent last.</summary>

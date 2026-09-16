@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Family.FamStartView"
+             x:DataType="vm:FamStartViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <VerticalStackLayout Padding="22,22,22,20" BackgroundColor="{StaticResource TzGreenDeep}" Spacing="0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="{StaticResource TzOnDark14}"
+                                       SemanticLabel="Go back" IconColor="{StaticResource TzSurface}"
+                                       HorizontalOptions="Start" Margin="0,0,0,16" Command="{Binding BackCommand}"/>
+                <Label Text="Family archive" Style="{StaticResource KickerLabel}"
+                       TextColor="{StaticResource TzGoldLight}" Margin="0,0,0,13"/>
+                <Label Text="Preserve a Family Recipe" FontFamily="NewsreaderMedium" FontSize="33"
+                       LineHeight="1.06" CharacterSpacing="-0.5" TextColor="{StaticResource TzSurface}"/>
+                <Label Text="Write a recipe down the way it was taught to you, so it outlasts the person who taught it. Include their voice if you can."
+                       Margin="0,11,0,0" FontFamily="ArchivoRegular" FontSize="13" LineHeight="1.7"
+                       TextColor="{StaticResource TzOnDark84}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Padding="20,22,20,0" Spacing="0">
+                <Label Text="What you will be asked" Style="{StaticResource MicroLabel}" Margin="0,0,0,13"/>
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Steps}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:FamStep">
+                            <Grid Padding="0,13" ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                                <BoxView Grid.ColumnSpan="2" HeightRequest="1" VerticalOptions="Start"
+                                         Margin="0,-13,0,0" Color="{StaticResource TzRule}"/>
+                                <Border WidthRequest="24" HeightRequest="24" BackgroundColor="{StaticResource TzCream}"
+                                        StrokeThickness="0" StrokeShape="RoundRectangle 8" Padding="0" VerticalOptions="Start">
+                                    <Label Text="{Binding Number}" FontFamily="ArchivoSemiBold" FontSize="11"
+                                           TextColor="{StaticResource TzGreenDeep}"
+                                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Label Text="{Binding StepTitle}" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                                           LineHeight="1.25" TextColor="{StaticResource TzInk}"/>
+                                    <Label Text="{Binding Detail}" FontFamily="ArchivoRegular" FontSize="11.5"
+                                           LineHeight="1.55" TextColor="{StaticResource TzBodyMuted}"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+                <BoxView HeightRequest="1" Color="{StaticResource TzRule}"/>
+            </VerticalStackLayout>
+
+            <Border Margin="20,22,20,0" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 16" Padding="16">
+                <Label Text="Nothing here is published by default. A family recipe stays private unless you decide otherwise."
+                       FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.65" TextColor="{StaticResource TzBodyMuted}"/>
+            </Border>
+
+            <Border Style="{StaticResource PrimaryAction}" Margin="20,16,20,0" Padding="16">
+                <Label Text="Begin" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                       HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding BeginCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

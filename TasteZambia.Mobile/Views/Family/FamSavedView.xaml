@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:ic="clr-namespace:FluentIcons.Maui;assembly=FluentIcons.Maui"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             xmlns:models="clr-namespace:TasteZambia.Core.Models;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Family.FamSavedView"
+             x:DataType="vm:FamSavedViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <Grid Padding="20,18,20,0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" Background="Transparent"
+                                       SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
+                                       HorizontalOptions="Start" Command="{Binding BackCommand}"/>
+            </Grid>
+
+            <Border Style="{StaticResource DeepPanel}" Margin="20,12,20,0" Padding="20,26" StrokeShape="RoundRectangle 22">
+                <VerticalStackLayout Spacing="0" HorizontalOptions="Center">
+                    <Border WidthRequest="52" HeightRequest="52" BackgroundColor="#33E8BD77" Stroke="#80E8BD77"
+                            StrokeThickness="1" StrokeShape="RoundRectangle 26" Padding="0" Margin="0,0,0,16"
+                            HorizontalOptions="Center">
+                        <ic:FluentIcon Icon="Checkmark" IconSize="Size24" ForegroundColor="{StaticResource TzGoldLight}"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Label Text="{Binding Headline}" FontFamily="NewsreaderMedium" FontSize="27" LineHeight="1.12"
+                           HorizontalTextAlignment="Center" TextColor="{StaticResource TzSurface}" Margin="0,0,0,10"/>
+                    <Label Text="{Binding Body}" FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.7"
+                           HorizontalTextAlignment="Center" TextColor="{StaticResource TzOnDark82}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Margin="20,22,20,0" BackgroundColor="{StaticResource TzGreenTint}" Stroke="{StaticResource TzGreenDeep}"
+                    StrokeThickness="1.5" StrokeShape="RoundRectangle 16" Padding="16">
+                <VerticalStackLayout Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Label Text="{Binding PrivacyLabel}" FontFamily="ArchivoSemiBold" FontSize="13" LineHeight="1.25"
+                               TextColor="{StaticResource TzInk}"/>
+                        <Label Grid.Column="1" Text="Change" FontFamily="ArchivoMedium" FontSize="11"
+                               TextColor="{StaticResource TzGold}" VerticalOptions="Center"/>
+                    </Grid>
+                    <Label Text="{Binding PrivacyNote}" FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6"
+                           TextColor="{StaticResource TzBody}"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <VerticalStackLayout Padding="20,22,20,0" Spacing="12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Who has access" FontFamily="NewsreaderSemiBold" FontSize="20" TextColor="{StaticResource TzInk}"/>
+                    <Label Grid.Column="1" Text="+ Invite" FontFamily="ArchivoMedium" FontSize="11"
+                           TextColor="{StaticResource TzGold}" VerticalOptions="End"/>
+                </Grid>
+                <Border Stroke="{StaticResource TzHairline}" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="0"
+                        BackgroundColor="{StaticResource TzSurface}">
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Members}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:FamilyMember">
+                                <Grid Padding="15,13" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                    <controls:PhotoOrPlaceholder WidthRequest="32" HeightRequest="32" CornerRadius="16" ShowCaption="False"/>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}" FontFamily="ArchivoSemiBold" FontSize="12.5" LineHeight="1.2"
+                                               TextColor="{StaticResource TzInk}"/>
+                                        <Label Text="{Binding Role}" Style="{StaticResource MetaText}" FontSize="10.5"/>
+                                    </VerticalStackLayout>
+                                    <controls:PillLabel Grid.Column="2" Text="{Binding Status}" VerticalOptions="Center"
+                                                        PillBackground="{Binding BadgeBgHex, Converter={StaticResource HexToColor}}"
+                                                        TextColor="{Binding BadgeFgHex, Converter={StaticResource HexToColor}}"/>
+                                    <BoxView Grid.ColumnSpan="3" HeightRequest="1" VerticalOptions="End" Margin="0,0,0,-13"
+                                             Color="{StaticResource TzHairlineSoft}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <Border Margin="20" BackgroundColor="{StaticResource TzGreenDeep}" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 14" Padding="15">
+                <Label Text="Open the family view" FontFamily="ArchivoSemiBold" FontSize="13"
+                       HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenFamilyViewCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+            <BoxView HeightRequest="6" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

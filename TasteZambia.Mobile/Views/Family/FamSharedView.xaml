@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:ic="clr-namespace:FluentIcons.Maui;assembly=FluentIcons.Maui"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             xmlns:models="clr-namespace:TasteZambia.Core.Models;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Family.FamSharedView"
+             x:DataType="vm:FamSharedViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <Grid HeightRequest="222">
+                <Image Source="ifisashi.png" Aspect="AspectFill"/>
+                <BoxView>
+                    <BoxView.Background>
+                        <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                            <GradientStop Color="#EB0E2018" Offset="0.0"/>
+                            <GradientStop Color="#1A0E2018" Offset="0.62"/>
+                            <GradientStop Color="#470E2018" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </BoxView.Background>
+                </BoxView>
+                <controls:CircleButton Margin="16" Padding="0,16,0,0" HorizontalOptions="Start" VerticalOptions="Start"
+                                       Icon="ArrowLeft" SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
+                                       Command="{Binding BackCommand}"/>
+                <VerticalStackLayout Padding="20,0,20,17" VerticalOptions="End" Spacing="0">
+                    <Border HorizontalOptions="Start" BackgroundColor="#29FFFDF9" Stroke="#52FFFDF9" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20" Padding="11,5" Margin="0,0,0,11">
+                        <Label Text="{Binding AccessBadge}" FontFamily="ArchivoMedium" FontSize="9.5" CharacterSpacing="0.38"
+                               TextColor="{StaticResource TzSurface}"/>
+                    </Border>
+                    <Label Text="{Binding RecipeName}" FontFamily="NewsreaderMedium" FontSize="29" LineHeight="1.05"
+                           TextColor="{StaticResource TzSurface}"/>
+                    <Label Text="{Binding TaughtBy}" Margin="0,6,0,0" FontFamily="ArchivoRegular" FontSize="12"
+                           LineHeight="1.4" TextColor="{StaticResource TzOnDark82}"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border Margin="20" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0" StrokeShape="RoundRectangle 15" Padding="15">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                    <Border WidthRequest="38" HeightRequest="38" BackgroundColor="{StaticResource TzGreenDeep}"
+                            StrokeThickness="0" StrokeShape="RoundRectangle 19" Padding="0">
+                        <ic:FluentIcon Icon="Play" IconVariant="Filled" IconSize="Size16" ForegroundColor="{StaticResource TzSurface}"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                        <Label Text="{Binding Recording.Speaker}" FontFamily="ArchivoSemiBold" FontSize="11.5" LineHeight="1.2"
+                               TextColor="{StaticResource TzInk}"/>
+                        <Label FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.3" TextColor="{StaticResource TzMuted}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Transcript approved · "/>
+                                    <Span Text="{Binding Recording.Duration}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <VerticalStackLayout Padding="20,0" Spacing="13">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="What the family added" FontFamily="NewsreaderSemiBold" FontSize="20" TextColor="{StaticResource TzInk}"/>
+                    <Label Grid.Column="1" Text="{Binding NotesCountLabel}" FontFamily="PlexMonoRegular" FontSize="10.5"
+                           TextColor="{StaticResource TzMuted}" VerticalOptions="End"/>
+                </Grid>
+                <VerticalStackLayout Spacing="11" BindableLayout.ItemsSource="{Binding Notes}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:FamilyNote">
+                            <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 16" Padding="15">
+                                <VerticalStackLayout Spacing="9">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                        <controls:PhotoOrPlaceholder WidthRequest="28" HeightRequest="28" CornerRadius="14" ShowCaption="False"/>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding Who}" FontFamily="ArchivoSemiBold" FontSize="12" LineHeight="1.2"
+                                                   TextColor="{StaticResource TzInk}"/>
+                                            <Label Text="{Binding When}" Style="{StaticResource MetaText}" FontSize="10"/>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                    <Label Text="{Binding Body}" FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.7"
+                                           TextColor="{StaticResource TzBody}"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <Border Margin="20" Stroke="{StaticResource TzBorderDashed}" StrokeThickness="1" StrokeDashArray="4,3"
+                    StrokeShape="RoundRectangle 16" Padding="16" BackgroundColor="Transparent">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Add your version" FontFamily="ArchivoSemiBold" FontSize="12.5" LineHeight="1.3" TextColor="{StaticResource TzInk}"/>
+                    <Label Text="Everyone cooks it slightly differently. The archive keeps all of them side by side rather than picking one."
+                           FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6" TextColor="{StaticResource TzBodyMuted}"/>
+                </VerticalStackLayout>
+            </Border>
+            <BoxView HeightRequest="6" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>
