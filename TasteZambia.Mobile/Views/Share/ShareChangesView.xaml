@@ -19,7 +19,7 @@
                     <Label Text="CHANGES REQUESTED" FontFamily="ArchivoMedium" FontSize="9.5" CharacterSpacing="0.38"
                            TextColor="{StaticResource TzClayText}"/>
                 </Border>
-                <Label Text="Two questions before we publish" FontFamily="NewsreaderSemiBold" FontSize="28"
+                <Label SemanticProperties.HeadingLevel="Level1" Text="Two questions before we publish" FontFamily="NewsreaderSemiBold" FontSize="28"
                        LineHeight="1.1" TextColor="{StaticResource TzInk}"/>
                 <Label Text="Nothing was changed. The reviewer has asked rather than edited." Margin="0,9,0,0"
                        FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.6" TextColor="{StaticResource TzBodyMuted}"/>

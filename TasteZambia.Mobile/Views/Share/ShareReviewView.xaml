@@ -19,7 +19,7 @@
                     <Label Text="IN REVIEW" FontFamily="ArchivoMedium" FontSize="9.5" CharacterSpacing="0.38"
                            TextColor="{StaticResource TzGoldLight}"/>
                 </Border>
-                <Label Text="{Binding DishName}" FontFamily="NewsreaderMedium" FontSize="28" LineHeight="1.1"
+                <Label SemanticProperties.HeadingLevel="Level1" Text="{Binding DishName}" FontFamily="NewsreaderMedium" FontSize="28" LineHeight="1.1"
                        TextColor="{StaticResource TzSurface}"/>
                 <Label Text="{Binding SubmittedMeta}" Margin="0,7,0,0" FontFamily="ArchivoRegular" FontSize="12"
                        LineHeight="1.5" TextColor="{StaticResource TzOnDark66}"/>

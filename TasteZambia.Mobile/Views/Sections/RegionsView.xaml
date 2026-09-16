@@ -79,7 +79,7 @@
             <Border Style="{StaticResource DeepPanel}" Margin="20,16,20,0">
                 <VerticalStackLayout Spacing="0">
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="0,0,0,10">
-                        <Label Text="{Binding SelectedName}" FontFamily="NewsreaderMedium" FontSize="29"
+                        <Label SemanticProperties.HeadingLevel="Level2" Text="{Binding SelectedName}" FontFamily="NewsreaderMedium" FontSize="29"
                                LineHeight="1.05" TextColor="{StaticResource TzSurface}"/>
                         <Label Grid.Column="1" Text="{Binding SelectedSeat}" VerticalOptions="End"
                                FontFamily="PlexMonoRegular" FontSize="10.5"

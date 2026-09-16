@@ -16,10 +16,10 @@
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
                     <Border WidthRequest="62" HeightRequest="62" Stroke="#99E8BD77" StrokeThickness="2"
                             StrokeShape="RoundRectangle 31" Padding="0">
-                        <Image Source="{Binding AvatarAsset}" Aspect="AspectFill"/>
+                        <Image AutomationProperties.IsInAccessibleTree="False" Source="{Binding AvatarAsset}" Aspect="AspectFill"/>
                     </Border>
                     <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
-                        <Label Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="26"
+                        <Label SemanticProperties.HeadingLevel="Level2" Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="26"
                                LineHeight="1.05" TextColor="{StaticResource TzSurface}"/>
                         <Label Text="{Binding Meta}" FontFamily="ArchivoRegular" FontSize="12"
                                LineHeight="1.4" TextColor="{StaticResource TzOnDark66}"/>

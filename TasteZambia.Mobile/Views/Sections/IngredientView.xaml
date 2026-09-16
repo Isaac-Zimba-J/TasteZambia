@@ -14,7 +14,7 @@
             <!-- Hero -->
             <Grid HeightRequest="262">
                 <controls:PhotoOrPlaceholder ImageAsset="{Binding HeroAsset}" CornerRadius="0" ShowCaption="False"/>
-                <BoxView>
+                <BoxView AutomationProperties.IsInAccessibleTree="False">
                     <BoxView.Background>
                         <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
                             <GradientStop Color="#E00E2018" Offset="0.0"/>

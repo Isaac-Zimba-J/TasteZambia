@@ -10,8 +10,8 @@
         <VerticalStackLayout Spacing="0">
 
             <Grid HeightRequest="262">
-                <Image Source="ifisashi.png" Aspect="AspectFill"/>
-                <BoxView>
+                <Image AutomationProperties.IsInAccessibleTree="False" Source="ifisashi.png" Aspect="AspectFill"/>
+                <BoxView AutomationProperties.IsInAccessibleTree="False">
                     <BoxView.Background>
                         <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
                             <GradientStop Color="#EB0E2018" Offset="0.0"/>
@@ -29,7 +29,7 @@
                         <Label Text="PUBLISHED IN THE ARCHIVE" FontFamily="ArchivoMedium" FontSize="9.5"
                                CharacterSpacing="0.38" TextColor="{StaticResource TzGoldLight}"/>
                     </Border>
-                    <Label Text="{Binding DishName}" FontFamily="NewsreaderMedium" FontSize="32" LineHeight="1.05"
+                    <Label SemanticProperties.HeadingLevel="Level1" Text="{Binding DishName}" FontFamily="NewsreaderMedium" FontSize="32" LineHeight="1.05"
                            TextColor="{StaticResource TzSurface}"/>
                     <Label Text="{Binding Subtitle}" Margin="0,6,0,0" FontFamily="ArchivoRegular" FontSize="12.5"
                            LineHeight="1.4" TextColor="{StaticResource TzOnDark82}"/>

@@ -14,7 +14,7 @@
                                        HorizontalOptions="Start" Margin="0,0,0,16" Command="{Binding BackCommand}"/>
                 <Label Text="Family archive" Style="{StaticResource KickerLabel}"
                        TextColor="{StaticResource TzGoldLight}" Margin="0,0,0,13"/>
-                <Label Text="Preserve a Family Recipe" FontFamily="NewsreaderMedium" FontSize="33"
+                <Label SemanticProperties.HeadingLevel="Level1" Text="Preserve a Family Recipe" FontFamily="NewsreaderMedium" FontSize="33"
                        LineHeight="1.06" CharacterSpacing="-0.5" TextColor="{StaticResource TzSurface}"/>
                 <Label Text="Write a recipe down the way it was taught to you, so it outlasts the person who taught it. Include their voice if you can."
                        Margin="0,11,0,0" FontFamily="ArchivoRegular" FontSize="13" LineHeight="1.7"

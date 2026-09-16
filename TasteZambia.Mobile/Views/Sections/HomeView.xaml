@@ -14,7 +14,7 @@
 
             <!-- Header -->
             <Grid Padding="20,16,20,10" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="9">
-                <Image Source="logo.png" WidthRequest="34" HeightRequest="34" Aspect="AspectFit"/>
+                <Image AutomationProperties.IsInAccessibleTree="False" Source="logo.png" WidthRequest="34" HeightRequest="34" Aspect="AspectFit"/>
                 <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
                     <Label Text="Taste Zambia" FontFamily="NewsreaderSemiBold" FontSize="19"
                            LineHeight="1" TextColor="{StaticResource TzGreenDeep}"/>
@@ -28,7 +28,7 @@
                                        Command="{Binding OpenExploreCommand}"/>
                 <Border Grid.Column="3" WidthRequest="34" HeightRequest="34"
                         StrokeThickness="0" StrokeShape="RoundRectangle 17" Padding="0">
-                    <Image Source="avatar_chanda.png" Aspect="AspectFill"/>
+                    <Image AutomationProperties.IsInAccessibleTree="False" Source="avatar_chanda.png" Aspect="AspectFill"/>
                 </Border>
             </Grid>
 
@@ -36,8 +36,8 @@
             <Border Margin="20,6,20,0" HeightRequest="340" StrokeThickness="0"
                     StrokeShape="RoundRectangle 22" Padding="0">
                 <Grid>
-                    <Image Source="spread_nshima.png" Aspect="AspectFill"/>
-                    <BoxView>
+                    <Image AutomationProperties.IsInAccessibleTree="False" Source="spread_nshima.png" Aspect="AspectFill"/>
+                    <BoxView AutomationProperties.IsInAccessibleTree="False">
                         <BoxView.Background>
                             <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
                                 <GradientStop Color="#F00E2018" Offset="0.0"/>
@@ -109,7 +109,7 @@
                                                          CornerRadius="16" ShowCaption="False"/>
                             <Border StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="0"
                                     InputTransparent="True">
-                                <BoxView>
+                                <BoxView AutomationProperties.IsInAccessibleTree="False">
                                     <BoxView.Background>
                                         <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
                                             <GradientStop Color="#DB0E2018" Offset="0.0"/>

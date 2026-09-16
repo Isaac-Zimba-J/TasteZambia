@@ -9,7 +9,7 @@
           BackgroundColor="{StaticResource TzGreenDeep}">
 
         <VerticalStackLayout Grid.Row="0" VerticalOptions="Center" Spacing="0">
-            <Image Source="logo.png" WidthRequest="66" HeightRequest="66"
+            <Image AutomationProperties.IsInAccessibleTree="False" Source="logo.png" WidthRequest="66" HeightRequest="66"
                    Aspect="AspectFit" HorizontalOptions="Start" Margin="0,0,0,24"/>
             <Label Text="Mwaiseni. Welcome to the archive." FontFamily="NewsreaderMedium"
                    FontSize="36" LineHeight="1.04" CharacterSpacing="-0.54"

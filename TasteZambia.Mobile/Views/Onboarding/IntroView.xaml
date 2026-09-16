@@ -9,8 +9,8 @@
         <VerticalStackLayout Spacing="0">
 
             <Grid HeightRequest="430">
-                <Image Source="spread_nshima.png" Aspect="AspectFill"/>
-                <BoxView>
+                <Image AutomationProperties.IsInAccessibleTree="False" Source="spread_nshima.png" Aspect="AspectFill"/>
+                <BoxView AutomationProperties.IsInAccessibleTree="False">
                     <BoxView.Background>
                         <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
                             <GradientStop Color="#FFFFFDF9" Offset="0.0"/>

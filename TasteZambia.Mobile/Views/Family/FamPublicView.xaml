@@ -18,7 +18,7 @@
                     <Label Text="NOW IN THE PUBLIC ARCHIVE" FontFamily="ArchivoMedium" FontSize="9.5" CharacterSpacing="0.38"
                            TextColor="{StaticResource TzGoldLight}"/>
                 </Border>
-                <Label Text="{Binding Headline}" FontFamily="NewsreaderMedium" FontSize="30" LineHeight="1.06"
+                <Label SemanticProperties.HeadingLevel="Level1" Text="{Binding Headline}" FontFamily="NewsreaderMedium" FontSize="30" LineHeight="1.06"
                        TextColor="{StaticResource TzSurface}"/>
                 <Label Text="{Binding Intro}" Margin="0,9,0,0" FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.6"
                        TextColor="{StaticResource TzOnDark82}"/>

@@ -5,21 +5,30 @@
              x:Class="TasteZambia.Mobile.Controls.CircleButton"
              x:Name="Root">
 
-    <Border BindingContext="{x:Reference Root}"
-            WidthRequest="{Binding Diameter}"
-            HeightRequest="{Binding Diameter}"
-            BackgroundColor="{Binding Background}"
-            StrokeThickness="0"
-            StrokeShape="{Binding Shape}"
-            Padding="0">
-        <ic:FluentIcon Icon="{Binding Icon}"
-                       IconVariant="{Binding IconVariant}"
-                       IconSize="{Binding IconSize}"
-                       ForegroundColor="{Binding IconColor}"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"/>
-        <Border.GestureRecognizers>
+    <!-- The visual circle is 24-36pt per the design, but the hit target is never
+         below 44pt: the outer grid is the tappable surface and carries the semantic
+         description, the inner border is only the drawing. -->
+    <Grid x:Name="Surface" BindingContext="{x:Reference Root}"
+          MinimumWidthRequest="44" MinimumHeightRequest="44"
+          BackgroundColor="Transparent">
+        <Border WidthRequest="{Binding Diameter}"
+                HeightRequest="{Binding Diameter}"
+                BackgroundColor="{Binding Background}"
+                StrokeThickness="0"
+                StrokeShape="{Binding Shape}"
+                Padding="0"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                AutomationProperties.IsInAccessibleTree="False">
+            <ic:FluentIcon Icon="{Binding Icon}"
+                           IconVariant="{Binding IconVariant}"
+                           IconSize="{Binding IconSize}"
+                           ForegroundColor="{Binding IconColor}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+        </Border>
+        <Grid.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding Command}"/>
-        </Border.GestureRecognizers>
-    </Border>
+        </Grid.GestureRecognizers>
+    </Grid>
 </ContentView>

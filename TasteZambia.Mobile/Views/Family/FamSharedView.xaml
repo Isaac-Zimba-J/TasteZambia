@@ -11,8 +11,8 @@
     <ScrollView>
         <VerticalStackLayout Spacing="0">
             <Grid HeightRequest="222">
-                <Image Source="ifisashi.png" Aspect="AspectFill"/>
-                <BoxView>
+                <Image AutomationProperties.IsInAccessibleTree="False" Source="ifisashi.png" Aspect="AspectFill"/>
+                <BoxView AutomationProperties.IsInAccessibleTree="False">
                     <BoxView.Background>
                         <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
                             <GradientStop Color="#EB0E2018" Offset="0.0"/>
@@ -30,7 +30,7 @@
                         <Label Text="{Binding AccessBadge}" FontFamily="ArchivoMedium" FontSize="9.5" CharacterSpacing="0.38"
                                TextColor="{StaticResource TzSurface}"/>
                     </Border>
-                    <Label Text="{Binding RecipeName}" FontFamily="NewsreaderMedium" FontSize="29" LineHeight="1.05"
+                    <Label SemanticProperties.HeadingLevel="Level1" Text="{Binding RecipeName}" FontFamily="NewsreaderMedium" FontSize="29" LineHeight="1.05"
                            TextColor="{StaticResource TzSurface}"/>
                     <Label Text="{Binding TaughtBy}" Margin="0,6,0,0" FontFamily="ArchivoRegular" FontSize="12"
                            LineHeight="1.4" TextColor="{StaticResource TzOnDark82}"/>

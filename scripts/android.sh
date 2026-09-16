@@ -26,6 +26,13 @@ build_args=(
 )
 
 connect_wireless() {
+  # Already attached over Wi-Fi? Connecting again registers the same phone twice
+  # (once by mDNS name, once by IP:port), which is the dual-transport trap.
+  if adb devices | grep -q '_adb-tls-connect\._tcp[[:space:]]*device'; then
+    echo "Wireless debugging already connected."
+    return 0
+  fi
+
   # The wireless port changes every time the phone reconnects, so discover it.
   local addr
   addr="$(adb mdns services 2>/dev/null | awk '/_adb-tls-connect/ {print $NF}' | head -1)"

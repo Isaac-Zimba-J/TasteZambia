@@ -22,7 +22,7 @@
                     <Label Text="DRAFT · AUTOSAVED" FontFamily="ArchivoMedium" FontSize="9.5" CharacterSpacing="0.38"
                            TextColor="{StaticResource TzMuted2}"/>
                 </Border>
-                <Label Text="{Binding RecipeName}" FontFamily="NewsreaderSemiBold" FontSize="29" LineHeight="1.08"
+                <Label SemanticProperties.HeadingLevel="Level1" Text="{Binding RecipeName}" FontFamily="NewsreaderSemiBold" FontSize="29" LineHeight="1.08"
                        TextColor="{StaticResource TzInk}"/>
                 <Label Text="{Binding Meta}" Margin="0,7,0,0" FontFamily="ArchivoRegular" FontSize="12.5"
                        LineHeight="1.5" TextColor="{StaticResource TzMuted}"/>

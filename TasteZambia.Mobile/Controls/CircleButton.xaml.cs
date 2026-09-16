@@ -31,7 +31,7 @@ public partial class CircleButton : ContentView
 
     public static readonly BindableProperty SemanticLabelProperty =
         BindableProperty.Create(nameof(SemanticLabel), typeof(string), typeof(CircleButton), null,
-            propertyChanged: (b, _, n) => SemanticProperties.SetDescription((CircleButton)b, (string?)n ?? ""));
+            propertyChanged: (b, _, n) => ((CircleButton)b).ApplySemanticLabel((string?)n));
 
     public Icon Icon { get => (Icon)GetValue(IconProperty); set => SetValue(IconProperty, value); }
     public IconVariant IconVariant { get => (IconVariant)GetValue(IconVariantProperty); set => SetValue(IconVariantProperty, value); }
@@ -46,5 +46,21 @@ public partial class CircleButton : ContentView
 
     public IShape Shape => new RoundRectangle { CornerRadius = Diameter / 2 };
 
-    public CircleButton() => InitializeComponent();
+    public CircleButton()
+    {
+        InitializeComponent();
+        ApplySemanticLabel(SemanticLabel);
+    }
+
+    /// <summary>
+    /// Description and tap gesture must live on the same element: a screen reader
+    /// dispatches double-tap to the node it has focused, so describing the outer
+    /// ContentView while the gesture sits on the Grid would announce a button that
+    /// cannot be activated.
+    /// </summary>
+    private void ApplySemanticLabel(string? label)
+    {
+        SemanticProperties.SetDescription(Surface, label ?? "");
+        AutomationProperties.SetIsInAccessibleTree(Surface, !string.IsNullOrEmpty(label));
+    }
 }

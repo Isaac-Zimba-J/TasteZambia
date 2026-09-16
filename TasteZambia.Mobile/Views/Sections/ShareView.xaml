@@ -246,7 +246,7 @@
                                            ForegroundColor="{StaticResource TzGoldLight}"
                                            HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
-                        <Label Text="Submitted for review" FontFamily="NewsreaderMedium" FontSize="26"
+                        <Label SemanticProperties.HeadingLevel="Level1" Text="Submitted for review" FontFamily="NewsreaderMedium" FontSize="26"
                                LineHeight="1.15" HorizontalTextAlignment="Center"
                                TextColor="{StaticResource TzSurface}" Margin="0,0,0,10"/>
                         <Label FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.7"

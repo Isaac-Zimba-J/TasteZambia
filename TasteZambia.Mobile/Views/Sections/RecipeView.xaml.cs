@@ -15,8 +15,18 @@ public partial class RecipeView : ContentView
 
         _viewModel.PropertyChanged += async (_, e) =>
         {
-            if (e.PropertyName == nameof(RecipeViewModel.IsSheetOpen) && _viewModel.IsSheetOpen)
-                await SlideSheetInAsync();
+            switch (e.PropertyName)
+            {
+                case nameof(RecipeViewModel.IsSheetOpen) when _viewModel.IsSheetOpen:
+                    await SlideSheetInAsync();
+                    break;
+
+                // Ticking a step changes state the sighted user sees in the counter;
+                // a screen-reader user only hears it if we say it.
+                case nameof(RecipeViewModel.StepProgressLabel):
+                    SemanticScreenReader.Announce(_viewModel.StepProgressLabel);
+                    break;
+            }
         };
     }
 

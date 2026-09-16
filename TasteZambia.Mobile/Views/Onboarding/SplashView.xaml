@@ -7,9 +7,9 @@
 
     <Grid Padding="40" BackgroundColor="{StaticResource TzGreenDeep}">
         <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="0">
-            <Image Source="logo.png" WidthRequest="104" HeightRequest="104"
+            <Image AutomationProperties.IsInAccessibleTree="False" Source="logo.png" WidthRequest="104" HeightRequest="104"
                    Aspect="AspectFit" Margin="0,0,0,26"/>
-            <Label Text="Taste Zambia" FontFamily="NewsreaderMedium" FontSize="38"
+            <Label SemanticProperties.HeadingLevel="Level1" Text="Taste Zambia" FontFamily="NewsreaderMedium" FontSize="38"
                    LineHeight="1" CharacterSpacing="-0.57"
                    TextColor="{StaticResource TzSurface}" HorizontalOptions="Center"/>
             <Label Text="Heritage &amp; Flavours" Margin="0,14,0,0"

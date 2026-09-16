@@ -24,7 +24,7 @@
                     <VerticalStackLayout Padding="18" Spacing="0">
                         <Label Text="{Binding LeadKicker}" Style="{StaticResource KickerLabel}"
                                CharacterSpacing="1.26" TextColor="{StaticResource TzGold}" Margin="0,0,0,10"/>
-                        <Label Text="{Binding LeadTitle}" FontFamily="NewsreaderSemiBold" FontSize="27"
+                        <Label SemanticProperties.HeadingLevel="Level2" Text="{Binding LeadTitle}" FontFamily="NewsreaderSemiBold" FontSize="27"
                                LineHeight="1.12" CharacterSpacing="-0.27" TextColor="{StaticResource TzInk}"/>
                         <Label Text="{Binding LeadLede}" Margin="0,9,0,0" FontFamily="ArchivoRegular"
                                FontSize="13" LineHeight="1.65" TextColor="{StaticResource TzBodyMuted}"/>

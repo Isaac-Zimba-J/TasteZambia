@@ -54,7 +54,7 @@
             <VerticalStackLayout Padding="24,22,24,0" Spacing="0">
                 <Label Text="{Binding Kicker}" Style="{StaticResource KickerLabel}"
                        TextColor="{StaticResource TzGold}" Margin="0,0,0,12"/>
-                <Label Text="{Binding TitleText}" FontFamily="NewsreaderSemiBold" FontSize="33"
+                <Label SemanticProperties.HeadingLevel="Level1" Text="{Binding TitleText}" FontFamily="NewsreaderSemiBold" FontSize="33"
                        LineHeight="1.08" CharacterSpacing="-0.5" TextColor="{StaticResource TzInk}"/>
 
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="11" Margin="0,16,0,0" Padding="0,0,0,18">

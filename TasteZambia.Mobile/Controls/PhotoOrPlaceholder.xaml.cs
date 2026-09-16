@@ -49,6 +49,18 @@ public partial class PhotoOrPlaceholder : ContentView
         CaptionLabel.Text = Caption;
         CaptionLabel.IsVisible = ShowCaption && !string.IsNullOrEmpty(Caption);
 
-        SemanticProperties.SetDescription(this, hasPhoto ? "" : Caption);
+        // A real photo is decorative - the text beside it carries the meaning - so it
+        // leaves the accessibility tree entirely. A placeholder is different: it
+        // stands in for something missing, and the caption says what, so screen
+        // readers get exactly that.
+        if (hasPhoto)
+        {
+            AutomationProperties.SetIsInAccessibleTree(this, false);
+        }
+        else
+        {
+            AutomationProperties.SetIsInAccessibleTree(this, true);
+            SemanticProperties.SetDescription(this, string.IsNullOrEmpty(Caption) ? "photo needed" : Caption);
+        }
     }
 }

@@ -24,7 +24,7 @@
                         <ic:FluentIcon Icon="Checkmark" IconSize="Size24" ForegroundColor="{StaticResource TzGoldLight}"
                                        HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Border>
-                    <Label Text="{Binding Headline}" FontFamily="NewsreaderMedium" FontSize="27" LineHeight="1.12"
+                    <Label SemanticProperties.HeadingLevel="Level1" Text="{Binding Headline}" FontFamily="NewsreaderMedium" FontSize="27" LineHeight="1.12"
                            HorizontalTextAlignment="Center" TextColor="{StaticResource TzSurface}" Margin="0,0,0,10"/>
                     <Label Text="{Binding Body}" FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.7"
                            HorizontalTextAlignment="Center" TextColor="{StaticResource TzOnDark82}"/>

@@ -17,7 +17,7 @@
                 <Grid HeightRequest="322">
                     <controls:PhotoOrPlaceholder ImageAsset="{Binding HeroAsset}"
                                                  Caption="{Binding HeroCaption}" CornerRadius="0"/>
-                    <BoxView>
+                    <BoxView AutomationProperties.IsInAccessibleTree="False">
                         <BoxView.Background>
                             <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
                                 <GradientStop Color="#E60E2018" Offset="0.0"/>
@@ -326,7 +326,7 @@
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Border WidthRequest="40" HeightRequest="40" StrokeThickness="0"
                                 StrokeShape="RoundRectangle 20" Padding="0">
-                            <Image Source="{Binding ContributorAvatar}" Aspect="AspectFill"/>
+                            <Image AutomationProperties.IsInAccessibleTree="False" Source="{Binding ContributorAvatar}" Aspect="AspectFill"/>
                         </Border>
                         <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                             <Label Text="Contributed by" Style="{StaticResource MetaText}" TextColor="{StaticResource TzMuted}"/>
@@ -358,7 +358,7 @@
 
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="0,0,0,12">
                             <VerticalStackLayout Spacing="4">
-                                <Label Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="29"
+                                <Label SemanticProperties.HeadingLevel="Level2" Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="29"
                                        LineHeight="1.05" TextColor="{StaticResource TzInk}"/>
                                 <Label Text="{Binding EnglishName}" FontFamily="ArchivoRegular" FontSize="12.5"
                                        LineHeight="1.3" TextColor="{StaticResource TzMuted}"/>
