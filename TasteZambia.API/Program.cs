@@ -1,11 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using TasteZambia.API.Data;
 using TasteZambia.API.Data.Seed;
+using TasteZambia.API.Repositories;
+using TasteZambia.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<TasteZambiaDbContext>(o =>
     o.UseNpgsql(builder.Configuration.GetConnectionString("Archive")));
+
+// Scoped, not singleton - they hold a DbContext.
+builder.Services.AddScoped<IDishRepository, DishRepository>();
+builder.Services.AddScoped<IIngredientRepository, IngredientRepository>();
+builder.Services.AddScoped<IRegionRepository, RegionRepository>();
+builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICatalogService, CatalogService>();
+builder.Services.AddScoped<IArchiveVersionService, ArchiveVersionService>();
 
 // Add services to the container.
 
