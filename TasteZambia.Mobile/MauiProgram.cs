@@ -45,11 +45,26 @@ public static class MauiProgram
         // above this layer knows; RepositoryParityTests in the API suite prove the
         // HTTP and seeded implementations return equal models.
         static void Api(HttpClient c) => c.BaseAddress = new Uri(ArchiveApiOptions.BaseUrl);
-        builder.Services.AddHttpClient<IDishRepository, HttpDishRepository>(Api);
-        builder.Services.AddHttpClient<IIngredientRepository, HttpIngredientRepository>(Api);
-        builder.Services.AddHttpClient<IRegionRepository, HttpRegionRepository>(Api);
-        builder.Services.AddHttpClient<IArticleRepository, HttpArticleRepository>(Api);
-        builder.Services.AddHttpClient<ICategoryRepository, HttpCategoryRepository>(Api);
+
+        // ---- Identity: anonymous, device-bound. No sign-in screen. ----
+        // The "auth" client carries NO AuthenticatedHandler: the handler signs in
+        // through this client, and giving it the handler too would recurse.
+        builder.Services.AddSingleton<ISecureStore, SecureStore>();
+        builder.Services.AddSingleton<IDeviceIdentity, SecureDeviceIdentity>();
+        builder.Services.AddHttpClient("auth", Api);
+        builder.Services.AddSingleton<IAuthSession>(sp => new AuthSession(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient("auth"),
+            sp.GetRequiredService<IDeviceIdentity>(),
+            sp.GetRequiredService<ISecureStore>()));
+        builder.Services.AddTransient<AuthenticatedHandler>();
+
+        // The archive endpoints are anonymous today; the handler rides along so that
+        // the day any of them needs a token, nothing on the app side changes.
+        builder.Services.AddHttpClient<IDishRepository, HttpDishRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
+        builder.Services.AddHttpClient<IIngredientRepository, HttpIngredientRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
+        builder.Services.AddHttpClient<IRegionRepository, HttpRegionRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
+        builder.Services.AddHttpClient<IArticleRepository, HttpArticleRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
+        builder.Services.AddHttpClient<ICategoryRepository, HttpCategoryRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
 
         // Profile needs a user, which is Stage 2. Still seeded.
         builder.Services.AddSingleton<IProfileRepository, InMemoryProfileRepository>();
