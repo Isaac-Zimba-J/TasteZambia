@@ -15,6 +15,12 @@ public class TasteZambiaDbContext(DbContextOptions<TasteZambiaDbContext> options
     public DbSet<Article> Articles => Set<Article>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
+    // The personal layer: one row per user, or per (user, dish[, step]).
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<OnboardingChoices> OnboardingChoices => Set<OnboardingChoices>();
+    public DbSet<SavedDish> SavedDishes => Set<SavedDish>();
+    public DbSet<CookProgress> CookProgress => Set<CookProgress>();
+
     protected override void OnModelCreating(ModelBuilder b)
     {
         // Identity configures its own tables here. It MUST run before ours.
