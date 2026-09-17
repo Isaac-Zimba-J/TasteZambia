@@ -1,3 +1,5 @@
+using TasteZambia.Shared.Enums;
+
 namespace TasteZambia.API.Data.Entities;
 
 /// <summary>Every archive row carries when it last changed. Stage 5's delta sync reads this.</summary>
@@ -20,6 +22,10 @@ public class Dish : ArchiveEntity
     public string? PrepTime { get; set; }
     public string? CookTime { get; set; }
     public int SortOrder { get; set; }
+
+    public Provenance Provenance { get; set; } = Provenance.Editorial;
+    /// <summary>Set when this dish was published from a community contribution.</summary>
+    public Guid? ContributionId { get; set; }
 
     public Recipe? Recipe { get; set; }
 }

@@ -36,6 +36,8 @@ public class DishConfiguration : IEntityTypeConfiguration<Dish>
         e.Property(x => x.Description).HasMaxLength(1000).IsRequired();
         e.Property(x => x.PhotoNeededCaption).HasMaxLength(200);
         e.HasIndex(x => x.SortOrder);
+        e.Property(x => x.Provenance).HasConversion<int>();
+        e.HasIndex(x => x.ContributionId).IsUnique().HasFilter("\"ContributionId\" IS NOT NULL");
 
         // Postgres system column: free optimistic concurrency, no extra column to maintain.
         e.UseXminConcurrency();
