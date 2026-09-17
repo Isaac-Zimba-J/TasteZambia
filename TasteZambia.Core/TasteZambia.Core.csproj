@@ -9,13 +9,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0"/>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
     </ItemGroup>
 
     <ItemGroup>
         <!-- Wire contracts. Stage 1 of the API plan swaps the seeded repositories
              for HTTP ones that bind to these DTOs. -->
-        <ProjectReference Include="..\TasteZambia.Shared\TasteZambia.Shared.csproj"/>
+        <ProjectReference Include="..\TasteZambia.Shared\TasteZambia.Shared.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using Microsoft.Extensions.Logging;
 using TasteZambia.Shared.Contracts.Auth;
 using TasteZambia.Shared.Routes;
 
@@ -9,7 +10,7 @@ namespace TasteZambia.Core.Services;
 /// token is memory-only. Uses a plain HttpClient with NO AuthenticatedHandler - auth
 /// calls must never recurse into the handler that depends on them.
 /// </summary>
-public sealed class AuthSession(HttpClient authClient, IDeviceIdentity device, ISecureStore secure) : IAuthSession
+public sealed class AuthSession(HttpClient authClient, IDeviceIdentity device, ISecureStore secure, ILogger<AuthSession> log) : IAuthSession
 {
     private const string RefreshKey = "auth.refresh";
     private readonly SemaphoreSlim _gate = new(1, 1);
@@ -34,10 +35,12 @@ public sealed class AuthSession(HttpClient authClient, IDeviceIdentity device, I
 
             await SignInAsync(ct);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        catch (Exception ex)
         {
-            // Offline. Requests go out without a token and the caller sees the 401;
-            // the local store keeps the app usable until the next attempt.
+            // Offline, or secure storage hiccuped (Android's keystore can throw on first
+            // access). Either way the request goes out without a token and the caller
+            // sees the 401; the local store keeps the app usable until the next attempt.
+            Report("Sign-in skipped", ex);
         }
         finally { _gate.Release(); }
     }
@@ -55,11 +58,20 @@ public sealed class AuthSession(HttpClient authClient, IDeviceIdentity device, I
             await SignInAsync(ct);
             return AccessToken is not null;
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        catch (Exception ex)
         {
+            Report("Refresh failed", ex);
             return false;
         }
         finally { _gate.Release(); }
+    }
+
+    private void Report(string what, Exception ex)
+    {
+        if (ex is HttpRequestException or TaskCanceledException)
+            log.LogDebug("{What}, offline: {Message}", what, ex.Message);
+        else
+            log.LogError(ex, "{What}", what);
     }
 
     private async Task SignInAsync(CancellationToken ct)

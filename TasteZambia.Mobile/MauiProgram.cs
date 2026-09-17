@@ -55,7 +55,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<IAuthSession>(sp => new AuthSession(
             sp.GetRequiredService<IHttpClientFactory>().CreateClient("auth"),
             sp.GetRequiredService<IDeviceIdentity>(),
-            sp.GetRequiredService<ISecureStore>()));
+            sp.GetRequiredService<ISecureStore>(),
+            sp.GetRequiredService<ILogger<AuthSession>>()));
         builder.Services.AddTransient<AuthenticatedHandler>();
 
         // Personal data is written locally first and reconciled to the account.
@@ -85,7 +86,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<ICookingProgressService, CookingProgressService>();
         builder.Services.AddSingleton<IPersonalSyncService>(sp => new PersonalSyncService(
             sp.GetRequiredService<PersonalStore>(),
-            sp.GetRequiredService<IHttpClientFactory>().CreateClient("me")));
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient("me"),
+            sp.GetRequiredService<ILogger<PersonalSyncService>>()));
         builder.Services.AddSingleton<SyncScheduler>();
         builder.Services.AddSingleton<IPreferenceService, PreferenceService>();
         builder.Services.AddSingleton<IContributionService, ContributionService>();
