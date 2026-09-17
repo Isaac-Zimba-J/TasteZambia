@@ -28,6 +28,8 @@ builder.Services.AddScoped<IArchiveVersionService, ArchiveVersionService>();
 builder.Services.AddScoped<IPersonalDataRepository, PersonalDataRepository>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddScoped<IPersonalSyncService, PersonalSyncService>();
+builder.Services.AddScoped<IContributionRepository, ContributionRepository>();
+builder.Services.AddScoped<IContributionService, ContributionService>();
 
 // Identity and JWT. Accounts are anonymous and device-bound: the app registers a
 // user whose name is a generated device id and whose password is a generated secret.
