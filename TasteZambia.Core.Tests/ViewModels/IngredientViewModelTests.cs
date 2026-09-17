@@ -54,7 +54,7 @@ public class IngredientViewModelTests
     private static IngredientViewModel Sut(INavigationService nav) => new(
         new InMemoryIngredientRepository(),
         new CatalogService(new InMemoryDishRepository()),
-        new FavouritesService(), new PreferenceService(), nav) { Key = "chibwabwa" };
+        TestServices.Favourites(), new PreferenceService(), nav) { Key = "chibwabwa" };
 
     [Fact]
     public async Task Initialize_LoadsChibwabwa()

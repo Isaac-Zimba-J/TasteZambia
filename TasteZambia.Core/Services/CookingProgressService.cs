@@ -8,28 +8,16 @@ public interface ICookingProgressService
     event EventHandler<string>? Changed;
 }
 
-public sealed class CookingProgressService : ICookingProgressService
+/// <summary>A thin face over <see cref="PersonalStore"/>: every tick is local first, synced later.</summary>
+public sealed class CookingProgressService(PersonalStore store) : ICookingProgressService
 {
-    private readonly Dictionary<string, HashSet<int>> _done = [];
-
-    public event EventHandler<string>? Changed;
-
-    public bool IsDone(string dishId, int stepNumber)
-        => _done.TryGetValue(dishId, out var steps) && steps.Contains(stepNumber);
-
-    public void Toggle(string dishId, int stepNumber)
+    public event EventHandler<string>? Changed
     {
-        if (!_done.TryGetValue(dishId, out var steps))
-            _done[dishId] = steps = [];
-
-        if (!steps.Remove(stepNumber))
-            steps.Add(stepNumber);
-
-        Changed?.Invoke(this, dishId);
+        add => store.Changed += value;
+        remove => store.Changed -= value;
     }
 
-    public int CompletedCount(string dishId, IEnumerable<int> stepNumbers)
-        => _done.TryGetValue(dishId, out var steps)
-            ? stepNumbers.Count(steps.Contains)
-            : 0;
+    public bool IsDone(string dishId, int stepNumber) => store.IsDone(dishId, stepNumber);
+    public void Toggle(string dishId, int stepNumber) => store.SetDone(dishId, stepNumber, !store.IsDone(dishId, stepNumber));
+    public int CompletedCount(string dishId, IEnumerable<int> stepNumbers) => stepNumbers.Count(s => store.IsDone(dishId, s));
 }

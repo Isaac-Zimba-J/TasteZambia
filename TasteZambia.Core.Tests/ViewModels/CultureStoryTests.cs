@@ -59,7 +59,7 @@ public class StoryViewModelTests
     private static StoryViewModel Sut(INavigationService nav, string id = "nshima") => new(
         new InMemoryArticleRepository(),
         new CatalogService(new InMemoryDishRepository()),
-        new FavouritesService(), new PreferenceService(), nav) { ArticleId = id };
+        TestServices.Favourites(), new PreferenceService(), nav) { ArticleId = id };
 
     [Fact]
     public async Task Initialize_LoadsTheNshimaEssay()

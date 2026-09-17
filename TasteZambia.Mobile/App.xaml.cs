@@ -21,6 +21,7 @@ public partial class App : Application
         var onboarding = _services.GetRequiredService<IOnboardingService>();
 
         navigation.OnboardingCompleted = ShowMainShell;
+        _services.GetRequiredService<SyncScheduler>().Start();
 
         if (onboarding.IsComplete)
         {
@@ -33,6 +34,12 @@ public partial class App : Application
 
         _window = new Window(host);
         return _window;
+    }
+
+    protected override void OnResume()
+    {
+        base.OnResume();
+        _services.GetRequiredService<SyncScheduler>().OnResumed();
     }
 
     private MainShellPage BuildMainShell(AppNavigationService navigation)

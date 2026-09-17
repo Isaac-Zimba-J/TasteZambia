@@ -16,7 +16,7 @@ public class ExploreViewModelTests
 
     private static ExploreViewModel Sut() => new(
         new CatalogService(new InMemoryDishRepository()),
-        new FavouritesService(),
+        TestServices.Favourites(),
         new PreferenceService(),
         new StubNavigation());
 
@@ -129,7 +129,7 @@ public class ExploreSearchRaceTests
     public async Task AStaleSearchThatFinishesLate_DoesNotOverwriteTheNewerOne()
     {
         var catalog = new ControllableCatalog();
-        var vm = new ExploreViewModel(catalog, new FavouritesService(), new PreferenceService(), new StubNavigation());
+        var vm = new ExploreViewModel(catalog, TestServices.Favourites(), new PreferenceService(), new StubNavigation());
         var all = await new InMemoryDishRepository().GetAllAsync();
 
         var init = vm.InitializeAsync();

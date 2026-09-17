@@ -45,22 +45,50 @@ public static class MauiProgram
         // above this layer knows; RepositoryParityTests in the API suite prove the
         // HTTP and seeded implementations return equal models.
         static void Api(HttpClient c) => c.BaseAddress = new Uri(ArchiveApiOptions.BaseUrl);
-        builder.Services.AddHttpClient<IDishRepository, HttpDishRepository>(Api);
-        builder.Services.AddHttpClient<IIngredientRepository, HttpIngredientRepository>(Api);
-        builder.Services.AddHttpClient<IRegionRepository, HttpRegionRepository>(Api);
-        builder.Services.AddHttpClient<IArticleRepository, HttpArticleRepository>(Api);
-        builder.Services.AddHttpClient<ICategoryRepository, HttpCategoryRepository>(Api);
 
-        // Profile needs a user, which is Stage 2. Still seeded.
-        builder.Services.AddSingleton<IProfileRepository, InMemoryProfileRepository>();
+        // ---- Identity: anonymous, device-bound. No sign-in screen. ----
+        // The "auth" client carries NO AuthenticatedHandler: the handler signs in
+        // through this client, and giving it the handler too would recurse.
+        builder.Services.AddSingleton<ISecureStore, SecureStore>();
+        builder.Services.AddSingleton<IDeviceIdentity, SecureDeviceIdentity>();
+        builder.Services.AddHttpClient("auth", Api);
+        builder.Services.AddSingleton<IAuthSession>(sp => new AuthSession(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient("auth"),
+            sp.GetRequiredService<IDeviceIdentity>(),
+            sp.GetRequiredService<ISecureStore>(),
+            sp.GetRequiredService<ILogger<AuthSession>>()));
+        builder.Services.AddTransient<AuthenticatedHandler>();
+
+        // Personal data is written locally first and reconciled to the account.
+        builder.Services.AddSingleton<ILocalStore, PreferencesLocalStore>();
+        builder.Services.AddHttpClient("me", Api).AddHttpMessageHandler<AuthenticatedHandler>();
+
+        // The archive endpoints are anonymous today; the handler rides along so that
+        // the day any of them needs a token, nothing on the app side changes.
+        builder.Services.AddHttpClient<IDishRepository, HttpDishRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
+        builder.Services.AddHttpClient<IIngredientRepository, HttpIngredientRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
+        builder.Services.AddHttpClient<IRegionRepository, HttpRegionRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
+        builder.Services.AddHttpClient<IArticleRepository, HttpArticleRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
+        builder.Services.AddHttpClient<ICategoryRepository, HttpCategoryRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
+
+        // Profile reads the account; its counts come from the local personal store.
+        builder.Services.AddHttpClient<IProfileRepository, HttpProfileRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
 
         // ---- Services: unchanged by the API swap. ----
         // Favourites, progress and preferences are singletons on purpose: a heart
         // toggled on Home must stay toggled on Explore and on the recipe screen.
-        builder.Services.AddSingleton<IOnboardingService, OnboardingService>();
+        builder.Services.AddSingleton<IOnboardingService>(sp => new OnboardingService(
+            sp.GetRequiredService<ILocalStore>(),
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient("me")));
         builder.Services.AddSingleton<ICatalogService, CatalogService>();
+        builder.Services.AddSingleton<PersonalStore>(sp => new PersonalStore(sp.GetRequiredService<ILocalStore>(), TimeProvider.System));
         builder.Services.AddSingleton<IFavouritesService, FavouritesService>();
         builder.Services.AddSingleton<ICookingProgressService, CookingProgressService>();
+        builder.Services.AddSingleton<IPersonalSyncService>(sp => new PersonalSyncService(
+            sp.GetRequiredService<PersonalStore>(),
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient("me"),
+            sp.GetRequiredService<ILogger<PersonalSyncService>>()));
+        builder.Services.AddSingleton<SyncScheduler>();
         builder.Services.AddSingleton<IPreferenceService, PreferenceService>();
         builder.Services.AddSingleton<IContributionService, ContributionService>();
         // Singleton: a privacy change on famPublic must be visible everywhere.

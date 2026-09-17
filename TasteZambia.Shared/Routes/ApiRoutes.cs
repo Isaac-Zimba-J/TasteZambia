@@ -41,6 +41,23 @@ public static class ApiRoutes
         public const string Collection = $"{Root}/categories";
     }
 
+    public static class Auth
+    {
+        /// <summary>Register-or-sign-in for a device. Idempotent for a given (id, secret) pair.</summary>
+        public const string Device = $"{Root}/auth/device";
+        public const string Refresh = $"{Root}/auth/refresh";
+    }
+
+    /// <summary>The signed-in account's own data. Every route needs a bearer token.</summary>
+    public static class Me
+    {
+        public const string Profile = $"{Root}/me";
+        public const string Onboarding = $"{Root}/me/onboarding";
+        public const string Saved = $"{Root}/me/saved";
+        public const string Progress = $"{Root}/me/progress/{{dishId}}";
+        public const string Sync = $"{Root}/me/sync";
+    }
+
     public static class Sync
     {
         /// <summary>Delta endpoint: pass ?since={cursor} to receive only what changed.</summary>

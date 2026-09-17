@@ -15,7 +15,7 @@ public class CollectionsTests
     }
 
     private static (ICatalogService cat, IFavouritesService fav, IPreferenceService pref) Deps()
-        => (new CatalogService(new InMemoryDishRepository()), new FavouritesService(), new PreferenceService());
+        => (new CatalogService(new InMemoryDishRepository()), TestServices.Favourites(), new PreferenceService());
 
     [Fact]
     public async Task Favourites_AreSixDishesWithTwoCarryingNotes()

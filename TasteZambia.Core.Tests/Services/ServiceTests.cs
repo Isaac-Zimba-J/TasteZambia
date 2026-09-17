@@ -58,7 +58,7 @@ public class FavouritesServiceTests
     [Fact]
     public void IfisashiIsSavedByDefault_ChikandaIsNot()
     {
-        var sut = new FavouritesService();
+        var sut = TestServices.Favourites();
         Assert.True(sut.IsSaved("ifisashi"));
         Assert.False(sut.IsSaved("chikanda"));
     }
@@ -66,7 +66,7 @@ public class FavouritesServiceTests
     [Fact]
     public void Toggle_FlipsStateAndRaisesChangedWithTheDishId()
     {
-        var sut = new FavouritesService();
+        var sut = TestServices.Favourites();
         string? raised = null;
         sut.Changed += (_, id) => raised = id;
 
@@ -79,7 +79,7 @@ public class FavouritesServiceTests
     [Fact]
     public void Toggle_Twice_ReturnsToTheOriginalState()
     {
-        var sut = new FavouritesService();
+        var sut = TestServices.Favourites();
         sut.Toggle("nshima");
         sut.Toggle("nshima");
         Assert.False(sut.IsSaved("nshima"));
@@ -91,7 +91,7 @@ public class CookingProgressServiceTests
     [Fact]
     public void NoStepsDoneInitially()
     {
-        var sut = new CookingProgressService();
+        var sut = TestServices.Progress();
         Assert.False(sut.IsDone("ifisashi", 1));
         Assert.Equal(0, sut.CompletedCount("ifisashi", [1, 2, 3, 4]));
     }
@@ -99,7 +99,7 @@ public class CookingProgressServiceTests
     [Fact]
     public void Toggle_MarksOneStepDoneForOneDishOnly()
     {
-        var sut = new CookingProgressService();
+        var sut = TestServices.Progress();
         sut.Toggle("ifisashi", 2);
 
         Assert.True(sut.IsDone("ifisashi", 2));
@@ -111,7 +111,7 @@ public class CookingProgressServiceTests
     [Fact]
     public void Toggle_RaisesChangedWithTheDishId()
     {
-        var sut = new CookingProgressService();
+        var sut = TestServices.Progress();
         string? raised = null;
         sut.Changed += (_, id) => raised = id;
 

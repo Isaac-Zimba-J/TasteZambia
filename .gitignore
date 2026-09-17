@@ -68,3 +68,4 @@ appsettings.*.Local.json
 secrets.json
 .env
 .env.local
+.claude/worktrees/

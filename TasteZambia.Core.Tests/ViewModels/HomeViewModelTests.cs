@@ -17,7 +17,7 @@ public class HomeViewModelTests
     private static HomeViewModel Sut(INavigationService? nav = null) => new(
         new CatalogService(new InMemoryDishRepository()),
         new InMemoryCategoryRepository(),
-        new FavouritesService(),
+        TestServices.Favourites(),
         new PreferenceService(),
         nav ?? new RecordingNavigation());
 

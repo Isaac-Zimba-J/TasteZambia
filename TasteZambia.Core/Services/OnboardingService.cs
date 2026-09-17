@@ -1,4 +1,7 @@
+using System.Net.Http.Json;
 using TasteZambia.Core.Models;
+using TasteZambia.Shared.Contracts.Me;
+using TasteZambia.Shared.Routes;
 
 namespace TasteZambia.Core.Services;
 
@@ -13,19 +16,51 @@ public interface IOnboardingService
 }
 
 /// <summary>
-/// In-memory for this phase, matching the repository rule: when persistence lands,
-/// back IsComplete and Current with Preferences or the API and change nothing else.
+/// Local first, always: the choices land in the local store before anything else,
+/// so onboarding never repeats and never waits on the network. The account copy
+/// (PUT /me/onboarding) is best-effort and never blocks.
 /// </summary>
 public sealed class OnboardingService : IOnboardingService
 {
+    private const string Key = "onboarding";
+    private readonly ILocalStore _local;
+    private readonly HttpClient _api;
+
+    public OnboardingService(ILocalStore local, HttpClient api)
+    {
+        _local = local;
+        _api = api;
+        var stored = local.Get<StoredOnboarding>(Key);
+        IsComplete = stored?.IsComplete ?? false;
+        Current = stored?.Choices ?? new OnboardingChoices();
+    }
+
     public bool IsComplete { get; private set; }
-    public OnboardingChoices Current { get; private set; } = new();
+    public OnboardingChoices Current { get; private set; }
 
     public void Complete(OnboardingChoices choices)
     {
         Current = choices;
         IsComplete = true;
+        _local.Set(Key, new StoredOnboarding(true, choices));
+
+        _ = PushAsync(choices);
     }
+
+    private async Task PushAsync(OnboardingChoices c)
+    {
+        try
+        {
+            await _api.PutAsJsonAsync(ApiRoutes.Me.Onboarding,
+                new OnboardingChoicesDto(c.Language, c.Who, [.. c.Tastes], c.OfflineEnabled, c.StoryNotifications, true));
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            // Offline. The local copy is authoritative for this device.
+        }
+    }
+
+    private sealed record StoredOnboarding(bool IsComplete, OnboardingChoices Choices);
 
     public IReadOnlyList<ReadingLanguage> Languages { get; } =
     [

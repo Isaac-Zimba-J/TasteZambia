@@ -19,8 +19,8 @@ public class RecipeViewModelTests
                                        ICookingProgressService? progress = null) => new(
         new InMemoryDishRepository(),
         new InMemoryIngredientRepository(),
-        new FavouritesService(),
-        progress ?? new CookingProgressService(),
+        TestServices.Favourites(),
+        progress ?? TestServices.Progress(),
         new PreferenceService(),
         nav ?? new StubNavigation()) { DishId = "ifisashi" };
 
@@ -144,7 +144,7 @@ public class RecipeViewModelTests
     [Fact]
     public async Task CookProgress_IsSharedWithTheRestOfTheApp()
     {
-        var progress = new CookingProgressService();
+        var progress = TestServices.Progress();
         progress.Toggle("ifisashi", 3);
 
         var vm = Sut(progress: progress);

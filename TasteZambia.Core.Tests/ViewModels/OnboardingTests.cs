@@ -16,7 +16,7 @@ public class OnboardingServiceTests
     [Fact]
     public void SixReadingLanguages_EnglishFirst()
     {
-        var sut = new OnboardingService();
+        var sut = TestServices.Onboarding();
         Assert.Equal(6, sut.Languages.Count);
         Assert.Equal("English", sut.Languages[0].Name);
         Assert.Equal("Full interface", sut.Languages[0].Note);
@@ -26,7 +26,7 @@ public class OnboardingServiceTests
     [Fact]
     public void FourVisitorKindsAndSixTastes()
     {
-        var sut = new OnboardingService();
+        var sut = TestServices.Onboarding();
         Assert.Equal(4, sut.VisitorKinds.Count);
         Assert.Equal("I grew up here", sut.VisitorKinds[0].Key);
         Assert.Equal("I am learning to cook", sut.VisitorKinds[3].Key);
@@ -36,7 +36,7 @@ public class OnboardingServiceTests
     [Fact]
     public void Defaults_MatchTheDesignsInitialState()
     {
-        var c = new OnboardingService().Current;
+        var c = TestServices.Onboarding().Current;
         Assert.Equal("English", c.Language);
         Assert.Equal("I grew up here", c.Who);
         Assert.Equal(["traditional", "veg"], c.Tastes.OrderBy(x => x));
@@ -47,7 +47,7 @@ public class OnboardingServiceTests
     [Fact]
     public void IsComplete_FlipsOnlyAfterComplete()
     {
-        var sut = new OnboardingService();
+        var sut = TestServices.Onboarding();
         Assert.False(sut.IsComplete);
         sut.Complete(sut.Current);
         Assert.True(sut.IsComplete);
@@ -57,7 +57,7 @@ public class OnboardingServiceTests
 public class OnboardingViewModelTests
 {
     private static OnboardingViewModel Sut(INavigationService? nav = null, IOnboardingService? svc = null)
-        => new(svc ?? new OnboardingService(), nav ?? new Nav());
+        => new(svc ?? TestServices.Onboarding(), nav ?? new Nav());
 
     [Fact]
     public async Task EnglishAndGrewUpHereAreSelectedInitially()
@@ -102,7 +102,7 @@ public class OnboardingViewModelTests
     [Fact]
     public async Task Finish_MarksOnboardingCompleteAndPersistsChoices()
     {
-        var svc = new OnboardingService();
+        var svc = TestServices.Onboarding();
         var nav = new Nav();
         var vm = Sut(nav, svc);
         await vm.InitializeAsync();
@@ -118,7 +118,7 @@ public class OnboardingViewModelTests
     [Fact]
     public async Task Skip_AlsoCompletesOnboardingWithTheDefaults()
     {
-        var svc = new OnboardingService();
+        var svc = TestServices.Onboarding();
         var vm = Sut(svc: svc);
         await vm.InitializeAsync();
 
