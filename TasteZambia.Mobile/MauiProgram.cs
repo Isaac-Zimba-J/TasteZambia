@@ -58,6 +58,10 @@ public static class MauiProgram
             sp.GetRequiredService<ISecureStore>()));
         builder.Services.AddTransient<AuthenticatedHandler>();
 
+        // Personal data is written locally first and reconciled to the account.
+        builder.Services.AddSingleton<ILocalStore, PreferencesLocalStore>();
+        builder.Services.AddHttpClient("me", Api).AddHttpMessageHandler<AuthenticatedHandler>();
+
         // The archive endpoints are anonymous today; the handler rides along so that
         // the day any of them needs a token, nothing on the app side changes.
         builder.Services.AddHttpClient<IDishRepository, HttpDishRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
@@ -72,7 +76,9 @@ public static class MauiProgram
         // ---- Services: unchanged by the API swap. ----
         // Favourites, progress and preferences are singletons on purpose: a heart
         // toggled on Home must stay toggled on Explore and on the recipe screen.
-        builder.Services.AddSingleton<IOnboardingService, OnboardingService>();
+        builder.Services.AddSingleton<IOnboardingService>(sp => new OnboardingService(
+            sp.GetRequiredService<ILocalStore>(),
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient("me")));
         builder.Services.AddSingleton<ICatalogService, CatalogService>();
         builder.Services.AddSingleton<IFavouritesService, FavouritesService>();
         builder.Services.AddSingleton<ICookingProgressService, CookingProgressService>();
