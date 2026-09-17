@@ -28,7 +28,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__Archive: "Host=db;Port=5432;Database=tastezambia;Username=tastezambia;Password=localdev"
     ports:
-      - "8080:8080"
+      - "5080:8080"   # 8080 is taken by another project on this machine
 
 volumes:
   tastezambia-pgdata:

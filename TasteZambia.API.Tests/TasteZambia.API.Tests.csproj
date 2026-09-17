@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TasteZambia.API\TasteZambia.API.csproj" />
     <ProjectReference Include="..\TasteZambia.Shared\TasteZambia.Shared.csproj" />
+    <ProjectReference Include="..\TasteZambia.Core\TasteZambia.Core.csproj" />
   </ItemGroup>
 
 </Project>

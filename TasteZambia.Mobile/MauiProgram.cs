@@ -1,6 +1,7 @@
 using FluentIcons.Maui;
 using Microsoft.Extensions.Logging;
 using TasteZambia.Core.Data;
+using TasteZambia.Core.Data.Http;
 using TasteZambia.Core.Services;
 using TasteZambia.Mobile.Services;
 using TasteZambia.Mobile.Views;
@@ -38,12 +39,18 @@ public static class MauiProgram
                 fonts.AddFont("IBMPlexMono-Medium.ttf",  "PlexMonoMedium");
             });
 
-        // ---- Repositories: the ONLY layer that changes when the API lands. ----
-        builder.Services.AddSingleton<IDishRepository, InMemoryDishRepository>();
-        builder.Services.AddSingleton<IIngredientRepository, InMemoryIngredientRepository>();
-        builder.Services.AddSingleton<IRegionRepository, InMemoryRegionRepository>();
-        builder.Services.AddSingleton<IArticleRepository, InMemoryArticleRepository>();
-        builder.Services.AddSingleton<ICategoryRepository, InMemoryCategoryRepository>();
+        // ---- Repositories: the ONLY layer that changed when the API landed. ----
+        // The five read-side interfaces now go over HTTP to the archive API. Nothing
+        // above this layer knows; RepositoryParityTests in the API suite prove the
+        // HTTP and seeded implementations return equal models.
+        static void Api(HttpClient c) => c.BaseAddress = new Uri(ArchiveApiOptions.BaseUrl);
+        builder.Services.AddHttpClient<IDishRepository, HttpDishRepository>(Api);
+        builder.Services.AddHttpClient<IIngredientRepository, HttpIngredientRepository>(Api);
+        builder.Services.AddHttpClient<IRegionRepository, HttpRegionRepository>(Api);
+        builder.Services.AddHttpClient<IArticleRepository, HttpArticleRepository>(Api);
+        builder.Services.AddHttpClient<ICategoryRepository, HttpCategoryRepository>(Api);
+
+        // Profile needs a user, which is Stage 2. Still seeded.
         builder.Services.AddSingleton<IProfileRepository, InMemoryProfileRepository>();
 
         // ---- Services: unchanged by the API swap. ----

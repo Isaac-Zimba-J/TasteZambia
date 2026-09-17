@@ -82,6 +82,19 @@ Features/  →  Services/  →  Repositories/  →  Data/TasteZambiaDbContext
 - All reads are `AsNoTracking`.
 - Kestrel serves HTTP inside the container; TLS terminates at the ingress. `UseHttpsRedirection` is removed — it breaks container health checks.
 
+### Revisions made during execution (Task 7)
+
+- **API dev port is 5080, not 8080.** A Moodle container from another project owns 8080 on this
+  machine. `scripts/android.sh api` runs it; Compose maps `5080:8080`.
+- **The Mac's LAN address is injected at build time, never hardcoded.** It changes with every
+  Wi-Fi network. `scripts/android.sh` passes `-p:ArchiveApiHost=$(ipconfig getifaddr en0)`, which
+  lands as assembly metadata read by `ArchiveApiOptions`. A physical phone with no injected host
+  throws at startup rather than timing out silently for 100 seconds.
+- **Cleartext is a debug-build property**, `[Application(UsesCleartextTraffic = true)]` under
+  `#if DEBUG` in `MainApplication`, not a host allowlist. Release keeps Android's default.
+- **Scalar** serves interactive API docs at `/scalar` in Development.
+- `appsettings.Development.json` logs `Microsoft.AspNetCore` at Information so requests are visible.
+
 ### .NET 10 SDK gotcha
 `dotnet sln add/remove` writes a stray newline between the UTF-8 BOM and the solution header,
 which makes the IDE reject the solution. **After every `dotnet sln` mutation**, run:

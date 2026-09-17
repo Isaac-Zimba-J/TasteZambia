@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 using TasteZambia.API.Common.Endpoints;
 using TasteZambia.API.Data;
 using TasteZambia.API.Data.Seed;
@@ -38,7 +39,11 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
+{
     app.MapOpenApi();
+    // Interactive API reference at /scalar, generated from the OpenAPI document.
+    app.MapScalarApiReference(o => o.WithTitle("Taste Zambia Archive API"));
+}
 
 // No UseHttpsRedirection: Kestrel serves HTTP inside the container and TLS
 // terminates at the ingress. Leaving it on breaks container health checks.
