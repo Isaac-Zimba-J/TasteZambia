@@ -92,6 +92,7 @@ if (app.Environment.IsDevelopment())
     await db.Database.MigrateAsync();
     await ArchiveSeeder.SeedAsync(db);
     await RoleSeeder.SeedAsync(scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>());
+    await ReviewerSeeder.SeedAsync(app.Configuration, scope.ServiceProvider.GetRequiredService<UserManager<ArchiveUser>>(), db);
 }
 
 app.UseExceptionHandler();

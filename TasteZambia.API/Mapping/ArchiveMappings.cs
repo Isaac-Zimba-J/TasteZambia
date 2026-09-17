@@ -33,8 +33,11 @@ public static class ArchiveMappings
             DisplaySubtitle = i.DisplaySubtitle, Quantity = i.Quantity,
         })],
         Steps = [.. r.Steps.OrderBy(s => s.Number).Select(s => new CookingStepDto(s.Number, s.Title, s.Body))],
-        TraditionalMethod = r.Methods.Single(m => m.Kind == MethodKind.Traditional).ToDto(),
-        ModernMethod = r.Methods.Single(m => m.Kind == MethodKind.Modern).ToDto(),
+        // Seeded recipes carry both narratives; a community recipe may carry one or neither.
+        TraditionalMethod = r.Methods.SingleOrDefault(m => m.Kind == MethodKind.Traditional)?.ToDto()
+                            ?? new MethodNarrativeDto("The traditional way", []),
+        ModernMethod = r.Methods.SingleOrDefault(m => m.Kind == MethodKind.Modern)?.ToDto()
+                       ?? new MethodNarrativeDto("A modern kitchen", []),
         Variations = [.. r.Variations.OrderBy(v => v.SortOrder).Select(v => new RegionalVariationDto(v.Place, v.Description))],
         Contributor = new ContributorDto(r.ContributorName, r.ContributorLocation, r.ContributorAvatarAsset),
     };
