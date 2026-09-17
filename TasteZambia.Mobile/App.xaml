@@ -12,7 +12,6 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:InvertedBoolConverter x:Key="InvertedBool"/>
-            <converters:IsNotNullConverter x:Key="IsNotNull"/>
             <converters:HexToColorConverter x:Key="HexToColor"/>
             <converters:BoolToIconVariantConverter x:Key="BoolToIconVariant"/>
         </ResourceDictionary>

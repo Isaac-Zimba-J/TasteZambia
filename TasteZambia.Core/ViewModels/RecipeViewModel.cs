@@ -8,7 +8,7 @@ using TasteZambia.Core.Services;
 namespace TasteZambia.Core.ViewModels;
 
 public sealed partial class RecipeIngredientItemViewModel(
-    RecipeIngredient ingredient, Action<string> openSheet) : ObservableObject
+    RecipeIngredient ingredient, Func<string, Task> openSheet) : ObservableObject
 {
     public string Name { get; } = ingredient.DisplayName;
     public string Subtitle { get; } = ingredient.DisplaySubtitle;
@@ -17,11 +17,8 @@ public sealed partial class RecipeIngredientItemViewModel(
     public bool IsPlain => !IsLinked;
 
     [RelayCommand]
-    private void Open()
-    {
-        if (ingredient.IngredientKey is { } key)
-            openSheet(key);
-    }
+    private Task Open()
+        => ingredient.IngredientKey is { } key ? openSheet(key) : Task.CompletedTask;
 }
 
 public sealed partial class CookingStepItemViewModel : ObservableObject
@@ -189,19 +186,30 @@ public sealed partial class RecipeViewModel(
             MethodParagraphs.Add(paragraph);
     }
 
-    private async void OpenSheet(string ingredientKey)
+    /// <summary>
+    /// Task-returning, not async void: this now makes HTTP calls, and a Wi-Fi drop must
+    /// leave the sheet closed rather than take the app down.
+    /// </summary>
+    private async Task OpenSheet(string ingredientKey)
     {
-        var ingredient = await ingredients.GetByKeyAsync(ingredientKey);
-        if (ingredient is null) return;
-
-        var rows = new List<UsedInRow>();
-        foreach (var id in ingredient.UsedInDishIds)
+        try
         {
-            if (await dishes.GetByIdAsync(id) is { } dish)
-                rows.Add(new UsedInRow(dish.LocalName, dish.EnglishName));
-        }
+            var ingredient = await ingredients.GetByKeyAsync(ingredientKey);
+            if (ingredient is null) return;
 
-        Sheet = new IngredientSheetViewModel(ingredient, rows);
+            var rows = new List<UsedInRow>();
+            foreach (var id in ingredient.UsedInDishIds)
+            {
+                if (await dishes.GetByIdAsync(id) is { } dish)
+                    rows.Add(new UsedInRow(dish.LocalName, dish.EnglishName));
+            }
+
+            Sheet = new IngredientSheetViewModel(ingredient, rows);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            Sheet = null;
+        }
     }
 
     [RelayCommand]

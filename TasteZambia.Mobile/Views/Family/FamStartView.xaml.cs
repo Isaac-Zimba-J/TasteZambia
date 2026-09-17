@@ -1,23 +1,12 @@
 using TasteZambia.Core.ViewModels;
+using TasteZambia.Mobile.Views;
 
 namespace TasteZambia.Mobile.Views.Family;
 
-public partial class FamStartView : ContentView
+public partial class FamStartView : LoadOnceView
 {
-    private readonly FamStartViewModel _viewModel;
-    private bool _loaded;
-
-    public FamStartView(FamStartViewModel viewModel)
+    public FamStartView(FamStartViewModel viewModel) : base(viewModel)
     {
         InitializeComponent();
-        BindingContext = _viewModel = viewModel;
-        Loaded += OnLoaded;
-    }
-
-    private async void OnLoaded(object? sender, EventArgs e)
-    {
-        if (_loaded) return;
-        _loaded = true;
-        await _viewModel.InitializeAsync();
     }
 }

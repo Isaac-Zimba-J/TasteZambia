@@ -1,4 +1,5 @@
-using TasteZambia.Mobile.Views.Sections;
+using TasteZambia.Mobile.Views.Tabs;
+using TasteZambia.Mobile.Views.Details;
 using TasteZambia.Mobile.Views.Share;
 using TasteZambia.Mobile.Views.Family;
 using TasteZambia.Mobile.Views.Collections;

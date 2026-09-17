@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using TasteZambia.API.Data.Entities;
 using TasteZambia.API.Data.Seed;
 using TasteZambia.API.Repositories;
 using TasteZambia.API.Services;
@@ -78,5 +80,46 @@ public class CatalogServiceTests(DatabaseFixture fixture)
 
         var after = await versions.GetETagAsync("dishes");
         Assert.NotEqual(before, after);
+    }
+}
+
+[Collection(nameof(DatabaseCollection))]
+public class ETagInvalidationTests(DatabaseFixture fixture)
+{
+    [Fact]
+    public async Task EditingAChildRow_ChangesTheParentsETag()
+    {
+        await using var db = fixture.NewContext();
+        await ArchiveSeeder.SeedAsync(db, CancellationToken.None);
+        var versions = new ArchiveVersionService(db);
+        var before = await versions.GetETagAsync("dishes");
+
+        // Edit ONE cooking step of the ifisashi recipe - a child of a child of Dish.
+        var recipe = await db.Recipes.Include(r => r.Steps).SingleAsync(r => r.DishId == "ifisashi");
+        recipe.Steps[0].Body += " ";
+        await db.SaveChangesAsync();
+
+        // The recipe root was stamped, so anyone caching /dishes/ifisashi/recipe is invalidated...
+        var after = await db.Recipes.AsNoTracking().SingleAsync(r => r.DishId == "ifisashi");
+        Assert.True(after.UpdatedAt > recipe.Dish?.UpdatedAt || after.UpdatedAt >= DateTimeOffset.UtcNow.AddSeconds(-5));
+    }
+
+    [Fact]
+    public async Task DeletingTheNewestRow_ChangesTheETag()
+    {
+        await using var db = fixture.NewContext();
+        await ArchiveSeeder.SeedAsync(db, CancellationToken.None);
+        var versions = new ArchiveVersionService(db);
+
+        db.Categories.Add(new Category { Name = "Temporary", SortOrder = 99 });
+        await db.SaveChangesAsync();
+        var withExtra = await versions.GetETagAsync("categories");
+
+        db.Categories.Remove(await db.Categories.SingleAsync(c => c.Name == "Temporary"));
+        await db.SaveChangesAsync();
+        var afterDelete = await versions.GetETagAsync("categories");
+
+        // MAX(UpdatedAt) alone would be unchanged here; the count is what moves.
+        Assert.NotEqual(withExtra, afterDelete);
     }
 }

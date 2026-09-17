@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TasteZambia.API.Data;
+using TasteZambia.API.Data.Entities;
 
 namespace TasteZambia.API.Services;
 
@@ -20,18 +21,23 @@ public sealed class ArchiveVersionService(TasteZambiaDbContext db) : IArchiveVer
 {
     public async Task<string> GetETagAsync(string resource, CancellationToken ct = default)
     {
-        DateTimeOffset? latest = resource switch
+        var (latest, count) = resource switch
         {
-            "dishes"      => await db.Dishes.MaxAsync(x => (DateTimeOffset?)x.UpdatedAt, ct),
-            "ingredients" => await db.Ingredients.MaxAsync(x => (DateTimeOffset?)x.UpdatedAt, ct),
-            "regions"     => await db.Provinces.MaxAsync(x => (DateTimeOffset?)x.UpdatedAt, ct),
-            "articles"    => await db.Articles.MaxAsync(x => (DateTimeOffset?)x.UpdatedAt, ct),
-            "categories"  => await db.Categories.MaxAsync(x => (DateTimeOffset?)x.UpdatedAt, ct),
+            "dishes"      => await Stamp(db.Dishes, ct),
+            "ingredients" => await Stamp(db.Ingredients, ct),
+            "regions"     => await Stamp(db.Provinces, ct),
+            "articles"    => await Stamp(db.Articles, ct),
+            "categories"  => await Stamp(db.Categories, ct),
             _ => throw new ArgumentOutOfRangeException(nameof(resource), resource, "Unknown archive resource"),
         };
 
         // Ticks, not milliseconds: two writes inside one millisecond would otherwise
-        // produce the same tag and a client would keep a stale copy.
-        return $"\"{resource}-{latest?.UtcTicks ?? 0}\"";
+        // produce the same tag. The row count is included because MAX(UpdatedAt) alone
+        // cannot see a delete - removing the newest row leaves it unchanged.
+        return $"\"{resource}-{latest?.UtcTicks ?? 0}-{count}\"";
     }
+
+    private static async Task<(DateTimeOffset? Latest, int Count)> Stamp<T>(IQueryable<T> rows, CancellationToken ct)
+        where T : ArchiveEntity
+        => (await rows.MaxAsync(x => (DateTimeOffset?)x.UpdatedAt, ct), await rows.CountAsync(ct));
 }

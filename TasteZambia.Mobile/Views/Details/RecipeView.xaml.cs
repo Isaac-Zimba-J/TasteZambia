@@ -1,17 +1,16 @@
 using TasteZambia.Core.ViewModels;
+using TasteZambia.Mobile.Views;
 
-namespace TasteZambia.Mobile.Views.Sections;
+namespace TasteZambia.Mobile.Views.Details;
 
-public partial class RecipeView : ContentView
+public partial class RecipeView : LoadOnceView
 {
     private readonly RecipeViewModel _viewModel;
-    private bool _loaded;
 
-    public RecipeView(RecipeViewModel viewModel)
+    public RecipeView(RecipeViewModel viewModel) : base(viewModel)
     {
         InitializeComponent();
-        BindingContext = _viewModel = viewModel;
-        Loaded += OnLoaded;
+        _viewModel = viewModel;
 
         _viewModel.PropertyChanged += async (_, e) =>
         {
@@ -28,13 +27,6 @@ public partial class RecipeView : ContentView
                     break;
             }
         };
-    }
-
-    private async void OnLoaded(object? sender, EventArgs e)
-    {
-        if (_loaded) return;
-        _loaded = true;
-        await _viewModel.InitializeAsync();
     }
 
     /// <summary>TranslateToAsync, not TranslateTo - the sync-named forms are gone in .NET 10.</summary>

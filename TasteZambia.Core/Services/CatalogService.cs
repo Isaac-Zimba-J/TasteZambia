@@ -14,6 +14,7 @@ public sealed class CatalogService(IDishRepository dishes) : ICatalogService
     public async Task<IReadOnlyList<Dish>> SearchAsync(string query, string filter, CancellationToken ct = default)
     {
         var all = await dishes.GetAllAsync(ct);
+        ct.ThrowIfCancellationRequested();
         var q = query.Trim();
 
         if (q.Length == 0)

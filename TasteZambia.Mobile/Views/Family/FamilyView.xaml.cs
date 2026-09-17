@@ -3,9 +3,9 @@ using TasteZambia.Mobile.Views;
 
 namespace TasteZambia.Mobile.Views.Family;
 
-public partial class FamSavedView : LoadOnceView
+public partial class FamilyView : LoadOnceView
 {
-    public FamSavedView(FamSavedViewModel viewModel) : base(viewModel)
+    public FamilyView(FamilyViewModel viewModel) : base(viewModel)
     {
         InitializeComponent();
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<views:LoadOnceView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
              xmlns:views="clr-namespace:TasteZambia.Mobile.Views"
@@ -7,7 +7,7 @@
              xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
              xmlns:items="clr-namespace:TasteZambia.Core.ViewModels.Items;assembly=TasteZambia.Core"
              xmlns:models="clr-namespace:TasteZambia.Core.Models;assembly=TasteZambia.Core"
-             x:Class="TasteZambia.Mobile.Views.Sections.StoryView"
+             x:Class="TasteZambia.Mobile.Views.Details.StoryView"
              x:DataType="vm:StoryViewModel">
 
     <ContentView.Resources>
@@ -147,4 +147,4 @@
             <BoxView HeightRequest="26" Color="Transparent"/>
         </VerticalStackLayout>
     </ScrollView>
-</ContentView>
+</views:LoadOnceView>
