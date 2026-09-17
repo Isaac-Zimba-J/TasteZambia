@@ -1,5 +1,11 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using TasteZambia.Core.Data;
 using TasteZambia.Core.Data.Http;
+using TasteZambia.Core.Services;
+using TasteZambia.Shared.Contracts.Auth;
+using TasteZambia.Shared.Contracts.Me;
+using TasteZambia.Shared.Routes;
 
 namespace TasteZambia.API.Tests.Features;
 
@@ -112,5 +118,29 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         var http = await new HttpCategoryRepository(_client).GetAllAsync();
 
         Assert.Equal(seeded, http);
+    }
+
+    [Fact]
+    public async Task Profile_ReadsTheAccountAndCountsFromTheLocalStore()
+    {
+        var store = new PersonalStore(new InMemoryLocalStore(), TimeProvider.System);
+        store.SetSaved("chikanda", true);            // ifisashi (seeded) + chikanda = 2 saved
+        store.SetDone("nshima", 1, true);
+
+        var tokens = await (await _client.PostAsJsonAsync(ApiRoutes.Auth.Device,
+            new DeviceAuthRequest($"device-{Guid.NewGuid():N}", new string('s', 40)))).Content.ReadFromJsonAsync<AuthTokensDto>();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens!.AccessToken);
+        await _client.PutAsJsonAsync(ApiRoutes.Me.Profile, new UpdateProfileRequest("Chanda Mwaba", "Kitwe, Copperbelt", "Bemba, English"));
+
+        var repo = new HttpProfileRepository(_client, store);
+        var profile = await repo.GetAsync();
+
+        Assert.Equal("Chanda Mwaba", profile.Name);
+        Assert.Equal(2, profile.FavouriteCount);
+        Assert.Equal(1, profile.CookedCount);
+
+        var collections = await repo.GetCollectionsAsync();
+        Assert.Equal("2 recipes", collections[0].CountLabel);
+        Assert.Equal("1 recipe", collections[2].CountLabel);
     }
 }

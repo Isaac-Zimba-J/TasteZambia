@@ -53,6 +53,22 @@ public sealed class PersonalStore
         lock (_sync) return _state.Progress.TryGetValue(StepKey(dishId, step), out var e) && e.IsDone;
     }
 
+    public IReadOnlyList<string> SavedDishIds
+    {
+        get { lock (_sync) return _state.Saved.Where(kv => kv.Value.IsSaved).Select(kv => kv.Key).ToList(); }
+    }
+
+    /// <summary>Dishes with at least one step ticked.</summary>
+    public IReadOnlyList<string> CookedDishIds
+    {
+        get
+        {
+            lock (_sync)
+                return _state.Progress.Where(kv => kv.Value.IsDone)
+                    .Select(kv => kv.Key[..kv.Key.LastIndexOf(':')]).Distinct().ToList();
+        }
+    }
+
     public void SetSaved(string dishId, bool isSaved)
     {
         var at = _clock.GetUtcNow();

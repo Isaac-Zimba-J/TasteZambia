@@ -70,8 +70,8 @@ public static class MauiProgram
         builder.Services.AddHttpClient<IArticleRepository, HttpArticleRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
         builder.Services.AddHttpClient<ICategoryRepository, HttpCategoryRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
 
-        // Profile needs a user, which is Stage 2. Still seeded.
-        builder.Services.AddSingleton<IProfileRepository, InMemoryProfileRepository>();
+        // Profile reads the account; its counts come from the local personal store.
+        builder.Services.AddHttpClient<IProfileRepository, HttpProfileRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
 
         // ---- Services: unchanged by the API swap. ----
         // Favourites, progress and preferences are singletons on purpose: a heart
