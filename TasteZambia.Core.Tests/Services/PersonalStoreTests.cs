@@ -21,9 +21,19 @@ public class PersonalStoreTests
     }
 
     [Fact]
+    public void FreshStore_QueuesTheSeededSaveSoTheAccountAgrees()
+    {
+        var (store, _) = Sut();
+        var seeded = Assert.Single(store.DrainOutbox());
+        Assert.Equal("ifisashi", seeded.DishId);
+        Assert.Equal(DateTimeOffset.UnixEpoch, seeded.At);   // any real tap outranks it
+    }
+
+    [Fact]
     public void SetSaved_WritesLocallyAndQueuesAStampedChange()
     {
         var (store, clock) = Sut();
+        store.DrainOutbox();   // clear the seed
         store.SetSaved("chikanda", true);
 
         Assert.True(store.IsSaved("chikanda"));
@@ -39,6 +49,7 @@ public class PersonalStoreTests
     {
         var local = new InMemoryLocalStore();
         var (first, _) = Sut(local);
+        first.DrainOutbox();   // clear the seed
         first.SetDone("ifisashi", 2, true);
 
         var (second, _) = Sut(local);
@@ -81,6 +92,7 @@ public class PersonalStoreTests
     public void Requeue_PutsAFailedBatchBackAheadOfNewerChanges()
     {
         var (store, _) = Sut();
+        store.DrainOutbox();   // clear the seed
         store.SetSaved("kapenta", true);
         var batch = store.DrainOutbox();
         store.SetSaved("delele", true);

@@ -35,10 +35,13 @@ public sealed class PersonalStore
         _state = local.Get<PersonalState>(Key) ?? Seed();
     }
 
-    // The design's starting state: ifisashi saved. Stamped at epoch so any real tap outranks it.
+    // The design's starting state: ifisashi saved. Stamped at epoch so any real tap
+    // outranks it, and queued for sync so the account agrees with the device - otherwise
+    // the first sync response (an empty account) would silently un-save it.
     private static PersonalState Seed() => new()
     {
         Saved = { ["ifisashi"] = new SavedFlag(true, DateTimeOffset.UnixEpoch) },
+        Outbox = { new SyncChangeDto(SyncChangeDto.Saved, "ifisashi", null, true, DateTimeOffset.UnixEpoch) },
     };
 
     private static string StepKey(string dishId, int step) => $"{dishId}:{step}";
