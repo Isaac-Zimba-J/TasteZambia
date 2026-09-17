@@ -1,23 +1,12 @@
 using TasteZambia.Core.ViewModels;
+using TasteZambia.Mobile.Views;
 
 namespace TasteZambia.Mobile.Views.Share;
 
-public partial class ShareStartView : ContentView
+public partial class ShareStartView : LoadOnceView
 {
-    private readonly ShareStartViewModel _viewModel;
-    private bool _loaded;
-
-    public ShareStartView(ShareStartViewModel viewModel)
+    public ShareStartView(ShareStartViewModel viewModel) : base(viewModel)
     {
         InitializeComponent();
-        BindingContext = _viewModel = viewModel;
-        Loaded += OnLoaded;
-    }
-
-    private async void OnLoaded(object? sender, EventArgs e)
-    {
-        if (_loaded) return;
-        _loaded = true;
-        await _viewModel.InitializeAsync();
     }
 }

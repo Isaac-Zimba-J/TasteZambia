@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:LoadOnceView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:TasteZambia.Mobile.Views"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:ic="clr-namespace:FluentIcons.Maui;assembly=FluentIcons.Maui"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Family.FamilyView"
+             x:DataType="vm:FamilyViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <Grid Padding="20,20,20,0">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" CircleBackground="Transparent"
+                                       SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
+                                       HorizontalOptions="Start" Command="{Binding CloseCommand}"/>
+            </Grid>
+
+            <VerticalStackLayout Padding="20,10,20,0" Spacing="9">
+                <Label Text="Living archive" Style="{StaticResource KickerLabel}"/>
+                <Label Text="Preserve a Family Recipe" Style="{StaticResource DisplayTitle}" CharacterSpacing="-0.31"/>
+                <Label Text="Write down a recipe the way it was taught to you, so it survives past the person who taught it."
+                       Style="{StaticResource BodyText}" TextColor="{StaticResource TzBodyMuted}"/>
+            </VerticalStackLayout>
+
+            <controls:WizardProgress Margin="20,20,20,0" StepTitle="{Binding StepTitle}"
+                                     StepNumber="{Binding Step}" StepCount="4"/>
+
+            <!-- Step 1: The recipe -->
+            <VerticalStackLayout Padding="20" Spacing="16" IsVisible="{Binding IsStep1}">
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="Recipe name, in your own language" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource FieldCard}">
+                        <Label Text="{Binding Draft.LocalName}" FontFamily="NewsreaderSemiBold"
+                               FontSize="19" TextColor="{StaticResource TzInk}"/>
+                    </Border>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="What it is, in English" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource FieldCard}">
+                        <Label Text="{Binding Draft.EnglishDescription}" FontFamily="ArchivoRegular"
+                               FontSize="13" LineHeight="1.5" TextColor="{StaticResource TzBodyMuted}"/>
+                    </Border>
+                </VerticalStackLayout>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="11">
+                    <VerticalStackLayout Spacing="7">
+                        <Label Text="Region" Style="{StaticResource FieldLabel}"/>
+                        <Border Style="{StaticResource FieldCard}">
+                            <Label Text="{Binding Draft.Province}" FontFamily="ArchivoMedium"
+                                   FontSize="13" TextColor="{StaticResource TzInk}"/>
+                        </Border>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="7">
+                        <Label Text="Language" Style="{StaticResource FieldLabel}"/>
+                        <Border Style="{StaticResource FieldCard}">
+                            <Label Text="{Binding Draft.Language}" FontFamily="ArchivoMedium"
+                                   FontSize="13" TextColor="{StaticResource TzInk}"/>
+                        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="Photos" Style="{StaticResource FieldLabel}"/>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" HeightRequest="84">
+                        <Border WidthRequest="84" StrokeThickness="0" StrokeShape="RoundRectangle 13" Padding="0">
+                            <controls:StripePlaceholder/>
+                        </Border>
+                        <Border Grid.Column="1" Stroke="{StaticResource TzBorderDashed}" StrokeThickness="1"
+                                StrokeDashArray="4,3" StrokeShape="RoundRectangle 13" BackgroundColor="Transparent">
+                            <VerticalStackLayout Spacing="5" VerticalOptions="Center" HorizontalOptions="Center">
+                                <ic:FluentIcon Icon="Add" IconSize="Size20" ForegroundColor="{StaticResource TzFaint}"/>
+                                <Label Text="add photo" FontFamily="PlexMonoRegular" FontSize="10.5"
+                                       TextColor="{StaticResource TzMuted2}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Step 2: Who taught you -->
+            <VerticalStackLayout Padding="20" Spacing="16" IsVisible="{Binding IsStep2}">
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="Who taught you this recipe" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource FieldCard}">
+                        <Label Text="{Binding Draft.TaughtBy}" FontFamily="ArchivoMedium" FontSize="14"
+                               TextColor="{StaticResource TzInk}"/>
+                    </Border>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="Where she learned it" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource FieldCard}">
+                        <Label Text="{Binding Draft.TaughtByOrigin}" FontFamily="ArchivoRegular" FontSize="13"
+                               LineHeight="1.5" TextColor="{StaticResource TzBodyMuted}"/>
+                    </Border>
+                </VerticalStackLayout>
+                <Border BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16" Padding="16">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="13">
+                        <Border WidthRequest="44" HeightRequest="44" BackgroundColor="{StaticResource TzGreenDeep}"
+                                StrokeThickness="0" StrokeShape="RoundRectangle 22" Padding="0">
+                            <ic:FluentIcon Icon="Mic" IconVariant="Filled" IconSize="Size20"
+                                           ForegroundColor="{StaticResource TzSurface}"
+                                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                            <Label Text="Record her telling it" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                                   LineHeight="1.3" TextColor="{StaticResource TzInk}"/>
+                            <Label Text="Audio in any language. Kept alongside the written recipe."
+                                   FontFamily="ArchivoRegular" FontSize="11" LineHeight="1.45"
+                                   TextColor="{StaticResource TzMuted}"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Step 3: The story -->
+            <VerticalStackLayout Padding="20" Spacing="16" IsVisible="{Binding IsStep3}">
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="The story behind it" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource FieldCard}" Padding="14">
+                        <Label Text="{Binding Draft.Story}" FontFamily="ArchivoRegular" FontSize="13"
+                               LineHeight="1.7" TextColor="{StaticResource TzBody}"/>
+                    </Border>
+                </VerticalStackLayout>
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="Her method, as she did it" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource FieldCard}" Padding="14">
+                        <Label Text="{Binding Draft.TraditionalMethod}" FontFamily="ArchivoRegular" FontSize="13"
+                               LineHeight="1.7" TextColor="{StaticResource TzBody}"/>
+                    </Border>
+                </VerticalStackLayout>
+                <HorizontalStackLayout Spacing="9">
+                    <Border WidthRequest="18" HeightRequest="18" BackgroundColor="{StaticResource TzGreenMid}"
+                            Stroke="{StaticResource TzGreenMid}" StrokeThickness="1.5"
+                            StrokeShape="RoundRectangle 5" Padding="0" VerticalOptions="Center">
+                        <ic:FluentIcon Icon="Checkmark" IconSize="Size12"
+                                       ForegroundColor="{StaticResource TzSurface}"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Label Text="Also add this to the Food Stories collection" VerticalOptions="Center"
+                           FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.5"
+                           TextColor="{StaticResource TzMuted}"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Step 4: Who can see it -->
+            <VerticalStackLayout Padding="20" Spacing="11" IsVisible="{Binding IsStep4}">
+                <VerticalStackLayout Spacing="11" BindableLayout.ItemsSource="{Binding PrivacyOptions}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:PrivacyOptionViewModel">
+                            <Border StrokeThickness="1.5" StrokeShape="RoundRectangle 16" Padding="15">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="Stroke" Value="{StaticResource TzGreenDeep}"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource TzGreenTint}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
+                                        <Setter Property="Stroke" Value="{StaticResource TzBorder}"/>
+                                        <Setter Property="BackgroundColor" Value="{StaticResource TzSurface}"/>
+                                    </DataTrigger>
+                                </Border.Triggers>
+
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                    <Border WidthRequest="19" HeightRequest="19" StrokeThickness="1.5"
+                                            StrokeShape="RoundRectangle 9.5" Padding="0" Margin="0,1,0,0"
+                                            VerticalOptions="Start" BackgroundColor="Transparent">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="Stroke" Value="{StaticResource TzGreenDeep}"/>
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
+                                                <Setter Property="Stroke" Value="{StaticResource TzBorderStrong}"/>
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <BoxView WidthRequest="9" HeightRequest="9" CornerRadius="4.5"
+                                                 IsVisible="{Binding IsSelected}"
+                                                 Color="{StaticResource TzGreenDeep}"
+                                                 HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="5">
+                                        <Label Text="{Binding Label}" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                                               LineHeight="1.2" TextColor="{StaticResource TzInk}"/>
+                                        <Label Text="{Binding Note}" FontFamily="ArchivoRegular" FontSize="11.5"
+                                               LineHeight="1.5" TextColor="{StaticResource TzBodyMuted}"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Border Margin="0,5,0,0" BackgroundColor="{StaticResource TzGreenDeep}" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16" Padding="15">
+                    <Label Text="Public submissions are read by the archive team, checked against regional sources, and credited to you and to the person who taught you. Nothing is edited without asking."
+                           FontFamily="ArchivoRegular" FontSize="12" LineHeight="1.65"
+                           TextColor="{StaticResource TzOnDark84}"/>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Nav buttons -->
+            <Grid Padding="20,0" ColumnDefinitions="Auto,*" ColumnSpacing="11">
+                <Border Grid.Column="0" Style="{StaticResource SecondaryAction}" Padding="20,15"
+                        IsVisible="{Binding CanGoBack}">
+                    <Label Text="Back" FontFamily="ArchivoSemiBold" FontSize="13"
+                           TextColor="{StaticResource TzBody}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding BackCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="1" Style="{StaticResource PrimaryAction}">
+                    <Label Text="{Binding NextLabel}" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                           HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NextCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</views:LoadOnceView>

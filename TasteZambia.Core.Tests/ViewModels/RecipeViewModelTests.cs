@@ -92,7 +92,7 @@ public class RecipeViewModelTests
         var vm = Sut();
         await vm.InitializeAsync();
 
-        vm.Ingredients[0].OpenCommand.Execute(null);
+        await vm.Ingredients[0].OpenCommand.ExecuteAsync(null);
 
         Assert.True(vm.IsSheetOpen);
         Assert.Equal("Chibwabwa", vm.Sheet!.Name);
@@ -110,7 +110,7 @@ public class RecipeViewModelTests
         var vm = Sut();
         await vm.InitializeAsync();
 
-        vm.Ingredients[2].OpenCommand.Execute(null);   // Onion
+        await vm.Ingredients[2].OpenCommand.ExecuteAsync(null);   // Onion
 
         Assert.False(vm.IsSheetOpen);
     }
@@ -121,7 +121,7 @@ public class RecipeViewModelTests
         var nav = new StubNavigation();
         var vm = Sut(nav);
         await vm.InitializeAsync();
-        vm.Ingredients[0].OpenCommand.Execute(null);
+        await vm.Ingredients[0].OpenCommand.ExecuteAsync(null);
 
         await vm.OpenFullIngredientCommand.ExecuteAsync(null);
 

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:LoadOnceView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:TasteZambia.Mobile.Views"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:ic="clr-namespace:FluentIcons.Maui;assembly=FluentIcons.Maui"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             xmlns:items="clr-namespace:TasteZambia.Core.ViewModels.Items;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Tabs.ExploreView"
+             x:DataType="vm:ExploreViewModel">
+
+    <!-- Header, chips and count stay put; only the results scroll. That also keeps
+         the results CollectionView out of a ScrollView, which is the nesting trap. -->
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+        <!-- Deep green search header -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,18,20,14"
+                             BackgroundColor="{StaticResource TzGreenDeep}" Spacing="0">
+            <Label Text="Terroir and lineage" Style="{StaticResource KickerLabel}"
+                   TextColor="{StaticResource TzGoldLight}" Margin="0,0,0,9"/>
+            <Label SemanticProperties.HeadingLevel="Level1" Text="Explore Zambian Food" FontFamily="NewsreaderMedium" FontSize="28"
+                   LineHeight="1.1" TextColor="{StaticResource TzSurface}" Margin="0,0,0,14"/>
+
+            <Border BackgroundColor="{StaticResource TzSurface}" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 14" Padding="14,4">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                    <ic:FluentIcon Icon="Search" IconSize="Size16"
+                                   ForegroundColor="{StaticResource TzMuted}"
+                                   VerticalOptions="Center"/>
+                    <Entry Grid.Column="1" Text="{Binding Query}"
+                           Placeholder="Search Zambian dishes, ingredients or recipes..."
+                           FontFamily="ArchivoRegular" FontSize="13"
+                           TextColor="{StaticResource TzInk}"
+                           PlaceholderColor="{StaticResource TzMuted2}"
+                           BackgroundColor="Transparent"
+                           ReturnType="Search"/>
+                    <controls:CircleButton Grid.Column="2" Icon="Dismiss" Diameter="24" IconSize="Size16"
+                                           CircleBackground="Transparent"
+                                           IsVisible="{Binding HasQuery}"
+                                           SemanticLabel="Clear search"
+                                           IconColor="{StaticResource TzMuted}"
+                                           Command="{Binding ClearQueryCommand}"
+                                           VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- Filter chips -->
+        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never"
+                    Margin="0,14,0,4">
+            <HorizontalStackLayout Padding="20,0" Spacing="8"
+                                   BindableLayout.ItemsSource="{Binding Chips}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="vm:FilterChipViewModel">
+                        <Border Padding="13,8" StrokeShape="RoundRectangle 20" StrokeThickness="1"
+                                VerticalOptions="Start">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource TzGreenDeep}"/>
+                                    <Setter Property="Stroke" Value="{StaticResource TzGreenDeep}"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource TzSurface}"/>
+                                    <Setter Property="Stroke" Value="{StaticResource TzBorder}"/>
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Text="{Binding Label}" FontFamily="ArchivoMedium" FontSize="11.5">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="TextColor" Value="{StaticResource TzSurface}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
+                                        <Setter Property="TextColor" Value="{StaticResource TzBody}"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectCommand}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Count + sort -->
+        <Grid Grid.Row="2" Padding="20,16,20,4" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+            <Label Text="{Binding ResultCountLabel}" FontFamily="PlexMonoMedium" FontSize="11"
+                   TextColor="{StaticResource TzMuted2}" VerticalOptions="Center"/>
+            <HorizontalStackLayout Grid.Column="1" Spacing="5">
+                <ic:FluentIcon Icon="ArrowSort" IconSize="Size16"
+                               ForegroundColor="{StaticResource TzGold}" VerticalOptions="Center"/>
+                <Label Text="Sort" FontFamily="ArchivoMedium" FontSize="11"
+                       TextColor="{StaticResource TzGold}" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- Results -->
+        <CollectionView Grid.Row="3" ItemsSource="{Binding Results}" Margin="20,10,20,0">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="14"/>
+            </CollectionView.ItemsLayout>
+            <CollectionView.EmptyView>
+                <Label Text="Nothing in the archive matches that yet.&#10;Try a region, an ingredient, or a local name."
+                       Padding="10,40" HorizontalTextAlignment="Center"
+                       FontFamily="ArchivoRegular" FontSize="13" LineHeight="1.6"
+                       TextColor="{StaticResource TzMuted2}"/>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="items:DishItemViewModel">
+                    <Border Style="{StaticResource Card}" Padding="12">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                            <controls:PhotoOrPlaceholder WidthRequest="96" HeightRequest="96"
+                                                         CornerRadius="15" ShowCaption="False"
+                                                         ImageAsset="{Binding ImageAsset}"/>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                    <VerticalStackLayout Spacing="2">
+                                        <Label Text="{Binding Title}" FontFamily="NewsreaderSemiBold"
+                                               FontSize="19" LineHeight="1.15" TextColor="{StaticResource TzInk}"/>
+                                        <Label Text="{Binding Subtitle}" FontFamily="ArchivoRegular"
+                                               FontSize="11.5" LineHeight="1.3" TextColor="{StaticResource TzMuted}"/>
+                                    </VerticalStackLayout>
+                                    <controls:CircleButton Grid.Column="1" Icon="Heart" Diameter="26" IconSize="Size16"
+                                                           CircleBackground="Transparent" VerticalOptions="Start"
+                                                           SemanticLabel="{Binding SaveSemanticLabel}"
+                                                           IconVariant="{Binding IsSaved, Converter={StaticResource BoolToIconVariant}}"
+                                                           IconColor="{Binding SaveColorHex, Converter={StaticResource HexToColor}}"
+                                                           Command="{Binding ToggleSaveCommand}"/>
+                                </Grid>
+
+                                <Label Text="{Binding Description}" Margin="0,6,0,0" MaxLines="2"
+                                       LineBreakMode="TailTruncation"
+                                       FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.45"
+                                       TextColor="{StaticResource TzBodyMuted}"/>
+
+                                <HorizontalStackLayout Spacing="8" Margin="0,8,0,0">
+                                    <controls:PillLabel Text="{Binding TimeLabel}"
+                                                        PillBackground="{StaticResource TzGreenTint}"
+                                                        TextColor="{StaticResource TzGreenMid}"/>
+                                    <controls:PillLabel Text="{Binding Difficulty}"
+                                                        PillBackground="{StaticResource TzGoldTint}"
+                                                        TextColor="{StaticResource TzGoldTintText}"/>
+                                    <Label Text="{Binding Region}" FontFamily="ArchivoRegular" FontSize="10"
+                                           LineHeight="1.4" TextColor="{StaticResource TzMuted}"
+                                           LineBreakMode="TailTruncation" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenCommand}"/>
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</views:LoadOnceView>

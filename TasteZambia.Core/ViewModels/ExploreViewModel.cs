@@ -28,6 +28,11 @@ public sealed partial class ExploreViewModel(
     private Task _search = Task.CompletedTask;
     private string _filter = "All";
 
+    // Each new query cancels the one in flight. Over HTTP a search is a round trip, and
+    // without this, typing "chik" fires four requests and whichever lands LAST wins -
+    // regardless of which was typed last.
+    private CancellationTokenSource? _searchCts;
+
     public ObservableCollection<FilterChipViewModel> Chips { get; } = [];
     public ObservableCollection<DishItemViewModel> Results { get; } = [];
 
@@ -72,7 +77,21 @@ public sealed partial class ExploreViewModel(
 
     private async Task RunSearchAsync()
     {
-        var dishes = await catalog.SearchAsync(Query, _filter);
+        _searchCts?.Cancel();
+        var cts = _searchCts = new CancellationTokenSource();
+
+        IReadOnlyList<Models.Dish> dishes;
+        try
+        {
+            dishes = await catalog.SearchAsync(Query, _filter, cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            return;   // superseded by a newer query
+        }
+
+        // The await may have completed after a newer search started; that one owns the UI.
+        if (cts.Token.IsCancellationRequested) return;
 
         Results.Clear();
         foreach (var dish in dishes)

@@ -5,6 +5,7 @@
 #   scripts/android.sh wireless   find the phone on the network, connect, deploy
 #   scripts/android.sh connect    just (re)connect wireless debugging
 #   scripts/android.sh build      build only, no deploy
+#   scripts/android.sh api        run the archive API on 0.0.0.0:8080 (phone reaches it via LAN)
 #
 # Builds android-arm64 only - the phone's architecture - which keeps a redeploy
 # at about a minute instead of three.
@@ -18,11 +19,16 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT="$ROOT/TasteZambia.Mobile/TasteZambia.Mobile.csproj"
 USB_SERIAL="R5CR80TVGDZ"
 
+# The Mac's current LAN address, injected so a physical phone can find the API.
+# It changes with every Wi-Fi network, which is exactly why it is not hardcoded.
+MAC_IP="$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "")"
+
 build_args=(
   "$PROJECT"
   -f net10.0-android
   -c Debug
   -p:RuntimeIdentifier=android-arm64
+  -p:ArchiveApiHost="$MAC_IP"
 )
 
 connect_wireless() {
@@ -65,6 +71,7 @@ require_single_device() {
 
 case "${1:-}" in
   usb)
+    echo "API host baked into this build: ${MAC_IP:-<none>}"
     # An explicit serial disambiguates, so cable + wireless together is fine here.
     if ! adb devices | grep -q "^$USB_SERIAL[[:space:]]*device"; then
       echo "Phone not connected over USB (looking for $USB_SERIAL)."; adb devices; exit 1
@@ -73,6 +80,7 @@ case "${1:-}" in
       -p:AdbTarget="-s $USB_SERIAL"
     ;;
   wireless)
+    echo "API host baked into this build: ${MAC_IP:-<none>}"
     connect_wireless
     require_single_device
     dotnet build "${build_args[@]}" -t:Run -p:AndroidAttachDebugger=false
@@ -83,6 +91,12 @@ case "${1:-}" in
     ;;
   build)
     dotnet build "${build_args[@]}"
+    ;;
+  api)
+    # Bind all interfaces so a physical phone on the same Wi-Fi can reach it.
+    # Postgres must be up: docker compose up -d db
+    echo "API on http://$(ipconfig getifaddr en0 2>/dev/null || echo localhost):5080  (docs at /scalar)"
+    dotnet run --project "$ROOT/TasteZambia.API" --urls http://0.0.0.0:5080
     ;;
   *)
     sed -n '2,8p' "$0"

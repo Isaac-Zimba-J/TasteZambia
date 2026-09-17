@@ -4,13 +4,15 @@
 
 **Goal:** Stand up the Taste Zambia API so the mobile app can swap its seeded in-memory repositories for HTTP ones with no View, ViewModel or service changes — then grow into contributions, media and the family archive without rework.
 
-**Architecture:** One EF Core schema. Horizontal layers underneath, vertical slices on top.
-`Features/ → Services/ → Repositories/ → DbContext`. Dependencies point **down only**; a
+**Architecture:** One EF Core schema. Horizontal layers underneath, controllers on top.
+`Controllers/ → Services/ → Repositories/ → DbContext`.
+*Revised during execution:* the plan specified minimal-API vertical slices; the team chose
+MVC controllers for familiarity. The conversion changed no test and no layer beneath the HTTP edge. Dependencies point **down only**; a
 feature never touches `DbContext` and no feature reaches sideways into another. That single
 rule is what keeps the door open to splitting the schema or lifting a feature group into its
 own host later, without editing callers.
 
-**Tech Stack:** .NET 10, ASP.NET Core minimal APIs, EF Core 10 + PostgreSQL, `TasteZambia.Shared` for contracts, xUnit + `WebApplicationFactory` for tests, Docker Compose for local infrastructure.
+**Tech Stack:** .NET 10, ASP.NET Core MVC controllers, EF Core 10 + PostgreSQL, `TasteZambia.Shared` for contracts, xUnit + `WebApplicationFactory` for tests, Docker Compose for local infrastructure.
 
 **Spec:** `Docs/Mobile app design project/Taste Zambia.dc.html` — the archive content the API serves.
 **Companion:** `Docs/plans/2026-09-08-mobile-ui-implementation.md` — Task 3 there defines the six repository interfaces this API must satisfy.
@@ -50,10 +52,10 @@ layers on top of the same version column rather than replacing anything.
 ```
 Features/  →  Services/  →  Repositories/  →  Data/TasteZambiaDbContext
 ```
-- A **Feature** owns one HTTP endpoint: its route, request binding, authorisation, and the mapping of a service result to a `Shared` DTO. It holds no business logic and never injects `DbContext`.
+- A **Controller** owns the HTTP edge for one resource: routes, request binding, authorisation, and the mapping of service results to `Shared` DTOs. It holds no business logic and never injects `DbContext`.
 - A **Service** owns domain logic reusable across features — searching, filtering, ordering, rules. It never touches HTTP types.
 - A **Repository** owns data access for one aggregate. It never applies business rules and never returns `IQueryable` past its own boundary.
-- Reaching *up* a layer, or sideways between features, is a review failure.
+- Reaching *up* a layer, or sideways between controllers, is a review failure.
 
 ### Contracts
 - Every type crossing the wire lives in `TasteZambia.Shared/Contracts/`. Entities never leave the API.
@@ -62,17 +64,39 @@ Features/  →  Services/  →  Repositories/  →  Data/TasteZambiaDbContext
 - DTO changes are **additive**. Never remove or rename a field on `v1`; add a `v2` route instead. The mobile app compiles against these types, so a removal is a client build break.
 
 ### Data
-- PostgreSQL 17, one database, one schema, one `DbContext`.
+- PostgreSQL 16 (`postgres:16-alpine`), one database, one schema, one `DbContext`.
+  *Revised during execution:* the plan said 17, but 16-alpine was already local and the
+  17 pull stalled; nothing in Stage 1 distinguishes them.
+- **Host port is 5434, not 5432.** A native PostgreSQL 16 owns 5432 on this machine and
+  another project's container owns 5433. Inside Compose the API still reaches `db:5432`.
 - All ids are `string` slugs matching the design (`ifisashi`, `chibwabwa`) — they are stable, human-readable and already used by the mobile seed data.
-- Every table carries `RowVersion` (`xmin` mapped as concurrency token) and `UpdatedAt` (`timestamptz`). These two columns are what Stage 5's delta sync will read; nothing else needs to change later.
+- Every table carries `UpdatedAt` (`timestamptz`) and uses Postgres' `xmin` system column as its concurrency token.
+  *Revised during execution:* Npgsql 10 removed `UseXminAsConcurrencyToken()`. The current form is a
+  `uint` property mapped to column `xmin` with store type `xid`, `ValueGeneratedOnAddOrUpdate` and
+  `IsConcurrencyToken`. It is a shadow property via `UseXminConcurrency()` in `ArchiveConfigurations.cs`,
+  so entities carry no `Version` field. These two columns are what Stage 5's delta sync will read; nothing else needs to change later.
 - Content is seeded from the design canvas verbatim. **Do not paraphrase archive copy** — it is the cultural record.
 
 ### API conventions
-- Minimal APIs, one endpoint per file, registered by assembly scan through `IEndpoint`.
+- MVC controllers, one per resource, under `Controllers/`. Routes come from `ApiRoutes` constants on `[HttpGet]`.
+- Do **not** put `[Produces("application/json")]` on a controller: it overrides the `application/problem+json` type on error responses. A test guards this.
 - Errors are RFC 9457 `ProblemDetails`.
 - Every collection response carries `ETag`; every handler honours `If-None-Match` and returns `304` on a match.
 - All reads are `AsNoTracking`.
 - Kestrel serves HTTP inside the container; TLS terminates at the ingress. `UseHttpsRedirection` is removed — it breaks container health checks.
+
+### Revisions made during execution (Task 7)
+
+- **API dev port is 5080, not 8080.** A Moodle container from another project owns 8080 on this
+  machine. `scripts/android.sh api` runs it; Compose maps `5080:8080`.
+- **The Mac's LAN address is injected at build time, never hardcoded.** It changes with every
+  Wi-Fi network. `scripts/android.sh` passes `-p:ArchiveApiHost=$(ipconfig getifaddr en0)`, which
+  lands as assembly metadata read by `ArchiveApiOptions`. A physical phone with no injected host
+  throws at startup rather than timing out silently for 100 seconds.
+- **Cleartext is a debug-build property**, `[Application(UsesCleartextTraffic = true)]` under
+  `#if DEBUG` in `MainApplication`, not a host allowlist. Release keeps Android's default.
+- **Scalar** serves interactive API docs at `/scalar` in Development.
+- `appsettings.Development.json` logs `Microsoft.AspNetCore` at Information so requests are visible.
 
 ### .NET 10 SDK gotcha
 `dotnet sln add/remove` writes a stray newline between the UTF-8 BOM and the solution header,
@@ -147,14 +171,14 @@ Replace `compose.yaml`:
 ```yaml
 services:
   db:
-    image: postgres:17-alpine
+    image: postgres:16-alpine
     container_name: tastezambia-db
     environment:
       POSTGRES_DB: tastezambia
       POSTGRES_USER: tastezambia
       POSTGRES_PASSWORD: localdev
     ports:
-      - "5432:5432"
+      - "5434:5432"   # 5432 is the machine's native Postgres
     volumes:
       - tastezambia-pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -186,6 +210,9 @@ volumes:
 Run: `docker compose up -d db && docker compose ps`
 Expected: `tastezambia-db` reports `healthy` within ~15s. If Docker is not running, start it — the rest of this task depends on the database.
 
+> `docker` is not on this shell's PATH; it lives at `/usr/local/bin/docker`. If the daemon is
+> down, `open -a Docker` starts Docker Desktop.
+
 - [ ] **Step 3: Add the packages**
 
 ```bash
@@ -210,7 +237,7 @@ dotnet tool install --global dotnet-ef   # skip if already installed
     }
   },
   "ConnectionStrings": {
-    "Archive": "Host=localhost;Port=5432;Database=tastezambia;Username=tastezambia;Password=localdev"
+    "Archive": "Host=localhost;Port=5434;Database=tastezambia;Username=tastezambia;Password=localdev"
   }
 }
 ```

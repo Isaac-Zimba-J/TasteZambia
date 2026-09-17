@@ -76,6 +76,7 @@
 
     <ItemGroup>
         <PackageReference Include="FluentIcons.Maui" Version="2.1.339.1" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.12" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
     </ItemGroup>
@@ -83,6 +84,15 @@
     <ItemGroup>
       <ProjectReference Include="..\TasteZambia.Shared\TasteZambia.Shared.csproj" />
       <ProjectReference Include="..\TasteZambia.Core\TasteZambia.Core.csproj" />
+    </ItemGroup>
+
+    <!-- Dev-only: the deploy script passes -p:ArchiveApiHost=<Mac LAN IP> so a physical
+         phone can find the API without a hardcoded address. Read by ArchiveApiOptions. -->
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+            <_Parameter1>ArchiveApiHost</_Parameter1>
+            <_Parameter2>$(ArchiveApiHost)</_Parameter2>
+        </AssemblyAttribute>
     </ItemGroup>
 
 </Project>

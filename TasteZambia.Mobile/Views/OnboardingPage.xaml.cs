@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using TasteZambia.Core.ViewModels;
 using TasteZambia.Mobile.Views.Onboarding;
 
 namespace TasteZambia.Mobile.Views;
@@ -5,6 +7,7 @@ namespace TasteZambia.Mobile.Views;
 public partial class OnboardingPage : ContentPage
 {
     private readonly IServiceProvider _services;
+    private readonly OnboardingViewModel _viewModel;
 
     private static readonly Dictionary<string, Type> Routes = new()
     {
@@ -19,11 +22,34 @@ public partial class OnboardingPage : ContentPage
 
     private readonly List<View> _stack = [];
 
-    public OnboardingPage(IServiceProvider services)
+    public OnboardingPage(IServiceProvider services, OnboardingViewModel viewModel)
     {
         InitializeComponent();
         _services = services;
+        _viewModel = viewModel;
+
+        // One ViewModel is shared by all seven screens, so it is initialised here, once,
+        // before the first screen shows - not by any individual view.
+        Loaded += OnLoadedOnce;
         Navigate("splash");
+    }
+
+    private bool _loaded;
+
+    private async void OnLoadedOnce(object? sender, EventArgs e)
+    {
+        if (_loaded) return;
+        _loaded = true;
+
+        try
+        {
+            await _viewModel.InitializeAsync();
+        }
+        catch (Exception ex)
+        {
+            _services.GetService<ILoggerFactory>()?.CreateLogger<OnboardingPage>()
+                .LogError(ex, "Failed to initialise onboarding");
+        }
     }
 
     public bool Handles(string route) => Routes.ContainsKey(route);
