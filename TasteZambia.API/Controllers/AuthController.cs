@@ -48,7 +48,7 @@ public sealed class AuthController(UserManager<ArchiveUser> users, ITokenService
 
     private async Task<AuthTokensDto> IssueAsync(ArchiveUser user, CancellationToken ct)
     {
-        var (access, refresh, expires) = await tokens.IssueAsync(user, ct);
+        var (access, refresh, expires) = await tokens.IssueAsync(user, [.. await users.GetRolesAsync(user)], ct);
         return new AuthTokensDto(access, refresh, expires);
     }
 }

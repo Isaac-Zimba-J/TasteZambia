@@ -18,6 +18,7 @@ public static class ArchiveMappings
         Description = d.Description, ImageAsset = d.ImageAsset,
         PhotoNeededCaption = d.PhotoNeededCaption,
         PrepTime = d.PrepTime, CookTime = d.CookTime,
+        Provenance = d.Provenance,
     };
 
     public static RecipeDto ToDto(this Recipe r) => new()

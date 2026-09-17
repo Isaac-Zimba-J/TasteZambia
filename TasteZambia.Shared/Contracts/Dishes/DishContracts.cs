@@ -1,3 +1,4 @@
+using TasteZambia.Shared.Enums;
 namespace TasteZambia.Shared.Contracts.Dishes;
 
 public sealed record DishDto
@@ -15,6 +16,9 @@ public sealed record DishDto
 
     /// <summary>Caption for the striped placeholder shown when ImageAsset is null.</summary>
     public string PhotoNeededCaption { get; init; } = "photo needed";
+
+    /// <summary>Seeded editorial content, or a community contribution that passed review.</summary>
+    public Provenance Provenance { get; init; } = Provenance.Editorial;
 
     public string? PrepTime { get; init; }
     public string? CookTime { get; init; }
