@@ -1,26 +1,28 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
 namespace TasteZambia.API.Common.Http;
 
-public static class ETagResults
+public static class ControllerResultExtensions
 {
     /// <summary>
     /// Returns 304 when the client already holds this version, otherwise 200 with the ETag.
     /// Every collection read goes through here so conditional GETs work uniformly - and
     /// it is the hook Stage 5's delta sync builds on.
     /// </summary>
-    public static IResult OkWithETag<T>(HttpContext http, string etag, T payload)
+    public static IActionResult OkWithETag<T>(this ControllerBase controller, string etag, T payload)
     {
-        var incoming = http.Request.Headers.IfNoneMatch.ToString();
+        var incoming = controller.Request.Headers.IfNoneMatch.ToString();
 
         if (!string.IsNullOrEmpty(incoming) && incoming == etag)
-            return Results.StatusCode(StatusCodes.Status304NotModified);
+            return controller.StatusCode(StatusCodes.Status304NotModified);
 
-        http.Response.Headers[HeaderNames.ETag] = etag;
-        http.Response.Headers[HeaderNames.CacheControl] = "private, max-age=0, must-revalidate";
-        return Results.Ok(payload);
+        controller.Response.Headers[HeaderNames.ETag] = etag;
+        controller.Response.Headers[HeaderNames.CacheControl] = "private, max-age=0, must-revalidate";
+        return controller.Ok(payload);
     }
 
-    public static IResult NotFound(string title, string detail)
-        => Results.Problem(title: title, detail: detail, statusCode: StatusCodes.Status404NotFound);
+    /// <summary>RFC 9457 ProblemDetails for a missing row.</summary>
+    public static IActionResult NotFoundProblem(this ControllerBase controller, string title, string detail)
+        => controller.Problem(title: title, detail: detail, statusCode: StatusCodes.Status404NotFound);
 }

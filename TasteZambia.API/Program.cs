@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
-using TasteZambia.API.Common.Endpoints;
 using TasteZambia.API.Data;
 using TasteZambia.API.Data.Seed;
 using TasteZambia.API.Repositories;
@@ -20,6 +19,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IArchiveVersionService, ArchiveVersionService>();
 
+builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
@@ -47,7 +47,7 @@ if (app.Environment.IsDevelopment())
 
 // No UseHttpsRedirection: Kestrel serves HTTP inside the container and TLS
 // terminates at the ingress. Leaving it on breaks container health checks.
-app.MapArchiveEndpoints();
+app.MapControllers();
 
 app.Run();
 

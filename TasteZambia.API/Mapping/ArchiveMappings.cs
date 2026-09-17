@@ -6,7 +6,7 @@ using TasteZambia.Shared.Contracts.Ingredients;
 using TasteZambia.Shared.Contracts.Regions;
 using SharedBlockKind = TasteZambia.Shared.Contracts.Culture.ArticleBlockKind;
 
-namespace TasteZambia.API.Features.Mapping;
+namespace TasteZambia.API.Mapping;
 
 /// <summary>Entity to DTO in one place, so no slice invents its own shape.</summary>
 public static class ArchiveMappings

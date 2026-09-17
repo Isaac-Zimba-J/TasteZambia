@@ -4,13 +4,15 @@
 
 **Goal:** Stand up the Taste Zambia API so the mobile app can swap its seeded in-memory repositories for HTTP ones with no View, ViewModel or service changes — then grow into contributions, media and the family archive without rework.
 
-**Architecture:** One EF Core schema. Horizontal layers underneath, vertical slices on top.
-`Features/ → Services/ → Repositories/ → DbContext`. Dependencies point **down only**; a
+**Architecture:** One EF Core schema. Horizontal layers underneath, controllers on top.
+`Controllers/ → Services/ → Repositories/ → DbContext`.
+*Revised during execution:* the plan specified minimal-API vertical slices; the team chose
+MVC controllers for familiarity. The conversion changed no test and no layer beneath the HTTP edge. Dependencies point **down only**; a
 feature never touches `DbContext` and no feature reaches sideways into another. That single
 rule is what keeps the door open to splitting the schema or lifting a feature group into its
 own host later, without editing callers.
 
-**Tech Stack:** .NET 10, ASP.NET Core minimal APIs, EF Core 10 + PostgreSQL, `TasteZambia.Shared` for contracts, xUnit + `WebApplicationFactory` for tests, Docker Compose for local infrastructure.
+**Tech Stack:** .NET 10, ASP.NET Core MVC controllers, EF Core 10 + PostgreSQL, `TasteZambia.Shared` for contracts, xUnit + `WebApplicationFactory` for tests, Docker Compose for local infrastructure.
 
 **Spec:** `Docs/Mobile app design project/Taste Zambia.dc.html` — the archive content the API serves.
 **Companion:** `Docs/plans/2026-09-08-mobile-ui-implementation.md` — Task 3 there defines the six repository interfaces this API must satisfy.
@@ -50,10 +52,10 @@ layers on top of the same version column rather than replacing anything.
 ```
 Features/  →  Services/  →  Repositories/  →  Data/TasteZambiaDbContext
 ```
-- A **Feature** owns one HTTP endpoint: its route, request binding, authorisation, and the mapping of a service result to a `Shared` DTO. It holds no business logic and never injects `DbContext`.
+- A **Controller** owns the HTTP edge for one resource: routes, request binding, authorisation, and the mapping of service results to `Shared` DTOs. It holds no business logic and never injects `DbContext`.
 - A **Service** owns domain logic reusable across features — searching, filtering, ordering, rules. It never touches HTTP types.
 - A **Repository** owns data access for one aggregate. It never applies business rules and never returns `IQueryable` past its own boundary.
-- Reaching *up* a layer, or sideways between features, is a review failure.
+- Reaching *up* a layer, or sideways between controllers, is a review failure.
 
 ### Contracts
 - Every type crossing the wire lives in `TasteZambia.Shared/Contracts/`. Entities never leave the API.
@@ -76,7 +78,8 @@ Features/  →  Services/  →  Repositories/  →  Data/TasteZambiaDbContext
 - Content is seeded from the design canvas verbatim. **Do not paraphrase archive copy** — it is the cultural record.
 
 ### API conventions
-- Minimal APIs, one endpoint per file, registered by assembly scan through `IEndpoint`.
+- MVC controllers, one per resource, under `Controllers/`. Routes come from `ApiRoutes` constants on `[HttpGet]`.
+- Do **not** put `[Produces("application/json")]` on a controller: it overrides the `application/problem+json` type on error responses. A test guards this.
 - Errors are RFC 9457 `ProblemDetails`.
 - Every collection response carries `ETag`; every handler honours `If-None-Match` and returns `304` on a match.
 - All reads are `AsNoTracking`.
