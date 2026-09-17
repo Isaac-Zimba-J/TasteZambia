@@ -7,20 +7,15 @@ public interface IFavouritesService
     event EventHandler<string>? Changed;
 }
 
-public sealed class FavouritesService : IFavouritesService
+/// <summary>A thin face over <see cref="PersonalStore"/>: every toggle is local first, synced later.</summary>
+public sealed class FavouritesService(PersonalStore store) : IFavouritesService
 {
-    // Matches the design's initial state: ifisashi saved, chikanda not.
-    private readonly HashSet<string> _saved = ["ifisashi"];
-
-    public event EventHandler<string>? Changed;
-
-    public bool IsSaved(string dishId) => _saved.Contains(dishId);
-
-    public void Toggle(string dishId)
+    public event EventHandler<string>? Changed
     {
-        if (!_saved.Remove(dishId))
-            _saved.Add(dishId);
-
-        Changed?.Invoke(this, dishId);
+        add => store.Changed += value;
+        remove => store.Changed -= value;
     }
+
+    public bool IsSaved(string dishId) => store.IsSaved(dishId);
+    public void Toggle(string dishId) => store.SetSaved(dishId, !store.IsSaved(dishId));
 }

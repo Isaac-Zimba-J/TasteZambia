@@ -80,8 +80,13 @@ public static class MauiProgram
             sp.GetRequiredService<ILocalStore>(),
             sp.GetRequiredService<IHttpClientFactory>().CreateClient("me")));
         builder.Services.AddSingleton<ICatalogService, CatalogService>();
+        builder.Services.AddSingleton<PersonalStore>(sp => new PersonalStore(sp.GetRequiredService<ILocalStore>(), TimeProvider.System));
         builder.Services.AddSingleton<IFavouritesService, FavouritesService>();
         builder.Services.AddSingleton<ICookingProgressService, CookingProgressService>();
+        builder.Services.AddSingleton<IPersonalSyncService>(sp => new PersonalSyncService(
+            sp.GetRequiredService<PersonalStore>(),
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient("me")));
+        builder.Services.AddSingleton<SyncScheduler>();
         builder.Services.AddSingleton<IPreferenceService, PreferenceService>();
         builder.Services.AddSingleton<IContributionService, ContributionService>();
         // Singleton: a privacy change on famPublic must be visible everywhere.

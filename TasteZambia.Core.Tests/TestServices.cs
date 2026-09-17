@@ -8,4 +8,8 @@ public static class TestServices
     public static HttpClient NoNetwork() => new() { BaseAddress = new Uri("http://localhost:1"), Timeout = TimeSpan.FromMilliseconds(200) };
 
     public static OnboardingService Onboarding() => new(new InMemoryLocalStore(), NoNetwork());
+
+    public static PersonalStore Personal() => new(new InMemoryLocalStore(), TimeProvider.System);
+    public static FavouritesService Favourites() => new(Personal());
+    public static CookingProgressService Progress() => new(Personal());
 }
