@@ -1,6 +1,13 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using TasteZambia.API.Auth;
 using TasteZambia.API.Data;
+using TasteZambia.API.Data.Entities;
 using TasteZambia.API.Data.Seed;
 using TasteZambia.API.Repositories;
 using TasteZambia.API.Services;
@@ -19,6 +26,52 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<IArchiveVersionService, ArchiveVersionService>();
 
+// Identity and JWT. Accounts are anonymous and device-bound: the app registers a
+// user whose name is a generated device id and whose password is a generated secret.
+builder.Services.AddOptions<JwtOptions>()
+    .BindConfiguration(JwtOptions.Section)
+    .Validate(o => o.SigningKey is { Length: >= 32 }, "Jwt:SigningKey must be set and at least 32 characters.")
+    .ValidateOnStart();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+builder.Services.AddIdentityCore<ArchiveUser>(o =>
+    {
+        // Device secrets are 48 random bytes, not human passwords. Length is the only
+        // meaningful check. Email accounts, when they come, get their own validator.
+        o.Password.RequiredLength = 32;
+        o.Password.RequireDigit = false;
+        o.Password.RequireLowercase = false;
+        o.Password.RequireUppercase = false;
+        o.Password.RequireNonAlphanumeric = false;
+        o.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyz0123456789-";
+    })
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<TasteZambiaDbContext>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+// Bound at runtime, not here: configuration layers added later (the test host's, for one)
+// must still be able to supply the section.
+builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtOptions>>((o, jwtOptions) =>
+    {
+        var jwt = jwtOptions.Value;
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidIssuer = jwt.Issuer,
+            ValidAudience = jwt.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey)),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ClockSkew = TimeSpan.FromSeconds(30),
+        };
+    });
+builder.Services.AddAuthorization();
+
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
@@ -33,6 +86,7 @@ if (app.Environment.IsDevelopment())
     var db = scope.ServiceProvider.GetRequiredService<TasteZambiaDbContext>();
     await db.Database.MigrateAsync();
     await ArchiveSeeder.SeedAsync(db);
+    await RoleSeeder.SeedAsync(scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>());
 }
 
 app.UseExceptionHandler();
@@ -47,6 +101,8 @@ if (app.Environment.IsDevelopment())
 
 // No UseHttpsRedirection: Kestrel serves HTTP inside the container and TLS
 // terminates at the ingress. Leaving it on breaks container health checks.
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

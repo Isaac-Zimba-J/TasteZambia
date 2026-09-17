@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TasteZambia.API.Data.Entities;
 
 namespace TasteZambia.API.Data;
 
 public class TasteZambiaDbContext(DbContextOptions<TasteZambiaDbContext> options)
-    : DbContext(options)
+    : IdentityDbContext<ArchiveUser>(options)
 {
     public DbSet<Dish> Dishes => Set<Dish>();
     public DbSet<Recipe> Recipes => Set<Recipe>();
@@ -12,11 +13,22 @@ public class TasteZambiaDbContext(DbContextOptions<TasteZambiaDbContext> options
     public DbSet<Province> Provinces => Set<Province>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Article> Articles => Set<Article>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
-        b.ApplyConfigurationsFromAssembly(typeof(TasteZambiaDbContext).Assembly);
+        // Identity configures its own tables here. It MUST run before ours.
         base.OnModelCreating(b);
+        b.ApplyConfigurationsFromAssembly(typeof(TasteZambiaDbContext).Assembly);
+
+        b.Entity<RefreshToken>(e =>
+        {
+            e.ToTable("refresh_tokens");
+            e.HasIndex(x => x.TokenHash).IsUnique();
+            e.HasIndex(x => x.UserId);
+            e.Property(x => x.TokenHash).HasMaxLength(64);
+            e.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
     }
 
     public override int SaveChanges()

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +25,13 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Testing");
 
+        builder.ConfigureAppConfiguration((_, cfg) => cfg.AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["Jwt:Issuer"] = "tastezambia-tests",
+            ["Jwt:Audience"] = "tastezambia-app",
+            ["Jwt:SigningKey"] = "test-signing-key-that-is-at-least-32-bytes-long!!",
+        }));
+
         builder.ConfigureServices(services =>
         {
             services.RemoveAll(typeof(DbContextOptions<TasteZambiaDbContext>));
@@ -35,5 +44,6 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<TasteZambiaDbContext>();
         await ArchiveSeeder.SeedAsync(db);
+        await RoleSeeder.SeedAsync(scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>());
     }
 }
