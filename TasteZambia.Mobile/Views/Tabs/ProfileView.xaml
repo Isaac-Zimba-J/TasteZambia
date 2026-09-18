@@ -121,6 +121,9 @@
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="vm:ContributionRowViewModel">
                                 <VerticalStackLayout Padding="15,14" Spacing="5">
+                                    <VerticalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding OpenCommand}"/>
+                                    </VerticalStackLayout.GestureRecognizers>
                                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                                         <Label Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="17"
                                                LineHeight="1.15" TextColor="{StaticResource TzInk}"/>

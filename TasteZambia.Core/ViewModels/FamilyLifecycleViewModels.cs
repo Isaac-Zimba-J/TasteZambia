@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TasteZambia.Core.Models;
 using TasteZambia.Core.Services;
+using TasteZambia.Shared.Enums;
 
 namespace TasteZambia.Core.ViewModels;
 

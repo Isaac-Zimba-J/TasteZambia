@@ -25,4 +25,8 @@ public static class ControllerResultExtensions
     /// <summary>RFC 9457 ProblemDetails for a missing row.</summary>
     public static IActionResult NotFoundProblem(this ControllerBase controller, string title, string detail)
         => controller.Problem(title: title, detail: detail, statusCode: StatusCodes.Status404NotFound);
+
+    /// <summary>RFC 9457 ProblemDetails for an action the current state does not allow.</summary>
+    public static IActionResult ConflictProblem(this ControllerBase controller, string detail)
+        => controller.Problem(title: "Not allowed in the current state", detail: detail, statusCode: StatusCodes.Status409Conflict);
 }

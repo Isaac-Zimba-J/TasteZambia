@@ -68,7 +68,15 @@
                 </Grid>
             </Border>
 
-            <Border Style="{StaticResource SecondaryAction}" Margin="20">
+            <Border Style="{StaticResource PrimaryAction}" Margin="20,20,20,0" IsVisible="{Binding HasChangesRequested}">
+                <Label Text="See the reviewer's questions" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                       HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SeeQuestionsCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+            <Border Style="{StaticResource SecondaryAction}" Margin="20" IsVisible="{Binding CanWithdraw}">
                 <Label Text="Withdraw submission" FontFamily="ArchivoSemiBold" FontSize="12.5"
                        HorizontalOptions="Center" TextColor="{StaticResource TzBody}"/>
                 <Border.GestureRecognizers>

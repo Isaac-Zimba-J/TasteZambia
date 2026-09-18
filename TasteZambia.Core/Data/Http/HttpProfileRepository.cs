@@ -11,7 +11,7 @@ namespace TasteZambia.Core.Data.Http;
 /// its personal data, so they are right even with no signal. Contribution and family
 /// numbers stay seeded until Stages 3 and 4 give them a source.
 /// </summary>
-public sealed class HttpProfileRepository(HttpClient me, PersonalStore store) : IProfileRepository
+public sealed class HttpProfileRepository(HttpClient me, PersonalStore store, IContributionService contributions) : IProfileRepository
 {
     private const string DefaultName = "Taste Zambia reader";
 
@@ -42,7 +42,7 @@ public sealed class HttpProfileRepository(HttpClient me, PersonalStore store) : 
         ]);
 
     public Task<IReadOnlyList<Contribution>> GetContributionsAsync(CancellationToken ct = default)
-        => Task.FromResult(SeedData.Contributions);
+        => contributions.GetContributionsAsync(ct);
 
     private static string Recipes(int n) => n == 1 ? "1 recipe" : $"{n} recipes";
 }

@@ -12,7 +12,8 @@ namespace TasteZambia.API.Auth;
 
 public interface ITokenService
 {
-    Task<(string Access, string Refresh, DateTimeOffset AccessExpires)> IssueAsync(ArchiveUser user, CancellationToken ct);
+    /// <param name="roles">Role names to carry in the token; [Authorize(Roles = ...)] reads them from here.</param>
+    Task<(string Access, string Refresh, DateTimeOffset AccessExpires)> IssueAsync(ArchiveUser user, IReadOnlyList<string> roles, CancellationToken ct);
 
     /// <summary>Validates and revokes a refresh token. Returns its user, or null if unknown, expired or already used.</summary>
     Task<ArchiveUser?> ConsumeRefreshAsync(string rawRefresh, CancellationToken ct);
@@ -22,20 +23,23 @@ public sealed class TokenService(TasteZambiaDbContext db, IOptions<JwtOptions> o
 {
     private readonly JwtOptions _jwt = options.Value;
 
-    public async Task<(string Access, string Refresh, DateTimeOffset AccessExpires)> IssueAsync(ArchiveUser user, CancellationToken ct)
+    public async Task<(string Access, string Refresh, DateTimeOffset AccessExpires)> IssueAsync(ArchiveUser user, IReadOnlyList<string> roles, CancellationToken ct)
     {
         var now = clock.GetUtcNow();
         var expires = now.AddMinutes(_jwt.AccessMinutes);
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.SigningKey));
+        List<Claim> claims =
+        [
+            new(JwtRegisteredClaimNames.Sub, user.Id),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
+        ];
+        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+
         var jwt = new JwtSecurityToken(
             issuer: _jwt.Issuer,
             audience: _jwt.Audience,
-            claims:
-            [
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
-            ],
+            claims: claims,
             notBefore: now.UtcDateTime,
             expires: expires.UtcDateTime,
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256));

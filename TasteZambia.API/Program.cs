@@ -28,6 +28,8 @@ builder.Services.AddScoped<IArchiveVersionService, ArchiveVersionService>();
 builder.Services.AddScoped<IPersonalDataRepository, PersonalDataRepository>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddScoped<IPersonalSyncService, PersonalSyncService>();
+builder.Services.AddScoped<IContributionRepository, ContributionRepository>();
+builder.Services.AddScoped<IContributionService, ContributionService>();
 
 // Identity and JWT. Accounts are anonymous and device-bound: the app registers a
 // user whose name is a generated device id and whose password is a generated secret.
@@ -90,6 +92,7 @@ if (app.Environment.IsDevelopment())
     await db.Database.MigrateAsync();
     await ArchiveSeeder.SeedAsync(db);
     await RoleSeeder.SeedAsync(scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>());
+    await ReviewerSeeder.SeedAsync(app.Configuration, scope.ServiceProvider.GetRequiredService<UserManager<ArchiveUser>>(), db);
 }
 
 app.UseExceptionHandler();

@@ -233,6 +233,9 @@
                         </Border.GestureRecognizers>
                     </Border>
                 </Grid>
+                <Label Text="{Binding SubmitError}" IsVisible="{Binding SubmitError, Converter={StaticResource HasText}}"
+                       Margin="20,12,20,0" FontFamily="ArchivoRegular" FontSize="12" LineHeight="1.5"
+                       TextColor="{StaticResource TzClayText}"/>
             </VerticalStackLayout>
 
             <!-- ===== Confirmation ===== -->
@@ -275,7 +278,15 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <Border Style="{StaticResource SecondaryAction}" Margin="0,14,0,0">
+                <Border Style="{StaticResource PrimaryAction}" Margin="0,14,0,0">
+                    <Label Text="View review status" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                           HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ViewStatusCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+
+                <Border Style="{StaticResource SecondaryAction}" Margin="0,10,0,0">
                     <Label Text="Share another recipe" FontFamily="ArchivoSemiBold" FontSize="13"
                            HorizontalOptions="Center" TextColor="{StaticResource TzBody}"/>
                     <Border.GestureRecognizers>

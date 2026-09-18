@@ -21,6 +21,9 @@ public class TasteZambiaDbContext(DbContextOptions<TasteZambiaDbContext> options
     public DbSet<SavedDish> SavedDishes => Set<SavedDish>();
     public DbSet<CookProgress> CookProgress => Set<CookProgress>();
 
+    // Community contributions on their way into the archive.
+    public DbSet<Contribution> Contributions => Set<Contribution>();
+
     protected override void OnModelCreating(ModelBuilder b)
     {
         // Identity configures its own tables here. It MUST run before ours.

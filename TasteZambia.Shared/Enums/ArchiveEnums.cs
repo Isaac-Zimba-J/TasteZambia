@@ -32,3 +32,21 @@ public enum TitleLanguage
     LocalName = 0,
     English = 1,
 }
+
+/// <summary>Where a dish came from. Seeded editorial content, or a published community contribution.</summary>
+public enum Provenance
+{
+    Editorial = 0,
+    Community = 1,
+}
+
+/// <summary>One line of a contribution's review history.</summary>
+public enum ReviewEventKind
+{
+    Submitted = 0,
+    Read = 1,
+    ChangesRequested = 2,
+    Resubmitted = 3,
+    Published = 4,
+    Withdrawn = 5,
+}

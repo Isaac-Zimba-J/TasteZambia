@@ -3,33 +3,52 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TasteZambia.Core.Data;
 using TasteZambia.Core.Models;
+using TasteZambia.Shared.Enums;
 using TasteZambia.Core.Services;
 
 namespace TasteZambia.Core.ViewModels;
 
-public sealed class ContributionRowViewModel(Contribution contribution)
+public sealed partial class ContributionRowViewModel(Contribution contribution, INavigationService navigation)
 {
+    public Guid Id { get; } = contribution.Id;
     public string Name { get; } = contribution.Name;
     public string Meta { get; } = contribution.Meta;
+    public bool IsReal => contribution.Id != Guid.Empty;
+
+    /// <summary>Each status has its own screen in the design: published, questions, or the review timeline.</summary>
+    [RelayCommand]
+    private Task Open()
+    {
+        if (!IsReal) return Task.CompletedTask;
+        var route = contribution.Status switch
+        {
+            ContributionStatus.Published => "sharePublished",
+            ContributionStatus.ChangesRequested => "shareChanges",
+            _ => "shareReview",
+        };
+        return navigation.GoToAsync(route, new Dictionary<string, object> { ["id"] = contribution.Id });
+    }
 
     public string StatusLabel { get; } = contribution.Status switch
     {
         ContributionStatus.Published => "Published",
         ContributionStatus.InReview => "In review",
+        ContributionStatus.ChangesRequested => "Changes requested",
+        ContributionStatus.Withdrawn => "Withdrawn",
         _ => "Draft",
     };
 
     public string StatusBackgroundHex { get; } = contribution.Status switch
     {
         ContributionStatus.Published => "#EEF2EC",
-        ContributionStatus.InReview => "#F7EEDA",
+        ContributionStatus.InReview or ContributionStatus.ChangesRequested => "#F7EEDA",
         _ => "#F0ECE4",
     };
 
     public string StatusTextHex { get; } = contribution.Status switch
     {
         ContributionStatus.Published => "#2F6A4D",
-        ContributionStatus.InReview => "#7A5A10",
+        ContributionStatus.InReview or ContributionStatus.ChangesRequested => "#7A5A10",
         _ => "#6B5C4A",
     };
 }
@@ -87,7 +106,7 @@ public sealed partial class ProfileViewModel(
         }
 
         foreach (var contribution in await profiles.GetContributionsAsync())
-            Contributions.Add(new ContributionRowViewModel(contribution));
+            Contributions.Add(new ContributionRowViewModel(contribution, Navigation));
 
         foreach (var row in SeedData.SettingsRows)
             SettingsRows.Add(row);

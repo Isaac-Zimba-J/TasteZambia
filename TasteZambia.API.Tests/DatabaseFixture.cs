@@ -29,6 +29,13 @@ public sealed class DatabaseFixture : IAsyncLifetime
         return new TasteZambiaDbContext(options);
     }
 
+    /// <summary>Publishing tests write real dishes; the archive read tests assume only the seed. Call from DisposeAsync.</summary>
+    public async Task RemoveCommunityDishesAsync()
+    {
+        await using var db = NewContext();
+        await db.Dishes.Where(d => d.Provenance == TasteZambia.Shared.Enums.Provenance.Community).ExecuteDeleteAsync();
+    }
+
     public async Task DisposeAsync() => await _container.DisposeAsync();
 }
 

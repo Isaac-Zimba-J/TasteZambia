@@ -28,7 +28,7 @@ public class TokenServiceTests(DatabaseFixture fixture)
     public async Task Issue_ReturnsAnAccessTokenCarryingTheUserId()
     {
         var (svc, user) = await SutAsync();
-        var (access, refresh, expires) = await svc.IssueAsync(user, CancellationToken.None);
+        var (access, refresh, expires) = await svc.IssueAsync(user, [], CancellationToken.None);
 
         Assert.NotEmpty(access);
         Assert.NotEmpty(refresh);
@@ -43,7 +43,7 @@ public class TokenServiceTests(DatabaseFixture fixture)
     public async Task ConsumeRefresh_ReturnsTheUserOnceThenRejectsReuse()
     {
         var (svc, user) = await SutAsync();
-        var (_, refresh, _) = await svc.IssueAsync(user, CancellationToken.None);
+        var (_, refresh, _) = await svc.IssueAsync(user, [], CancellationToken.None);
 
         var first = await svc.ConsumeRefreshAsync(refresh, CancellationToken.None);
         var second = await svc.ConsumeRefreshAsync(refresh, CancellationToken.None);
@@ -63,7 +63,7 @@ public class TokenServiceTests(DatabaseFixture fixture)
     public async Task RefreshTokens_AreStoredHashedNotRaw()
     {
         var (svc, user) = await SutAsync();
-        var (_, refresh, _) = await svc.IssueAsync(user, CancellationToken.None);
+        var (_, refresh, _) = await svc.IssueAsync(user, [], CancellationToken.None);
 
         await using var db = fixture.NewContext();
         var stored = await db.RefreshTokens.SingleAsync(t => t.UserId == user.Id);

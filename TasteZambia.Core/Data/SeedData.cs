@@ -1,4 +1,5 @@
 using TasteZambia.Core.Models;
+using TasteZambia.Shared.Enums;
 
 namespace TasteZambia.Core.Data;
 
@@ -331,9 +332,9 @@ public static class SeedData
 
     public static readonly IReadOnlyList<Contribution> Contributions =
     [
-        new("Ubwali bwa Cassava",      ContributionStatus.Published, "Luapula · verified 12 Aug 2026"),
-        new("Grandmother's Ifisashi",  ContributionStatus.InReview,  "Submitted 2 Sep 2026"),
-        new("Munkoyo",                 ContributionStatus.Draft,     "Missing photos and ingredients"),
+        new(Guid.Empty, "Ubwali bwa Cassava",      ContributionStatus.Published, "Luapula · verified 12 Aug 2026"),
+        new(Guid.Empty, "Grandmother's Ifisashi",  ContributionStatus.InReview,  "Submitted 2 Sep 2026"),
+        new(Guid.Empty, "Munkoyo",                 ContributionStatus.Draft,     "Missing photos and ingredients"),
     ];
 
     public static readonly IReadOnlyList<string> SettingsRows =

@@ -376,6 +376,167 @@ namespace TasteZambia.API.Migrations
                     b.ToTable("categories", (string)null);
                 });
 
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.Contribution", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContributorLocation")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("ContributorName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<bool>("CreditTeacher")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("CulturalSignificance")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EnglishDescription")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("LocalName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("MealType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Province")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("PublishedDishId")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TaughtBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TaughtByOrigin")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TraditionalMethod")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("UserId", "SubmittedAt");
+
+                    b.ToTable("contributions", (string)null);
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.ContributionIngredient", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ContributionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("DisplaySubtitle")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("IngredientKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Quantity")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContributionId");
+
+                    b.ToTable("contribution_ingredients", (string)null);
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.ContributionStep", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ContributionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContributionId");
+
+                    b.ToTable("contribution_steps", (string)null);
+                });
+
             modelBuilder.Entity("TasteZambia.API.Data.Entities.CookProgress", b =>
                 {
                     b.Property<string>("UserId")
@@ -435,6 +596,9 @@ namespace TasteZambia.API.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<Guid?>("ContributionId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("CookTime")
                         .HasColumnType("text");
 
@@ -468,6 +632,9 @@ namespace TasteZambia.API.Migrations
                     b.Property<string>("PrepTime")
                         .HasColumnType("text");
 
+                    b.Property<int>("Provenance")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Region")
                         .IsRequired()
                         .HasMaxLength(80)
@@ -491,9 +658,50 @@ namespace TasteZambia.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ContributionId")
+                        .IsUnique()
+                        .HasFilter("\"ContributionId\" IS NOT NULL");
+
                     b.HasIndex("SortOrder");
 
                     b.ToTable("dishes", (string)null);
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.FlaggedField", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Answer")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("AnsweredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ContributionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CurrentValue")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Field")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContributionId");
+
+                    b.ToTable("flagged_fields", (string)null);
                 });
 
             modelBuilder.Entity("TasteZambia.API.Data.Entities.Ingredient", b =>
@@ -956,6 +1164,37 @@ namespace TasteZambia.API.Migrations
                     b.ToTable("regional_variations", (string)null);
                 });
 
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.ReviewEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Actor")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ContributionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContributionId", "At");
+
+                    b.ToTable("review_events", (string)null);
+                });
+
             modelBuilder.Entity("TasteZambia.API.Data.Entities.SavedDish", b =>
                 {
                     b.Property<string>("UserId")
@@ -1076,6 +1315,33 @@ namespace TasteZambia.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.Contribution", b =>
+                {
+                    b.HasOne("TasteZambia.API.Data.Entities.ArchiveUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.ContributionIngredient", b =>
+                {
+                    b.HasOne("TasteZambia.API.Data.Entities.Contribution", null)
+                        .WithMany("Ingredients")
+                        .HasForeignKey("ContributionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.ContributionStep", b =>
+                {
+                    b.HasOne("TasteZambia.API.Data.Entities.Contribution", null)
+                        .WithMany("Steps")
+                        .HasForeignKey("ContributionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("TasteZambia.API.Data.Entities.CookProgress", b =>
                 {
                     b.HasOne("TasteZambia.API.Data.Entities.ArchiveUser", null)
@@ -1090,6 +1356,15 @@ namespace TasteZambia.API.Migrations
                     b.HasOne("TasteZambia.API.Data.Entities.Recipe", null)
                         .WithMany("Steps")
                         .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.FlaggedField", b =>
+                {
+                    b.HasOne("TasteZambia.API.Data.Entities.Contribution", null)
+                        .WithMany("Flags")
+                        .HasForeignKey("ContributionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -1206,6 +1481,15 @@ namespace TasteZambia.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.ReviewEvent", b =>
+                {
+                    b.HasOne("TasteZambia.API.Data.Entities.Contribution", null)
+                        .WithMany("Events")
+                        .HasForeignKey("ContributionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("TasteZambia.API.Data.Entities.SavedDish", b =>
                 {
                     b.HasOne("TasteZambia.API.Data.Entities.ArchiveUser", null)
@@ -1229,6 +1513,17 @@ namespace TasteZambia.API.Migrations
                     b.Navigation("Body");
 
                     b.Navigation("RelatedDishes");
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.Contribution", b =>
+                {
+                    b.Navigation("Events");
+
+                    b.Navigation("Flags");
+
+                    b.Navigation("Ingredients");
+
+                    b.Navigation("Steps");
                 });
 
             modelBuilder.Entity("TasteZambia.API.Data.Entities.Dish", b =>

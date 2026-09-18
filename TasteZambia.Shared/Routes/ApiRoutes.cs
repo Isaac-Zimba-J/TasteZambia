@@ -56,6 +56,25 @@ public static class ApiRoutes
         public const string Saved = $"{Root}/me/saved";
         public const string Progress = $"{Root}/me/progress/{{dishId}}";
         public const string Sync = $"{Root}/me/sync";
+
+        public const string Contributions = $"{Root}/me/contributions";
+        public const string ContributionById = $"{Contributions}/{{id}}";
+        public const string Resubmit = $"{Contributions}/{{id}}/resubmit";
+        public const string Withdraw = $"{Contributions}/{{id}}/withdraw";
+    }
+
+    /// <summary>Reviewer-only. Needs the "reviewer" role.</summary>
+    public static class Review
+    {
+        public const string Queue = $"{Root}/review/queue";
+        public const string RequestChanges = $"{Root}/review/{{id}}/request-changes";
+        public const string Publish = $"{Root}/review/{{id}}/publish";
+    }
+
+    /// <summary>Admin-only. Needs the "admin" role.</summary>
+    public static class Admin
+    {
+        public const string UserRoles = $"{Root}/admin/users/{{userName}}/roles";
     }
 
     public static class Sync

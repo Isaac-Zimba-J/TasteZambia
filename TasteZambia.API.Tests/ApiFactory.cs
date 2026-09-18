@@ -1,3 +1,5 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -6,7 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using TasteZambia.API.Data;
+using TasteZambia.API.Data.Entities;
 using TasteZambia.API.Data.Seed;
+using TasteZambia.Shared.Contracts.Auth;
+using TasteZambia.Shared.Routes;
 
 namespace TasteZambia.API.Tests;
 
@@ -46,4 +51,32 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         await ArchiveSeeder.SeedAsync(db);
         await RoleSeeder.SeedAsync(scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>());
     }
+
+    private const string TestSecret = "ssssssssssssssssssssssssssssssssssssssss";
+
+    /// <summary>
+    /// A client signed in as a device account - a brand-new one, or an existing one by id.
+    /// With a role, the role is granted and the token re-issued so it carries the claim.
+    /// </summary>
+    public async Task<(HttpClient Client, string DeviceId)> SignedInClientAsync(string? role = null, string? existingDeviceId = null)
+    {
+        var client = CreateClient();
+        var deviceId = existingDeviceId ?? $"device-{Guid.NewGuid():N}";
+        var tokens = await SignInAsync(client, deviceId);
+
+        if (role is not null)
+        {
+            using var scope = Services.CreateScope();
+            var users = scope.ServiceProvider.GetRequiredService<UserManager<ArchiveUser>>();
+            await users.AddToRoleAsync((await users.FindByNameAsync(deviceId))!, role);
+            tokens = await SignInAsync(client, deviceId);
+        }
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens.AccessToken);
+        return (client, deviceId);
+    }
+
+    private static async Task<AuthTokensDto> SignInAsync(HttpClient client, string deviceId)
+        => (await (await client.PostAsJsonAsync(ApiRoutes.Auth.Device, new DeviceAuthRequest(deviceId, TestSecret)))
+            .Content.ReadFromJsonAsync<AuthTokensDto>())!;
 }

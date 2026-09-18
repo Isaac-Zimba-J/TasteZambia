@@ -9,6 +9,8 @@ public static class TestServices
 
     public static OnboardingService Onboarding() => new(new InMemoryLocalStore(), NoNetwork());
 
+    public static ContributionService Contributions() => new(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), NoNetwork());
+
     public static PersonalStore Personal() => new(new InMemoryLocalStore(), TimeProvider.System);
     public static FavouritesService Favourites() => new(Personal());
     public static CookingProgressService Progress() => new(Personal());

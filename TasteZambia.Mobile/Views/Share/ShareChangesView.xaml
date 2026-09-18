@@ -62,10 +62,13 @@
                                     </Label>
                                 </Border>
                                 <Border Margin="0,11,0,0" Stroke="{StaticResource TzBorderDashed}" StrokeThickness="1"
-                                        StrokeDashArray="4,3" StrokeShape="RoundRectangle 11" Padding="11"
+                                        StrokeDashArray="4,3" StrokeShape="RoundRectangle 11" Padding="11,4"
                                         BackgroundColor="Transparent">
-                                    <Label Text="Reply or edit this field" FontFamily="ArchivoMedium" FontSize="11.5"
-                                           HorizontalOptions="Center" TextColor="{StaticResource TzGold}"/>
+                                    <Editor Text="{Binding Answer}" Placeholder="Reply or edit this field" AutoSize="TextChanges"
+                                            FontFamily="ArchivoRegular" FontSize="12.5" MinimumHeightRequest="44"
+                                            TextColor="{StaticResource TzInk}" PlaceholderColor="{StaticResource TzGold}"
+                                            BackgroundColor="Transparent" TextChanged="OnAnswerChanged"
+                                            SemanticProperties.Description="{Binding Field, StringFormat='Your reply about {0}'}"/>
                                 </Border>
                             </VerticalStackLayout>
                         </Border>
@@ -73,7 +76,8 @@
                 </BindableLayout.ItemTemplate>
             </VerticalStackLayout>
 
-            <Border Style="{StaticResource PrimaryAction}" Margin="20">
+            <Border Style="{StaticResource PrimaryAction}" Margin="20"
+                    Opacity="{Binding CanResubmit, Converter={StaticResource BoolToOpacity}}">
                 <Label Text="Resubmit for review" FontFamily="ArchivoSemiBold" FontSize="13.5"
                        HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
                 <Border.GestureRecognizers>

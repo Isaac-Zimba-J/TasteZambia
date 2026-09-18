@@ -90,7 +90,11 @@ public static class MauiProgram
             sp.GetRequiredService<ILogger<PersonalSyncService>>()));
         builder.Services.AddSingleton<SyncScheduler>();
         builder.Services.AddSingleton<IPreferenceService, PreferenceService>();
-        builder.Services.AddSingleton<IContributionService, ContributionService>();
+        // Drafts stay on the phone; submission and everything after it go to the account.
+        builder.Services.AddSingleton<DraftStore>(sp => new DraftStore(sp.GetRequiredService<ILocalStore>(), TimeProvider.System));
+        builder.Services.AddSingleton<IContributionService>(sp => new ContributionService(
+            sp.GetRequiredService<DraftStore>(),
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient("me")));
         // Singleton: a privacy change on famPublic must be visible everywhere.
         builder.Services.AddSingleton<IFamilyArchiveService, FamilyArchiveService>();
         builder.Services.AddSingleton<ICollectionsService, CollectionsService>();
