@@ -10,9 +10,10 @@ namespace TasteZambia.Core.Tests.ViewModels;
 file sealed class Nav : INavigationService
 {
     public List<string> Routes { get; } = [];
+    public IDictionary<string, object>? LastParameters { get; private set; }
     public bool WentBack { get; private set; }
     public Task GoToAsync(string r) { Routes.Add(r); return Task.CompletedTask; }
-    public Task GoToAsync(string r, IDictionary<string, object> p) { Routes.Add(r); return Task.CompletedTask; }
+    public Task GoToAsync(string r, IDictionary<string, object> p) { Routes.Add(r); LastParameters = p; return Task.CompletedTask; }
     public Task GoBackAsync() { WentBack = true; return Task.CompletedTask; }
 }
 
@@ -224,6 +225,7 @@ public class ShareLifecycleTests
 
         await vm.OpenInArchiveCommand.ExecuteAsync(null);
         Assert.Equal(["recipe"], nav.Routes);
+        Assert.Equal("chibwabwa-na-mbalala", nav.LastParameters!["dishId"]);   // the recipe route's parameter, not "id"
     }
 
     [Fact]

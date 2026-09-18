@@ -183,7 +183,7 @@ public sealed partial class SharePublishedViewModel(
     [RelayCommand]
     private Task OpenInArchive()
         => PublishedDishId is { } dishId
-            ? Navigation.GoToAsync("recipe", new Dictionary<string, object> { ["id"] = dishId })
+            ? Navigation.GoToAsync("recipe", new Dictionary<string, object> { ["dishId"] = dishId })
             : Task.CompletedTask;
 
     [RelayCommand] private Task Back() => Navigation.GoBackAsync();
