@@ -1,6 +1,8 @@
 using TasteZambia.Core.Models;
 using TasteZambia.Core.Services;
+using TasteZambia.Core.Tests.Fakes;
 using TasteZambia.Core.ViewModels;
+using TasteZambia.Shared.Enums;
 
 namespace TasteZambia.Core.Tests.ViewModels;
 
@@ -14,7 +16,7 @@ file sealed class Nav : INavigationService
 
 public class ShareViewModelTests
 {
-    private static ShareViewModel Sut() => new(new ContributionService(), new Nav());
+    private static ShareViewModel Sut() => new(TestServices.Contributions(), new Nav());
 
     [Fact]
     public async Task StartsOnStepOneWithNoBackButton()
@@ -62,7 +64,8 @@ public class ShareViewModelTests
     [Fact]
     public async Task SubmittingFromStepFour_SwitchesToTheConfirmation()
     {
-        var vm = Sut();
+        var fake = new FakeContributionService();
+        var vm = new ShareViewModel(fake, new Nav());
         await vm.InitializeAsync();
 
         for (var i = 0; i < 4; i++)
@@ -73,6 +76,50 @@ public class ShareViewModelTests
         Assert.False(vm.IsStep4);
         Assert.Equal("Chibwabwa na Mbalala", vm.SubmittedName);
         Assert.Equal("Northern Province · submitted just now", vm.SubmittedMeta);
+        Assert.NotNull(vm.SubmittedId);
+        Assert.Single(fake.Submitted);
+    }
+
+    [Fact]
+    public async Task EveryStepForward_SavesTheDraftLocally()
+    {
+        var svc = TestServices.Contributions();
+        var vm = new ShareViewModel(svc, new Nav());
+        await vm.InitializeAsync();
+
+        await vm.NextCommand.ExecuteAsync(null);
+
+        var saved = Assert.Single(svc.Drafts);
+        Assert.Equal("Chibwabwa na Mbalala", saved.Name);
+        Assert.Equal(saved.Id, vm.DraftId);
+    }
+
+    [Fact]
+    public async Task SubmittingOffline_KeepsTheDraftAndSaysSo()
+    {
+        var svc = TestServices.Contributions();   // no network
+        var vm = new ShareViewModel(svc, new Nav());
+        await vm.InitializeAsync();
+
+        for (var i = 0; i < 4; i++)
+            await vm.NextCommand.ExecuteAsync(null);
+
+        Assert.False(vm.IsSubmitted);
+        Assert.True(vm.IsStep4);
+        Assert.Contains("draft is saved", vm.SubmitError);
+        Assert.Single(svc.Drafts);
+    }
+
+    [Fact]
+    public async Task ContinuingADraft_LoadsItInsteadOfTheWalkthrough()
+    {
+        var svc = TestServices.Contributions();
+        var local = svc.SaveDraft(new ContributionDraft { LocalName = "Munkoyo", Province = "Central" });
+        var vm = new ShareViewModel(svc, new Nav()) { DraftId = local.Id };
+
+        await vm.InitializeAsync();
+
+        Assert.Equal("Munkoyo", vm.Draft.LocalName);
     }
 
     [Fact]
@@ -103,7 +150,7 @@ public class ShareViewModelTests
 
 public class FamilyViewModelTests
 {
-    private static FamilyViewModel Sut() => new(new ContributionService(), new Nav());
+    private static FamilyViewModel Sut() => new(TestServices.Contributions(), new Nav());
 
     [Fact]
     public async Task StartsOnTheRecipeStepWithThePreFilledDraft()

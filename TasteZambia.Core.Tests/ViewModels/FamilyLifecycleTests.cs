@@ -1,6 +1,7 @@
 using TasteZambia.Core.Models;
 using TasteZambia.Core.Services;
 using TasteZambia.Core.ViewModels;
+using TasteZambia.Shared.Enums;
 
 namespace TasteZambia.Core.Tests.ViewModels;
 

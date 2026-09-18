@@ -69,6 +69,14 @@
                 </Grid>
             </VerticalStackLayout>
 
+            <Border Style="{StaticResource PrimaryAction}" Margin="20,20,20,0">
+                <Label Text="Open it in the archive" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                       HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenInArchiveCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+
             <Border Margin="20" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
                     StrokeShape="RoundRectangle 16" Padding="16">
                 <VerticalStackLayout Spacing="5">

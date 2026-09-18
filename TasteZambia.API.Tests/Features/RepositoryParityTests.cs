@@ -132,7 +132,7 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens!.AccessToken);
         await _client.PutAsJsonAsync(ApiRoutes.Me.Profile, new UpdateProfileRequest("Chanda Mwaba", "Kitwe, Copperbelt", "Bemba, English"));
 
-        var repo = new HttpProfileRepository(_client, store);
+        var repo = new HttpProfileRepository(_client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), _client));
         var profile = await repo.GetAsync();
 
         Assert.Equal("Chanda Mwaba", profile.Name);
@@ -142,5 +142,23 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         var collections = await repo.GetCollectionsAsync();
         Assert.Equal("2 recipes", collections[0].CountLabel);
         Assert.Equal("1 recipe", collections[2].CountLabel);
+    }
+
+    [Fact]
+    public async Task Profile_ContributionsComeFromTheAccount()
+    {
+        var (client, _) = await _factory.SignedInClientAsync();
+        var service = new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client);
+        var submitted = await service.SubmitAsync(service.StartShareDraft());
+
+        var repo = new HttpProfileRepository(client, new PersonalStore(new InMemoryLocalStore(), TimeProvider.System), service);
+        var contributions = await repo.GetContributionsAsync();
+
+        var row = Assert.Single(contributions);
+        Assert.Equal(submitted.Id, row.Id);
+        Assert.Equal("Chibwabwa na Mbalala", row.Name);
+        Assert.Equal(TasteZambia.Shared.Enums.ContributionStatus.InReview, row.Status);
+        Assert.StartsWith("Northern Province · submitted ", row.Meta);
+        client.Dispose();
     }
 }

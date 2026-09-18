@@ -1,6 +1,6 @@
-namespace TasteZambia.Core.Models;
+using TasteZambia.Shared.Enums;
 
-public enum ContributionStatus { Published, InReview, Draft }
+namespace TasteZambia.Core.Models;
 
 public sealed record UserProfile
 {
@@ -17,4 +17,4 @@ public sealed record UserProfile
 /// <summary><paramref name="Tint"/> is the hex swatch on the collection's left edge.</summary>
 public sealed record RecipeCollection(string Label, string CountLabel, string Tint);
 
-public sealed record Contribution(string Name, ContributionStatus Status, string Meta);
+public sealed record Contribution(Guid Id, string Name, ContributionStatus Status, string Meta, string? PublishedDishId = null);
