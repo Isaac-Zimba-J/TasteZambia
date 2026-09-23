@@ -112,7 +112,9 @@ public sealed partial class ProfileViewModel(
             SettingsRows.Add(row);
     }
 
-    [RelayCommand] private Task OpenShare() => Navigation.GoToAsync("shareStart");
+    // Straight into the wizard: Profile already has its own Preserve button, so the
+    // Share/Preserve chooser would only repeat the choice the user just made.
+    [RelayCommand] private Task OpenShare() => Navigation.GoToAsync("share");
     [RelayCommand] private Task OpenFamily() => Navigation.GoToAsync("famStart");
     [RelayCommand] private Task OpenSettings() => Navigation.GoToAsync("settings");
 }

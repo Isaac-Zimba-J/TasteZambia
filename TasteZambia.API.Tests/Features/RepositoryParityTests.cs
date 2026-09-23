@@ -149,7 +149,7 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
     {
         var (client, _) = await _factory.SignedInClientAsync();
         var service = new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client);
-        var submitted = await service.SubmitAsync(service.StartShareDraft());
+        var submitted = await service.SubmitAsync(TasteZambia.Core.Data.SeedData.WalkthroughShareDraft());
 
         var repo = new HttpProfileRepository(client, new PersonalStore(new InMemoryLocalStore(), TimeProvider.System), service);
         var contributions = await repo.GetContributionsAsync();

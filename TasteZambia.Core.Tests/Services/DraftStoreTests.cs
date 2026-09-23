@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Time.Testing;
+using TasteZambia.Core.Data;
 using TasteZambia.Core.Models;
 using TasteZambia.Core.Services;
 
@@ -59,7 +60,7 @@ public class DraftStoreTests
     {
         var local = new InMemoryLocalStore();
         var (store, _) = Sut(local);
-        store.Create(TestServices.Contributions().StartShareDraft());
+        store.Create(SeedData.WalkthroughShareDraft());
 
         var (reloaded, _) = Sut(local);
         var draft = reloaded.All.Single().Draft;
@@ -80,7 +81,7 @@ public class DraftStoreTests
         Assert.Equal("#A3452A", card.TintHex);
         Assert.Equal(empty.Id, card.Id);
 
-        var full = new LocalDraft { Id = Guid.NewGuid(), EditedAt = Now.AddHours(-2), Draft = TestServices.Contributions().StartShareDraft() };
+        var full = new LocalDraft { Id = Guid.NewGuid(), EditedAt = Now.AddHours(-2), Draft = SeedData.WalkthroughShareDraft() };
         var fullCard = RecipeDraft.From(full, Now);
         Assert.Equal(100, fullCard.PercentComplete);
         Assert.Equal("Ready to submit", fullCard.Missing);

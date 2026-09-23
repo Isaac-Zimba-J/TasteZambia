@@ -145,9 +145,40 @@
         <Setter Property="StrokeShape" Value="RoundRectangle 22"/>
     </Style>
 
-    <!-- Wizard field card. The design presents the draft in field-shaped cards
-         rather than live inputs; swapping these for Entry/Editor is the next
-         iteration, recorded in the plan's known gaps. -->
+    <!-- Wizard inputs. The FieldCard border draws the field; the input inside it is
+         flat (no platform underline - see MauiProgram's handler mapping) so the card
+         reads as the design's field shape with live text in it. -->
+    <Style x:Key="FieldEntry" TargetType="Entry">
+        <Setter Property="FontFamily" Value="ArchivoRegular"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="TextColor" Value="{StaticResource TzInk}"/>
+        <Setter Property="PlaceholderColor" Value="{StaticResource TzMuted2}"/>
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="Margin" Value="-4,-6"/>
+        <Setter Property="MinimumHeightRequest" Value="40"/>
+    </Style>
+
+    <Style x:Key="FieldEditor" TargetType="Editor">
+        <Setter Property="FontFamily" Value="ArchivoRegular"/>
+        <Setter Property="FontSize" Value="13.5"/>
+        <Setter Property="TextColor" Value="{StaticResource TzInk}"/>
+        <Setter Property="PlaceholderColor" Value="{StaticResource TzMuted2}"/>
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="AutoSize" Value="TextChanges"/>
+        <Setter Property="Margin" Value="-4,-6"/>
+        <Setter Property="MinimumHeightRequest" Value="72"/>
+    </Style>
+
+    <Style x:Key="FieldPicker" TargetType="Picker">
+        <Setter Property="FontFamily" Value="ArchivoMedium"/>
+        <Setter Property="FontSize" Value="13.5"/>
+        <Setter Property="TextColor" Value="{StaticResource TzInk}"/>
+        <Setter Property="TitleColor" Value="{StaticResource TzMuted2}"/>
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="Margin" Value="-4,-6"/>
+        <Setter Property="MinimumHeightRequest" Value="40"/>
+    </Style>
+
     <Style x:Key="FieldCard" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{StaticResource TzSurface}"/>
         <Setter Property="Stroke" Value="{StaticResource TzBorder}"/>
