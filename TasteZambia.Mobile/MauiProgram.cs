@@ -175,6 +175,16 @@ public static class MauiProgram
         builder.Services.AddTransient<SettingsViewModel>();
         builder.Services.AddTransient<SettingsView>();
 
+#if ANDROID
+        // Android draws a Material underline under every Entry/Editor/Picker. Our fields
+        // are bordered cards, so the underline is noise; remove it once, for every input.
+        static void NoUnderline(Android.Views.View view)
+            => view.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+        Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoUnderline", (h, _) => NoUnderline(h.PlatformView));
+        Microsoft.Maui.Handlers.EditorHandler.Mapper.AppendToMapping("NoUnderline", (h, _) => NoUnderline(h.PlatformView));
+        Microsoft.Maui.Handlers.PickerHandler.Mapper.AppendToMapping("NoUnderline", (h, _) => NoUnderline(h.PlatformView));
+#endif
+
 #if DEBUG
         builder.Logging.AddDebug();
 #endif

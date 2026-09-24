@@ -57,29 +57,8 @@ public sealed class ContributionService(DraftStore drafts, HttpClient api) : ICo
         return existing;
     }
 
-    /// <summary>Pre-filled to match the walkthrough content in the design.</summary>
-    public ContributionDraft StartShareDraft() => new()
-    {
-        LocalName = "Chibwabwa na Mbalala",
-        EnglishDescription = "Pumpkin leaves cooked with pounded groundnuts and nothing else",
-        Province = "Northern",
-        MealType = "Relish",
-        Ingredients =
-        [
-            new() { IngredientKey = "chibwabwa", DisplayName = "Chibwabwa", DisplaySubtitle = "Pumpkin leaves", Quantity = "2 bundles" },
-            new() { IngredientKey = "mbalala",   DisplayName = "Mbalala",   DisplaySubtitle = "Groundnuts",    Quantity = "1 cup" },
-            new() { DisplayName = "Salt", DisplaySubtitle = "Mucele", Quantity = "To taste" },
-        ],
-        Steps =
-        [
-            "Shred the leaves fine and rinse them twice.",
-            "Pound the groundnuts until the oil starts to show.",
-        ],
-        Origin = "Cooked in Mungwi and the villages around Kasama. It is a rainy-season dish because that is when the pumpkin leaves are at their best.",
-        CulturalSignificance = "This is the relish cooked when there is no money for meat, and it is not thought of as a lesser meal. It is what most people mean when they talk about eating well at home.",
-        TraditionalMethod = "Clay pot on charcoal. Groundnuts pounded in a mortar, not blended.",
-        CreditTeacher = true,
-    };
+    /// <summary>A blank draft. The contributor types everything; nothing is pre-filled.</summary>
+    public ContributionDraft StartShareDraft() => new() { CreditTeacher = true };
 
     public ContributionDraft StartFamilyDraft() => new()
     {

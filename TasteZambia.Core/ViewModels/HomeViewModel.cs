@@ -20,6 +20,13 @@ public sealed partial class HomeViewModel(
     public ObservableCollection<DishItemViewModel> Dishes { get; } = [];
     public ObservableCollection<StoryTeaser> Stories { get; } = [];
 
+    protected override void ClearForReload()
+    {
+        Categories.Clear();
+        Dishes.Clear();
+        Stories.Clear();
+    }
+
     public override async Task InitializeAsync()
     {
         if (Dishes.Count > 0) return;

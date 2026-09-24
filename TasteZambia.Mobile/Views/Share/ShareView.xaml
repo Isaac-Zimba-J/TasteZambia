@@ -13,10 +13,19 @@
     <ScrollView>
         <VerticalStackLayout Spacing="0">
 
-            <Grid Padding="20,20,20,0" ColumnDefinitions="Auto,*">
+            <Grid Padding="20,20,20,0" ColumnDefinitions="Auto,*,Auto">
                 <controls:CircleButton Icon="ArrowLeft" Diameter="34" CircleBackground="Transparent"
                                        SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
                                        HorizontalOptions="Start" Command="{Binding CloseCommand}"/>
+                <Border Grid.Column="2" IsVisible="{Binding DraftsLabel, Converter={StaticResource HasText}}"
+                        Stroke="{StaticResource TzBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 17"
+                        Padding="12,7" BackgroundColor="{StaticResource TzSurface}" VerticalOptions="Center">
+                    <Label Text="{Binding DraftsLabel}" FontFamily="ArchivoMedium" FontSize="11.5"
+                           TextColor="{StaticResource TzGold}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenDraftsCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
             </Grid>
 
             <VerticalStackLayout Padding="20,10,20,0" Spacing="9">
@@ -36,30 +45,32 @@
                     <VerticalStackLayout Spacing="7">
                         <Label Text="Local name of the dish" Style="{StaticResource FieldLabel}"/>
                         <Border Style="{StaticResource FieldCard}">
-                            <Label Text="{Binding Draft.LocalName}" FontFamily="NewsreaderSemiBold"
-                                   FontSize="19" TextColor="{StaticResource TzInk}"/>
+                            <Entry Text="{Binding Draft.LocalName}" Placeholder="e.g. Chibwabwa na Mbalala"
+                                   Style="{StaticResource FieldEntry}" FontFamily="NewsreaderSemiBold" FontSize="19"
+                                   SemanticProperties.Description="Local name of the dish"/>
                         </Border>
                     </VerticalStackLayout>
                     <VerticalStackLayout Spacing="7">
                         <Label Text="Short description in English" Style="{StaticResource FieldLabel}"/>
                         <Border Style="{StaticResource FieldCard}">
-                            <Label Text="{Binding Draft.EnglishDescription}" FontFamily="ArchivoRegular"
-                                   FontSize="13" LineHeight="1.5" TextColor="{StaticResource TzBodyMuted}"/>
+                            <Editor Text="{Binding Draft.EnglishDescription}" Placeholder="What it is, in a sentence"
+                                    Style="{StaticResource FieldEditor}" MinimumHeightRequest="56"
+                                    SemanticProperties.Description="Short description in English"/>
                         </Border>
                     </VerticalStackLayout>
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="11">
                         <VerticalStackLayout Spacing="7">
                             <Label Text="Province" Style="{StaticResource FieldLabel}"/>
                             <Border Style="{StaticResource FieldCard}">
-                                <Label Text="{Binding Draft.Province}" FontFamily="ArchivoMedium"
-                                       FontSize="13" TextColor="{StaticResource TzInk}"/>
+                                <Picker Title="Choose" ItemsSource="{Binding Provinces}" SelectedItem="{Binding Province}"
+                                        Style="{StaticResource FieldPicker}" SemanticProperties.Description="Province"/>
                             </Border>
                         </VerticalStackLayout>
                         <VerticalStackLayout Grid.Column="1" Spacing="7">
                             <Label Text="Meal type" Style="{StaticResource FieldLabel}"/>
                             <Border Style="{StaticResource FieldCard}">
-                                <Label Text="{Binding Draft.MealType}" FontFamily="ArchivoMedium"
-                                       FontSize="13" TextColor="{StaticResource TzInk}"/>
+                                <Picker Title="Choose" ItemsSource="{x:Static vm:ShareViewModel.MealTypes}" SelectedItem="{Binding MealType}"
+                                        Style="{StaticResource FieldPicker}" SemanticProperties.Description="Meal type"/>
                             </Border>
                         </VerticalStackLayout>
                     </Grid>
@@ -74,7 +85,7 @@
                                 <VerticalStackLayout Spacing="5" VerticalOptions="Center" HorizontalOptions="Center">
                                     <ic:FluentIcon Icon="Add" IconSize="Size20"
                                                    ForegroundColor="{StaticResource TzFaint}"/>
-                                    <Label Text="add photo" FontFamily="PlexMonoRegular" FontSize="10.5"
+                                    <Label Text="photos come with the next update" FontFamily="PlexMonoRegular" FontSize="10.5"
                                            TextColor="{StaticResource TzMuted2}"/>
                                 </VerticalStackLayout>
                             </Border>
@@ -87,37 +98,44 @@
                     <VerticalStackLayout Spacing="8">
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Ingredients" Style="{StaticResource FieldLabel}"/>
-                            <Label Grid.Column="1" Text="+ Add" FontFamily="ArchivoMedium" FontSize="10.5"
-                                   TextColor="{StaticResource TzGold}"/>
+                            <Label Grid.Column="1" Text="+ Add" FontFamily="ArchivoMedium" FontSize="11.5" Padding="8,0,0,0"
+                                   TextColor="{StaticResource TzGold}" SemanticProperties.Description="Add an ingredient">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding AddIngredientCommand}"/>
+                                </Label.GestureRecognizers>
+                            </Label>
                         </Grid>
                         <Border Stroke="{StaticResource TzBorder}" StrokeThickness="1"
                                 StrokeShape="RoundRectangle 13" Padding="0"
                                 BackgroundColor="{StaticResource TzSurface}">
-                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Draft.Ingredients}">
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Ingredients}">
                                 <BindableLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="models:RecipeIngredient">
-                                        <Grid Padding="14,12" ColumnDefinitions="*,Auto">
-                                            <Label Text="{Binding DisplayName}" FontFamily="ArchivoMedium" FontSize="13">
-                                                <Label.Triggers>
-                                                    <DataTrigger TargetType="Label" Binding="{Binding IsLinked}" Value="True">
+                                    <DataTemplate x:DataType="vm:DraftIngredientViewModel">
+                                        <Grid Padding="14,6" ColumnDefinitions="*,88,Auto" ColumnSpacing="8">
+                                            <Entry Text="{Binding Name}" Placeholder="Ingredient" Style="{StaticResource FieldEntry}"
+                                                   FontFamily="ArchivoMedium" FontSize="13" Margin="-4,0"
+                                                   SemanticProperties.Description="Ingredient name">
+                                                <Entry.Triggers>
+                                                    <DataTrigger TargetType="Entry" Binding="{Binding IsLinked}" Value="True">
                                                         <Setter Property="TextColor" Value="{StaticResource TzGreenDeep}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger TargetType="Label" Binding="{Binding IsLinked}" Value="False">
-                                                        <Setter Property="TextColor" Value="{StaticResource TzInk}"/>
-                                                    </DataTrigger>
-                                                </Label.Triggers>
-                                            </Label>
-                                            <Label Grid.Column="1" Text="{Binding Quantity}"
-                                                   FontFamily="PlexMonoRegular" FontSize="11.5"
-                                                   TextColor="{StaticResource TzBodyMuted}"/>
-                                            <BoxView Grid.ColumnSpan="2" HeightRequest="1" VerticalOptions="End"
-                                                     Margin="0,0,0,-12" Color="{StaticResource TzHairline}"/>
+                                                </Entry.Triggers>
+                                            </Entry>
+                                            <Entry Grid.Column="1" Text="{Binding Quantity}" Placeholder="Amount" Style="{StaticResource FieldEntry}"
+                                                   FontFamily="PlexMonoRegular" FontSize="11.5" Margin="-4,0"
+                                                   TextColor="{StaticResource TzBodyMuted}" SemanticProperties.Description="Amount"/>
+                                            <controls:CircleButton Grid.Column="2" Icon="Dismiss" Diameter="30" CircleBackground="Transparent"
+                                                                   IconColor="{StaticResource TzMuted2}" SemanticLabel="Remove ingredient"
+                                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ShareViewModel}}, Path=RemoveIngredientCommand}"
+                                                                   CommandParameter="{Binding .}"/>
+                                            <BoxView Grid.ColumnSpan="3" HeightRequest="1" VerticalOptions="End"
+                                                     Margin="0,0,0,-6" Color="{StaticResource TzHairline}"/>
                                         </Grid>
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
                             </VerticalStackLayout>
                         </Border>
-                        <Label Text="Green names are already in the ingredient archive and will link automatically."
+                        <Label Text="Names already in the ingredient archive turn green and link automatically."
                                FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.5"
                                TextColor="{StaticResource TzMuted2}"/>
                     </VerticalStackLayout>
@@ -125,24 +143,31 @@
                     <VerticalStackLayout Spacing="9">
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Cooking steps" Style="{StaticResource FieldLabel}"/>
-                            <Label Grid.Column="1" Text="+ Add step" FontFamily="ArchivoMedium" FontSize="10.5"
-                                   TextColor="{StaticResource TzGold}"/>
+                            <Label Grid.Column="1" Text="+ Add step" FontFamily="ArchivoMedium" FontSize="11.5" Padding="8,0,0,0"
+                                   TextColor="{StaticResource TzGold}" SemanticProperties.Description="Add a cooking step">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding AddStepCommand}"/>
+                                </Label.GestureRecognizers>
+                            </Label>
                         </Grid>
-                        <VerticalStackLayout Spacing="9" BindableLayout.ItemsSource="{Binding Draft.Steps}">
+                        <VerticalStackLayout Spacing="9" BindableLayout.ItemsSource="{Binding Steps}">
                             <BindableLayout.ItemTemplate>
-                                <DataTemplate x:DataType="sys:String">
-                                    <Border Style="{StaticResource FieldCard}" Padding="13">
-                                        <Label Text="{Binding}" FontFamily="ArchivoRegular" FontSize="12.5"
-                                               LineHeight="1.6" TextColor="{StaticResource TzBody}"/>
+                                <DataTemplate x:DataType="vm:DraftStepViewModel">
+                                    <Border Style="{StaticResource FieldCard}" Padding="13,8,6,8">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                            <Label Text="{Binding Number}" FontFamily="PlexMonoMedium" FontSize="11"
+                                                   TextColor="{StaticResource TzGold}" VerticalOptions="Start" Margin="0,10,0,0"/>
+                                            <Editor Grid.Column="1" Text="{Binding Text}" Placeholder="What to do" Style="{StaticResource FieldEditor}"
+                                                    FontSize="12.5" MinimumHeightRequest="44" SemanticProperties.Description="Cooking step"/>
+                                            <controls:CircleButton Grid.Column="2" Icon="Dismiss" Diameter="30" CircleBackground="Transparent"
+                                                                   IconColor="{StaticResource TzMuted2}" SemanticLabel="Remove step" VerticalOptions="Start"
+                                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ShareViewModel}}, Path=RemoveStepCommand}"
+                                                                   CommandParameter="{Binding .}"/>
+                                        </Grid>
                                     </Border>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
-                        <Border Stroke="{StaticResource TzBorderDashed}" StrokeThickness="1" StrokeDashArray="4,3"
-                                StrokeShape="RoundRectangle 13" Padding="13" BackgroundColor="Transparent">
-                            <Label Text="Add step 3" FontFamily="ArchivoRegular" FontSize="11.5"
-                                   HorizontalOptions="Center" TextColor="{StaticResource TzMuted2}"/>
-                        </Border>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
 
@@ -151,29 +176,32 @@
                     <VerticalStackLayout Spacing="7">
                         <Label Text="Where the dish comes from" Style="{StaticResource FieldLabel}"/>
                         <Border Style="{StaticResource FieldCard}" Padding="14">
-                            <Label Text="{Binding Draft.Origin}" FontFamily="ArchivoRegular" FontSize="13"
-                                   LineHeight="1.7" TextColor="{StaticResource TzBody}"/>
+                            <Editor Text="{Binding Draft.Origin}" Placeholder="The district, the season, who cooks it"
+                                    Style="{StaticResource FieldEditor}" SemanticProperties.Description="Where the dish comes from"/>
                         </Border>
                     </VerticalStackLayout>
                     <VerticalStackLayout Spacing="7">
                         <Label Text="Cultural significance" Style="{StaticResource FieldLabel}"/>
                         <Border Style="{StaticResource FieldCard}" Padding="14">
-                            <Label Text="{Binding Draft.CulturalSignificance}" FontFamily="ArchivoRegular"
-                                   FontSize="13" LineHeight="1.7" TextColor="{StaticResource TzBody}"/>
+                            <Editor Text="{Binding Draft.CulturalSignificance}" Placeholder="When it is eaten and what it means"
+                                    Style="{StaticResource FieldEditor}" SemanticProperties.Description="Cultural significance"/>
                         </Border>
                     </VerticalStackLayout>
                     <VerticalStackLayout Spacing="7">
                         <Label Text="Traditional method, if you know it" Style="{StaticResource FieldLabel}"/>
                         <Border Style="{StaticResource FieldCard}" Padding="14">
-                            <Label Text="{Binding Draft.TraditionalMethod}" FontFamily="ArchivoRegular"
-                                   FontSize="13" LineHeight="1.7" TextColor="{StaticResource TzBody}"/>
+                            <Editor Text="{Binding Draft.TraditionalMethod}" Placeholder="Clay pot, charcoal, mortar - the way it was done"
+                                    Style="{StaticResource FieldEditor}" SemanticProperties.Description="Traditional method"/>
                         </Border>
                     </VerticalStackLayout>
                     <HorizontalStackLayout Spacing="9">
-                        <Border WidthRequest="18" HeightRequest="18" BackgroundColor="{StaticResource TzGreenMid}"
-                                Stroke="{StaticResource TzGreenMid}" StrokeThickness="1.5"
-                                StrokeShape="RoundRectangle 5" Padding="0" VerticalOptions="Center">
-                            <ic:FluentIcon Icon="Checkmark" IconSize="Size12"
+                        <HorizontalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleCreditCommand}"/>
+                        </HorizontalStackLayout.GestureRecognizers>
+                        <Border WidthRequest="18" HeightRequest="18" Stroke="{StaticResource TzGreenMid}" StrokeThickness="1.5"
+                                StrokeShape="RoundRectangle 5" Padding="0" VerticalOptions="Center"
+                                BackgroundColor="{Binding CreditTeacher, Converter={StaticResource BoolToCheckFill}}">
+                            <ic:FluentIcon Icon="Checkmark" IconSize="Size12" IsVisible="{Binding CreditTeacher}"
                                            ForegroundColor="{StaticResource TzSurface}"
                                            HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
@@ -181,6 +209,22 @@
                                FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.5"
                                TextColor="{StaticResource TzMuted}"/>
                     </HorizontalStackLayout>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="11" IsVisible="{Binding CreditTeacher}">
+                        <VerticalStackLayout Spacing="7">
+                            <Label Text="Who taught you" Style="{StaticResource FieldLabel}"/>
+                            <Border Style="{StaticResource FieldCard}">
+                                <Entry Text="{Binding Draft.TaughtBy}" Placeholder="Name, relation" Style="{StaticResource FieldEntry}"
+                                       SemanticProperties.Description="Who taught you"/>
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="7">
+                            <Label Text="Where they are from" Style="{StaticResource FieldLabel}"/>
+                            <Border Style="{StaticResource FieldCard}">
+                                <Entry Text="{Binding Draft.TaughtByOrigin}" Placeholder="Village, district" Style="{StaticResource FieldEntry}"
+                                       SemanticProperties.Description="Where they are from"/>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
                 </VerticalStackLayout>
 
                 <!-- Step 4 -->
@@ -214,6 +258,10 @@
                                TextColor="{StaticResource TzBodyMuted}"/>
                     </Border>
                 </VerticalStackLayout>
+
+                <Label Text="{Binding ValidationMessage}" IsVisible="{Binding ValidationMessage, Converter={StaticResource HasText}}"
+                       Margin="20,0,20,12" FontFamily="ArchivoMedium" FontSize="12" LineHeight="1.5"
+                       TextColor="{StaticResource TzClayText}"/>
 
                 <!-- Nav buttons -->
                 <Grid Padding="20,0" ColumnDefinitions="Auto,*" ColumnSpacing="11">

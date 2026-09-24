@@ -1,3 +1,4 @@
+using TasteZambia.Core.Data;
 using TasteZambia.Core.Models;
 using TasteZambia.Core.Services;
 using TasteZambia.Core.Tests.Fakes;
@@ -44,7 +45,7 @@ public class ShareLifecycleTests
         var svc = TestServices.Contributions();
         svc.SaveDraft(new ContributionDraft { LocalName = "Ubwali bwa Tute", Province = "Luapula" });
         svc.SaveDraft(new ContributionDraft { LocalName = "Munkoyo", Province = "Central", EnglishDescription = "A fermented maize drink", MealType = "Drink" });
-        svc.SaveDraft(svc.StartShareDraft());
+        svc.SaveDraft(SeedData.WalkthroughShareDraft());
         var nav = new Nav();
         var vm = new DraftsViewModel(svc, nav);
         await vm.InitializeAsync();

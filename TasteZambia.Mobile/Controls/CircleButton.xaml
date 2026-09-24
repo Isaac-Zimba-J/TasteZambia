@@ -28,7 +28,7 @@
                            VerticalOptions="Center"/>
         </Border>
         <Grid.GestureRecognizers>
-            <TapGestureRecognizer Command="{Binding Command}"/>
+            <TapGestureRecognizer Command="{Binding Command}" CommandParameter="{Binding CommandParameter}"/>
         </Grid.GestureRecognizers>
     </Grid>
 </ContentView>

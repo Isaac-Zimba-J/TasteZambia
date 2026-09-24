@@ -426,4 +426,28 @@ public static class SeedData
         new("Replies from the archive team",    "When a reviewer asks you something.",                       true),
         new("Family recipe activity",           "When a relative adds a note or a photo.",                   false),
     ];
+
+    /// <summary>The design's walkthrough submission - Chibwabwa na Mbalala - kept for tests and previews.</summary>
+    public static ContributionDraft WalkthroughShareDraft() => new()
+    {
+        LocalName = "Chibwabwa na Mbalala",
+        EnglishDescription = "Pumpkin leaves cooked with pounded groundnuts and nothing else",
+        Province = "Northern",
+        MealType = "Relish",
+        Ingredients =
+        [
+            new() { IngredientKey = "chibwabwa", DisplayName = "Chibwabwa", DisplaySubtitle = "Pumpkin leaves", Quantity = "2 bundles" },
+            new() { IngredientKey = "mbalala",   DisplayName = "Mbalala",   DisplaySubtitle = "Groundnuts",    Quantity = "1 cup" },
+            new() { DisplayName = "Salt", DisplaySubtitle = "Mucele", Quantity = "To taste" },
+        ],
+        Steps =
+        [
+            "Shred the leaves fine and rinse them twice.",
+            "Pound the groundnuts until the oil starts to show.",
+        ],
+        Origin = "Cooked in Mungwi and the villages around Kasama. It is a rainy-season dish because that is when the pumpkin leaves are at their best.",
+        CulturalSignificance = "This is the relish cooked when there is no money for meat, and it is not thought of as a lesser meal. It is what most people mean when they talk about eating well at home.",
+        TraditionalMethod = "Clay pot on charcoal. Groundnuts pounded in a mortar, not blended.",
+        CreditTeacher = true,
+    };
 }

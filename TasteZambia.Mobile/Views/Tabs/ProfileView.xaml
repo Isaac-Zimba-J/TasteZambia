@@ -9,165 +9,168 @@
              x:Class="TasteZambia.Mobile.Views.Tabs.ProfileView"
              x:DataType="vm:ProfileViewModel">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="0">
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}"
+                 RefreshColor="{StaticResource TzGold}">
+        <ScrollView>
+            <VerticalStackLayout Spacing="0">
 
-            <!-- Header -->
-            <VerticalStackLayout Padding="20,24" BackgroundColor="{StaticResource TzGreenDeep}" Spacing="18">
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
-                    <Border WidthRequest="62" HeightRequest="62" Stroke="#99E8BD77" StrokeThickness="2"
-                            StrokeShape="RoundRectangle 31" Padding="0">
-                        <Image AutomationProperties.IsInAccessibleTree="False" Source="{Binding AvatarAsset}" Aspect="AspectFill"/>
-                    </Border>
-                    <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
-                        <Label SemanticProperties.HeadingLevel="Level2" Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="26"
-                               LineHeight="1.05" TextColor="{StaticResource TzSurface}"/>
-                        <Label Text="{Binding Meta}" FontFamily="ArchivoRegular" FontSize="12"
-                               LineHeight="1.4" TextColor="{StaticResource TzOnDark66}"/>
-                    </VerticalStackLayout>
-                </Grid>
+                <!-- Header -->
+                <VerticalStackLayout Padding="20,24" BackgroundColor="{StaticResource TzGreenDeep}" Spacing="18">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                        <Border WidthRequest="62" HeightRequest="62" Stroke="#99E8BD77" StrokeThickness="2"
+                                StrokeShape="RoundRectangle 31" Padding="0">
+                            <Image AutomationProperties.IsInAccessibleTree="False" Source="{Binding AvatarAsset}" Aspect="AspectFill"/>
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                            <Label SemanticProperties.HeadingLevel="Level2" Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="26"
+                                   LineHeight="1.05" TextColor="{StaticResource TzSurface}"/>
+                            <Label Text="{Binding Meta}" FontFamily="ArchivoRegular" FontSize="12"
+                                   LineHeight="1.4" TextColor="{StaticResource TzOnDark66}"/>
+                        </VerticalStackLayout>
+                    </Grid>
 
-                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="14">
-                    <VerticalStackLayout Spacing="2">
-                        <Label Text="{Binding CookedCount}" FontFamily="NewsreaderSemiBold" FontSize="22"
-                               TextColor="{StaticResource TzGoldLight}"/>
-                        <Label Text="Cooked" FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.3"
-                               TextColor="{StaticResource TzOnDark60}"/>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="1" Spacing="2">
-                        <Label Text="{Binding FavouriteCount}" FontFamily="NewsreaderSemiBold" FontSize="22"
-                               TextColor="{StaticResource TzGoldLight}"/>
-                        <Label Text="Favourites" FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.3"
-                               TextColor="{StaticResource TzOnDark60}"/>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="2" Spacing="2">
-                        <Label Text="{Binding ContributedCount}" FontFamily="NewsreaderSemiBold" FontSize="22"
-                               TextColor="{StaticResource TzGoldLight}"/>
-                        <Label Text="Contributed" FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.3"
-                               TextColor="{StaticResource TzOnDark60}"/>
-                    </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="3" Spacing="2">
-                        <Label Text="{Binding PreservedCount}" FontFamily="NewsreaderSemiBold" FontSize="22"
-                               TextColor="{StaticResource TzGoldLight}"/>
-                        <Label Text="Preserved" FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.3"
-                               TextColor="{StaticResource TzOnDark60}"/>
-                    </VerticalStackLayout>
-                </Grid>
-            </VerticalStackLayout>
-
-            <!-- Action cards -->
-            <Grid Padding="20,20,20,0" ColumnDefinitions="*,*" ColumnSpacing="11">
-                <Border BackgroundColor="{StaticResource TzGold}" StrokeThickness="0"
-                        StrokeShape="RoundRectangle 16" Padding="14,15">
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="Share a Recipe" FontFamily="ArchivoSemiBold" FontSize="13"
-                               LineHeight="1.25" TextColor="{StaticResource TzSurface}"/>
-                        <Label Text="Add to the public archive" FontFamily="ArchivoRegular" FontSize="10.5"
-                               LineHeight="1.4" TextColor="{StaticResource TzOnDark82}"/>
-                    </VerticalStackLayout>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding OpenShareCommand}"/>
-                    </Border.GestureRecognizers>
-                </Border>
-
-                <Border Grid.Column="1" BackgroundColor="Transparent" Stroke="{StaticResource TzBorderStrong}"
-                        StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="14,15">
-                    <VerticalStackLayout Spacing="4">
-                        <Label Text="Preserve a Family Recipe" FontFamily="ArchivoSemiBold" FontSize="13"
-                               LineHeight="1.25" TextColor="{StaticResource TzGreenDeep}"/>
-                        <Label Text="Private, family or public" FontFamily="ArchivoRegular" FontSize="10.5"
-                               LineHeight="1.4" TextColor="{StaticResource TzMuted}"/>
-                    </VerticalStackLayout>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding OpenFamilyCommand}"/>
-                    </Border.GestureRecognizers>
-                </Border>
-            </Grid>
-
-            <!-- My Collections -->
-            <VerticalStackLayout Padding="20,22,20,0" Spacing="12">
-                <Label Text="My Collections" Style="{StaticResource SubsectionTitle}"/>
-                <VerticalStackLayout Spacing="9" BindableLayout.ItemsSource="{Binding Collections}">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate x:DataType="vm:CollectionRowViewModel">
-                            <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 15" Padding="15,14">
-                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="13">
-                                    <BoxView WidthRequest="9" HeightRequest="36" CornerRadius="5"
-                                             Color="{Binding Tint, Converter={StaticResource HexToColor}}"/>
-                                    <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
-                                        <Label Text="{Binding Label}" FontFamily="ArchivoSemiBold" FontSize="13.5"
-                                               LineHeight="1.25" TextColor="{StaticResource TzInk}"/>
-                                        <Label Text="{Binding CountLabel}" Style="{StaticResource MetaText}"/>
-                                    </VerticalStackLayout>
-                                    <ic:FluentIcon Grid.Column="2" Icon="ChevronRight" IconSize="Size16"
-                                                   ForegroundColor="{StaticResource TzChevron}"
-                                                   VerticalOptions="Center"/>
-                                </Grid>
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding OpenCommand}"/>
-                                </Border.GestureRecognizers>
-                            </Border>
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="14">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding CookedCount}" FontFamily="NewsreaderSemiBold" FontSize="22"
+                                   TextColor="{StaticResource TzGoldLight}"/>
+                            <Label Text="Cooked" FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.3"
+                                   TextColor="{StaticResource TzOnDark60}"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="{Binding FavouriteCount}" FontFamily="NewsreaderSemiBold" FontSize="22"
+                                   TextColor="{StaticResource TzGoldLight}"/>
+                            <Label Text="Favourites" FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.3"
+                                   TextColor="{StaticResource TzOnDark60}"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2" Spacing="2">
+                            <Label Text="{Binding ContributedCount}" FontFamily="NewsreaderSemiBold" FontSize="22"
+                                   TextColor="{StaticResource TzGoldLight}"/>
+                            <Label Text="Contributed" FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.3"
+                                   TextColor="{StaticResource TzOnDark60}"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="3" Spacing="2">
+                            <Label Text="{Binding PreservedCount}" FontFamily="NewsreaderSemiBold" FontSize="22"
+                                   TextColor="{StaticResource TzGoldLight}"/>
+                            <Label Text="Preserved" FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.3"
+                                   TextColor="{StaticResource TzOnDark60}"/>
+                        </VerticalStackLayout>
+                    </Grid>
                 </VerticalStackLayout>
-            </VerticalStackLayout>
 
-            <!-- My Contributions -->
-            <VerticalStackLayout Padding="20,24,20,0" Spacing="12">
-                <Label Text="My Contributions" Style="{StaticResource SubsectionTitle}"/>
-                <Border Stroke="{StaticResource TzHairline}" StrokeThickness="1"
-                        StrokeShape="RoundRectangle 16" Padding="0" BackgroundColor="{StaticResource TzSurface}">
-                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Contributions}">
+                <!-- Action cards -->
+                <Grid Padding="20,20,20,0" ColumnDefinitions="*,*" ColumnSpacing="11">
+                    <Border BackgroundColor="{StaticResource TzGold}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16" Padding="14,15">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Share a Recipe" FontFamily="ArchivoSemiBold" FontSize="13"
+                                   LineHeight="1.25" TextColor="{StaticResource TzSurface}"/>
+                            <Label Text="Add to the public archive" FontFamily="ArchivoRegular" FontSize="10.5"
+                                   LineHeight="1.4" TextColor="{StaticResource TzOnDark82}"/>
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenShareCommand}"/>
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <Border Grid.Column="1" BackgroundColor="Transparent" Stroke="{StaticResource TzBorderStrong}"
+                            StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="14,15">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Preserve a Family Recipe" FontFamily="ArchivoSemiBold" FontSize="13"
+                                   LineHeight="1.25" TextColor="{StaticResource TzGreenDeep}"/>
+                            <Label Text="Private, family or public" FontFamily="ArchivoRegular" FontSize="10.5"
+                                   LineHeight="1.4" TextColor="{StaticResource TzMuted}"/>
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenFamilyCommand}"/>
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
+
+                <!-- My Collections -->
+                <VerticalStackLayout Padding="20,22,20,0" Spacing="12">
+                    <Label Text="My Collections" Style="{StaticResource SubsectionTitle}"/>
+                    <VerticalStackLayout Spacing="9" BindableLayout.ItemsSource="{Binding Collections}">
                         <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="vm:ContributionRowViewModel">
-                                <VerticalStackLayout Padding="15,14" Spacing="5">
-                                    <VerticalStackLayout.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding OpenCommand}"/>
-                                    </VerticalStackLayout.GestureRecognizers>
-                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                                        <Label Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="17"
-                                               LineHeight="1.15" TextColor="{StaticResource TzInk}"/>
-                                        <controls:PillLabel Grid.Column="1" Text="{Binding StatusLabel}"
-                                                            PillBackground="{Binding StatusBackgroundHex, Converter={StaticResource HexToColor}}"
-                                                            TextColor="{Binding StatusTextHex, Converter={StaticResource HexToColor}}"/>
+                            <DataTemplate x:DataType="vm:CollectionRowViewModel">
+                                <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 15" Padding="15,14">
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="13">
+                                        <BoxView WidthRequest="9" HeightRequest="36" CornerRadius="5"
+                                                 Color="{Binding Tint, Converter={StaticResource HexToColor}}"/>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                            <Label Text="{Binding Label}" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                                                   LineHeight="1.25" TextColor="{StaticResource TzInk}"/>
+                                            <Label Text="{Binding CountLabel}" Style="{StaticResource MetaText}"/>
+                                        </VerticalStackLayout>
+                                        <ic:FluentIcon Grid.Column="2" Icon="ChevronRight" IconSize="Size16"
+                                                       ForegroundColor="{StaticResource TzChevron}"
+                                                       VerticalOptions="Center"/>
                                     </Grid>
-                                    <Label Text="{Binding Meta}" Style="{StaticResource MetaText}"/>
-                                    <BoxView HeightRequest="1" Margin="0,9,0,-14"
-                                             Color="{StaticResource TzHairlineSoft}"/>
-                                </VerticalStackLayout>
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding OpenCommand}"/>
+                                    </Border.GestureRecognizers>
+                                </Border>
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>
                     </VerticalStackLayout>
-                </Border>
-            </VerticalStackLayout>
+                </VerticalStackLayout>
 
-            <!-- Settings -->
-            <VerticalStackLayout Padding="20,24,20,0" Spacing="12">
-                <Label Text="Settings" Style="{StaticResource SubsectionTitle}"/>
-                <Border Stroke="{StaticResource TzHairline}" StrokeThickness="1"
-                        StrokeShape="RoundRectangle 16" Padding="0" BackgroundColor="{StaticResource TzSurface}">
-                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding SettingsRows}">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="sys:String">
-                                <Grid Padding="15,14" ColumnDefinitions="*,Auto">
-                                    <Label Text="{Binding}" FontFamily="ArchivoMedium" FontSize="13"
-                                           TextColor="{StaticResource TzBody}" VerticalOptions="Center"/>
-                                    <ic:FluentIcon Grid.Column="1" Icon="ChevronRight" IconSize="Size16"
-                                                   ForegroundColor="{StaticResource TzChevron}"
-                                                   VerticalOptions="Center"/>
-                                    <BoxView Grid.ColumnSpan="2" HeightRequest="1" VerticalOptions="End"
-                                             Margin="0,0,0,-14" Color="{StaticResource TzHairlineSoft}"/>
-                                </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </VerticalStackLayout>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding OpenSettingsCommand}"/>
-                    </Border.GestureRecognizers>
-                </Border>
-            </VerticalStackLayout>
+                <!-- My Contributions -->
+                <VerticalStackLayout Padding="20,24,20,0" Spacing="12">
+                    <Label Text="My Contributions" Style="{StaticResource SubsectionTitle}"/>
+                    <Border Stroke="{StaticResource TzHairline}" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 16" Padding="0" BackgroundColor="{StaticResource TzSurface}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Contributions}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ContributionRowViewModel">
+                                    <VerticalStackLayout Padding="15,14" Spacing="5">
+                                        <VerticalStackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding OpenCommand}"/>
+                                        </VerticalStackLayout.GestureRecognizers>
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                            <Label Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="17"
+                                                   LineHeight="1.15" TextColor="{StaticResource TzInk}"/>
+                                            <controls:PillLabel Grid.Column="1" Text="{Binding StatusLabel}"
+                                                                PillBackground="{Binding StatusBackgroundHex, Converter={StaticResource HexToColor}}"
+                                                                TextColor="{Binding StatusTextHex, Converter={StaticResource HexToColor}}"/>
+                                        </Grid>
+                                        <Label Text="{Binding Meta}" Style="{StaticResource MetaText}"/>
+                                        <BoxView HeightRequest="1" Margin="0,9,0,-14"
+                                                 Color="{StaticResource TzHairlineSoft}"/>
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
 
-            <BoxView HeightRequest="26" Color="Transparent"/>
-        </VerticalStackLayout>
-    </ScrollView>
+                <!-- Settings -->
+                <VerticalStackLayout Padding="20,24,20,0" Spacing="12">
+                    <Label Text="Settings" Style="{StaticResource SubsectionTitle}"/>
+                    <Border Stroke="{StaticResource TzHairline}" StrokeThickness="1"
+                            StrokeShape="RoundRectangle 16" Padding="0" BackgroundColor="{StaticResource TzSurface}">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding SettingsRows}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="sys:String">
+                                    <Grid Padding="15,14" ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding}" FontFamily="ArchivoMedium" FontSize="13"
+                                               TextColor="{StaticResource TzBody}" VerticalOptions="Center"/>
+                                        <ic:FluentIcon Grid.Column="1" Icon="ChevronRight" IconSize="Size16"
+                                                       ForegroundColor="{StaticResource TzChevron}"
+                                                       VerticalOptions="Center"/>
+                                        <BoxView Grid.ColumnSpan="2" HeightRequest="1" VerticalOptions="End"
+                                                 Margin="0,0,0,-14" Color="{StaticResource TzHairlineSoft}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenSettingsCommand}"/>
+                        </Border.GestureRecognizers>
+                    </Border>
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="26" Color="Transparent"/>
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
 </views:LoadOnceView>

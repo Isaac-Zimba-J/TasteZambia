@@ -29,6 +29,9 @@ public partial class CircleButton : ContentView
     public static readonly BindableProperty CommandProperty =
         BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(CircleButton), null);
 
+    public static readonly BindableProperty CommandParameterProperty =
+        BindableProperty.Create(nameof(CommandParameter), typeof(object), typeof(CircleButton), null);
+
     public static readonly BindableProperty SemanticLabelProperty =
         BindableProperty.Create(nameof(SemanticLabel), typeof(string), typeof(CircleButton), null,
             propertyChanged: (b, _, n) => ((CircleButton)b).ApplySemanticLabel((string?)n));
@@ -40,6 +43,7 @@ public partial class CircleButton : ContentView
     public double Diameter { get => (double)GetValue(DiameterProperty); set => SetValue(DiameterProperty, value); }
     public Color CircleBackground { get => (Color)GetValue(CircleBackgroundProperty); set => SetValue(CircleBackgroundProperty, value); }
     public ICommand? Command { get => (ICommand?)GetValue(CommandProperty); set => SetValue(CommandProperty, value); }
+    public object? CommandParameter { get => GetValue(CommandParameterProperty); set => SetValue(CommandParameterProperty, value); }
 
     /// <summary>Screen readers need words, not a shape.</summary>
     public string? SemanticLabel { get => (string?)GetValue(SemanticLabelProperty); set => SetValue(SemanticLabelProperty, value); }

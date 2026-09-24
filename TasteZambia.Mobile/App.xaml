@@ -16,6 +16,7 @@
             <converters:BoolToIconVariantConverter x:Key="BoolToIconVariant"/>
             <converters:BoolToOpacityConverter x:Key="BoolToOpacity"/>
             <converters:HasTextConverter x:Key="HasText"/>
+            <converters:BoolToCheckFillConverter x:Key="BoolToCheckFill"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
