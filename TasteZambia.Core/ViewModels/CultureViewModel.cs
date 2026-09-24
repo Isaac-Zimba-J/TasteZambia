@@ -35,6 +35,8 @@ public sealed partial class CultureViewModel(
     [ObservableProperty] private string _leadByline = "";
     [ObservableProperty] private string _leadCaption = "";
 
+    protected override void ClearForReload() => Articles.Clear();
+
     public override async Task InitializeAsync()
     {
         if (Articles.Count > 0) return;

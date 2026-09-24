@@ -8,66 +8,69 @@
              x:Class="TasteZambia.Mobile.Views.Share.ShareDraftsView"
              x:DataType="vm:DraftsViewModel">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="0">
-            <Grid Padding="20,18,20,0">
-                <controls:CircleButton Icon="ArrowLeft" Diameter="34" CircleBackground="Transparent"
-                                       SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
-                                       HorizontalOptions="Start" Command="{Binding BackCommand}"/>
-            </Grid>
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}"
+                 RefreshColor="{StaticResource TzGold}">
+        <ScrollView>
+            <VerticalStackLayout Spacing="0">
+                <Grid Padding="20,18,20,0">
+                    <controls:CircleButton Icon="ArrowLeft" Diameter="34" CircleBackground="Transparent"
+                                           SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
+                                           HorizontalOptions="Start" Command="{Binding BackCommand}"/>
+                </Grid>
 
-            <VerticalStackLayout Padding="20,12,20,16" Spacing="9">
-                <Label Text="Saved on this device" Style="{StaticResource KickerLabel}"/>
-                <Label Text="My Drafts" Style="{StaticResource DisplayTitle}" CharacterSpacing="-0.31"/>
-                <Label Text="Everything saves as you type. A draft stays private until you submit it."
-                       Style="{StaticResource BodyText}" TextColor="{StaticResource TzBodyMuted}"/>
+                <VerticalStackLayout Padding="20,12,20,16" Spacing="9">
+                    <Label Text="Saved on this device" Style="{StaticResource KickerLabel}"/>
+                    <Label Text="My Drafts" Style="{StaticResource DisplayTitle}" CharacterSpacing="-0.31"/>
+                    <Label Text="Everything saves as you type. A draft stays private until you submit it."
+                           Style="{StaticResource BodyText}" TextColor="{StaticResource TzBodyMuted}"/>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Padding="20,0" Spacing="12" BindableLayout.ItemsSource="{Binding Drafts}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:RecipeDraft">
+                            <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 18" Padding="16">
+                                <VerticalStackLayout Spacing="0">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                        <Label Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="19"
+                                               LineHeight="1.15" TextColor="{StaticResource TzInk}"/>
+                                        <Label Grid.Column="1" Text="{Binding PercentLabel}" VerticalOptions="End"
+                                               FontFamily="PlexMonoMedium" FontSize="11" TextColor="{StaticResource TzMuted}"/>
+                                    </Grid>
+                                    <ProgressBar Progress="{Binding Fraction}" HeightRequest="4" Margin="0,11,0,10"
+                                                 ProgressColor="{Binding TintHex, Converter={StaticResource HexToColor}}"
+                                                 BackgroundColor="{StaticResource TzRule}"/>
+                                    <Label Text="{Binding Missing}" FontFamily="ArchivoRegular" FontSize="11.5"
+                                           LineHeight="1.5" TextColor="{StaticResource TzBodyMuted}"/>
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="0,13,0,0">
+                                        <Label Text="{Binding When}" FontFamily="PlexMonoRegular" FontSize="10.5"
+                                               TextColor="{StaticResource TzMuted2}" VerticalOptions="Center"/>
+                                        <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                                            <Border Stroke="{StaticResource TzBorder}" StrokeThickness="1"
+                                                    StrokeShape="RoundRectangle 11" Padding="12,9">
+                                                <Label Text="Delete" FontFamily="ArchivoMedium" FontSize="11" TextColor="{StaticResource TzMuted}"/>
+                                            </Border>
+                                            <Border BackgroundColor="{StaticResource TzGreenDeep}" StrokeThickness="0"
+                                                    StrokeShape="RoundRectangle 11" Padding="14,9">
+                                                <Label Text="Continue" FontFamily="ArchivoSemiBold" FontSize="11" TextColor="{StaticResource TzSurface}"/>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DraftsViewModel}}, Path=ContinueCommand}"/>
+                                                </Border.GestureRecognizers>
+                                            </Border>
+                                        </HorizontalStackLayout>
+                                    </Grid>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <Border Margin="20" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16" Padding="15">
+                    <Label Text="Drafts stay on your device and sync when you are online. They are never visible to the archive team."
+                           FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6" TextColor="{StaticResource TzBodyMuted}"/>
+                </Border>
+                <BoxView HeightRequest="6" Color="Transparent"/>
             </VerticalStackLayout>
-
-            <VerticalStackLayout Padding="20,0" Spacing="12" BindableLayout.ItemsSource="{Binding Drafts}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="models:RecipeDraft">
-                        <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 18" Padding="16">
-                            <VerticalStackLayout Spacing="0">
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                                    <Label Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="19"
-                                           LineHeight="1.15" TextColor="{StaticResource TzInk}"/>
-                                    <Label Grid.Column="1" Text="{Binding PercentLabel}" VerticalOptions="End"
-                                           FontFamily="PlexMonoMedium" FontSize="11" TextColor="{StaticResource TzMuted}"/>
-                                </Grid>
-                                <ProgressBar Progress="{Binding Fraction}" HeightRequest="4" Margin="0,11,0,10"
-                                             ProgressColor="{Binding TintHex, Converter={StaticResource HexToColor}}"
-                                             BackgroundColor="{StaticResource TzRule}"/>
-                                <Label Text="{Binding Missing}" FontFamily="ArchivoRegular" FontSize="11.5"
-                                       LineHeight="1.5" TextColor="{StaticResource TzBodyMuted}"/>
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="0,13,0,0">
-                                    <Label Text="{Binding When}" FontFamily="PlexMonoRegular" FontSize="10.5"
-                                           TextColor="{StaticResource TzMuted2}" VerticalOptions="Center"/>
-                                    <HorizontalStackLayout Grid.Column="1" Spacing="8">
-                                        <Border Stroke="{StaticResource TzBorder}" StrokeThickness="1"
-                                                StrokeShape="RoundRectangle 11" Padding="12,9">
-                                            <Label Text="Delete" FontFamily="ArchivoMedium" FontSize="11" TextColor="{StaticResource TzMuted}"/>
-                                        </Border>
-                                        <Border BackgroundColor="{StaticResource TzGreenDeep}" StrokeThickness="0"
-                                                StrokeShape="RoundRectangle 11" Padding="14,9">
-                                            <Label Text="Continue" FontFamily="ArchivoSemiBold" FontSize="11" TextColor="{StaticResource TzSurface}"/>
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DraftsViewModel}}, Path=ContinueCommand}"/>
-                                            </Border.GestureRecognizers>
-                                        </Border>
-                                    </HorizontalStackLayout>
-                                </Grid>
-                            </VerticalStackLayout>
-                        </Border>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </VerticalStackLayout>
-
-            <Border Margin="20" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
-                    StrokeShape="RoundRectangle 16" Padding="15">
-                <Label Text="Drafts stay on your device and sync when you are online. They are never visible to the archive team."
-                       FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6" TextColor="{StaticResource TzBodyMuted}"/>
-            </Border>
-            <BoxView HeightRequest="6" Color="Transparent"/>
-        </VerticalStackLayout>
-    </ScrollView>
+        </ScrollView>
+    </RefreshView>
 </views:LoadOnceView>

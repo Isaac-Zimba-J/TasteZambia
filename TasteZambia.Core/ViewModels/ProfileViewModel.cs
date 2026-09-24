@@ -83,6 +83,13 @@ public sealed partial class ProfileViewModel(
     [ObservableProperty] private int _contributedCount;
     [ObservableProperty] private int _preservedCount;
 
+    protected override void ClearForReload()
+    {
+        Collections.Clear();
+        Contributions.Clear();
+        SettingsRows.Clear();
+    }
+
     public override async Task InitializeAsync()
     {
         if (Collections.Count > 0) return;

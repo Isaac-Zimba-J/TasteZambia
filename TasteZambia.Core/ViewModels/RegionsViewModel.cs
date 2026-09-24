@@ -54,6 +54,12 @@ public sealed partial class RegionsViewModel(
 
     public string FoodsHeading => $"Foods of {SelectedName} Province";
 
+    protected override void ClearForReload()
+    {
+        Provinces.Clear();
+        SelectedFoods.Clear();
+    }
+
     public override async Task InitializeAsync()
     {
         if (Provinces.Count > 0) return;
