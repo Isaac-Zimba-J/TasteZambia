@@ -33,6 +33,7 @@ builder.Services.AddScoped<IContributionRepository, ContributionRepository>();
 builder.Services.AddScoped<IContributionService, ContributionService>();
 builder.Services.AddScoped<IFamilyAccessService, FamilyAccessService>();
 builder.Services.AddScoped<IFamilyRepository, FamilyRepository>();
+builder.Services.AddScoped<IFamilyService, FamilyService>();
 builder.Services.AddScoped<IMediaService, MediaService>();
 
 // Identity and JWT. Accounts are anonymous and device-bound: the app registers a

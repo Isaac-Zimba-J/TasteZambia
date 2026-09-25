@@ -88,4 +88,19 @@ public static class ApiRoutes
         public const string Collection = $"{Root}/media";
         public const string ById = $"{Collection}/{{id}}";
     }
+
+    /// <summary>The private family tier. Every route needs a bearer token.</summary>
+    public static class Family
+    {
+        public const string Collection = $"{Root}/me/family-recipes";
+        public const string ById = $"{Collection}/{{id}}";
+        public const string Members = $"{ById}/members";
+        public const string MemberById = $"{Members}/{{memberId}}";
+        public const string Notes = $"{ById}/notes";
+        public const string Privacy = $"{ById}/privacy";
+        public const string Media = $"{ById}/media/{{mediaId}}";
+
+        /// <summary>Redeeming an invite code is not scoped to a recipe the caller cannot see yet.</summary>
+        public const string Accept = $"{Root}/family-recipes/accept";
+    }
 }
