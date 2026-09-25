@@ -11,6 +11,7 @@ using TasteZambia.API.Data.Entities;
 using TasteZambia.API.Data.Seed;
 using TasteZambia.API.Repositories;
 using TasteZambia.API.Services;
+using TasteZambia.API.Media;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +39,9 @@ builder.Services.AddOptions<JwtOptions>()
     .Validate(o => o.SigningKey is { Length: >= 32 }, "Jwt:SigningKey must be set and at least 32 characters.")
     .ValidateOnStart();
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<IMediaStore>(_ =>
+    new FileSystemMediaStore(builder.Configuration["Media:Root"]
+        ?? Path.Combine(builder.Environment.ContentRootPath, "media-dev")));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddScoped<ITokenService, TokenService>();
