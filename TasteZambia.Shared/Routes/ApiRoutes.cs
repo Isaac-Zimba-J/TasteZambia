@@ -82,4 +82,10 @@ public static class ApiRoutes
         /// <summary>Delta endpoint: pass ?since={cursor} to receive only what changed.</summary>
         public const string Changes = $"{Root}/sync/changes";
     }
+
+    public static class Media
+    {
+        public const string Collection = $"{Root}/media";
+        public const string ById = $"{Collection}/{{id}}";
+    }
 }

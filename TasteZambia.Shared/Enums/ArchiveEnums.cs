@@ -50,3 +50,10 @@ public enum ReviewEventKind
     Published = 4,
     Withdrawn = 5,
 }
+
+/// <summary>What a stored blob is. Decides its size ceiling and how the app renders it.</summary>
+public enum MediaKind
+{
+    Photo = 0,
+    Audio = 1,
+}

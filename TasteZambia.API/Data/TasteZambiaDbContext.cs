@@ -24,6 +24,8 @@ public class TasteZambiaDbContext(DbContextOptions<TasteZambiaDbContext> options
     // Community contributions on their way into the archive.
     public DbSet<Contribution> Contributions => Set<Contribution>();
 
+    public DbSet<MediaAsset> MediaAssets => Set<MediaAsset>();
+
     protected override void OnModelCreating(ModelBuilder b)
     {
         // Identity configures its own tables here. It MUST run before ours.
