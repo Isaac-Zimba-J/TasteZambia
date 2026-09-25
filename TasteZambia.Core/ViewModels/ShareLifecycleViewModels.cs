@@ -95,6 +95,9 @@ public sealed partial class ShareReviewViewModel(
     [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(WithdrawCommand))] private bool _canWithdraw;
     [ObservableProperty] private bool _hasChangesRequested;
 
+    /// <summary>Why the last action did not take. Empty when there is nothing to report.</summary>
+    [ObservableProperty] private string _actionError = "";
+
     public override async Task InitializeAsync()
     {
         var d = await contributions.GetDetailAsync(Id);
@@ -114,8 +117,16 @@ public sealed partial class ShareReviewViewModel(
     [RelayCommand(CanExecute = nameof(CanWithdraw))]
     private async Task Withdraw()
     {
-        await contributions.WithdrawAsync(Id);
-        await Navigation.GoBackAsync();
+        try
+        {
+            await contributions.WithdrawAsync(Id);
+            ActionError = "";
+            await Navigation.GoBackAsync();
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            ActionError = OfflineMessage;
+        }
     }
 
     [RelayCommand]
@@ -135,6 +146,9 @@ public sealed partial class ShareChangesViewModel(
 
     [ObservableProperty] private string _reviewerName = "The archive team";
     [ObservableProperty] private string _reviewerNote = "";
+
+    /// <summary>Why the last action did not take. Empty when there is nothing to report.</summary>
+    [ObservableProperty] private string _actionError = "";
 
     public bool CanResubmit => Flagged.Count > 0 && Flagged.All(f => f.Answer.Trim().Length > 0);
 
@@ -162,8 +176,16 @@ public sealed partial class ShareChangesViewModel(
     [RelayCommand(CanExecute = nameof(CanResubmit))]
     private async Task Resubmit()
     {
-        await contributions.ResubmitAsync(Id, [.. Flagged.Select(f => new FlagAnswerDto(f.Id, f.Answer.Trim()))]);
-        await Navigation.GoToAsync("shareReview", new Dictionary<string, object> { ["id"] = Id });
+        try
+        {
+            await contributions.ResubmitAsync(Id, [.. Flagged.Select(f => new FlagAnswerDto(f.Id, f.Answer.Trim()))]);
+            ActionError = "";
+            await Navigation.GoToAsync("shareReview", new Dictionary<string, object> { ["id"] = Id });
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            ActionError = OfflineMessage;
+        }
     }
 
     [RelayCommand] private Task Back() => Navigation.GoBackAsync();

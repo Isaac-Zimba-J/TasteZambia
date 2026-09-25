@@ -8,7 +8,7 @@ namespace TasteZambia.Core.Tests.Fakes;
 /// Scripted contribution details for ViewModel tests. Mapping (TimelineFor/FlagsFor)
 /// delegates to the real service so it stays under test in one place.
 /// </summary>
-public sealed class FakeContributionService : IContributionService
+public class FakeContributionService : IContributionService
 {
     private readonly ContributionService _real = TestServices.Contributions();
     private readonly Dictionary<Guid, ContributionDetailDto> _details = [];
@@ -54,7 +54,7 @@ public sealed class FakeContributionService : IContributionService
         return Task.FromResult(_details[id]);
     }
 
-    public Task<ContributionDetailDto> WithdrawAsync(Guid id, CancellationToken ct = default)
+    public virtual Task<ContributionDetailDto> WithdrawAsync(Guid id, CancellationToken ct = default)
     {
         Withdrawn.Add(id);
         return Task.FromResult(_details[id]);

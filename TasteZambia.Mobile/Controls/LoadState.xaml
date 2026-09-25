@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TasteZambia.Mobile.Controls.LoadState"
+             x:Name="Root"
+             IsVisible="False">
+
+    <!-- Either a quiet spinner while the screen has nothing yet, or an honest
+         message with a way to try again. Never both, never neither. -->
+    <VerticalStackLayout Padding="30,60" Spacing="14" HorizontalOptions="Center" VerticalOptions="Center">
+
+        <VerticalStackLayout Spacing="14" IsVisible="{Binding IsLoading, Source={x:Reference Root}}">
+            <ActivityIndicator IsRunning="{Binding IsLoading, Source={x:Reference Root}}"
+                               Color="{StaticResource TzGoldDecor}" WidthRequest="26" HeightRequest="26"
+                               HorizontalOptions="Center"/>
+            <Label Text="{Binding LoadingText, Source={x:Reference Root}}" HorizontalOptions="Center"
+                   FontFamily="ArchivoRegular" FontSize="12" TextColor="{StaticResource TzMuted2}"/>
+        </VerticalStackLayout>
+
+        <Border IsVisible="{Binding HasError, Source={x:Reference Root}}"
+                Stroke="{StaticResource TzBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 18"
+                Padding="20" BackgroundColor="{StaticResource TzSurface}">
+            <VerticalStackLayout Spacing="12">
+                <Label Text="{Binding ErrorMessage, Source={x:Reference Root}}" HorizontalTextAlignment="Center"
+                       FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.6"
+                       TextColor="{StaticResource TzBody}"/>
+                <Border BackgroundColor="{StaticResource TzGreenDeep}" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 12" Padding="18,11" HorizontalOptions="Center">
+                    <Label Text="Try again" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                           TextColor="{StaticResource TzSurface}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding RetryCommand, Source={x:Reference Root}}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </VerticalStackLayout>
+        </Border>
+    </VerticalStackLayout>
+</ContentView>

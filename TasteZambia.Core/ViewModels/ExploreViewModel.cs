@@ -48,6 +48,8 @@ public sealed partial class ExploreViewModel(
 
     public bool HasQuery => Query.Trim().Length > 0;
 
+    protected override bool HasContent => Chips.Count > 0;
+
     public override async Task InitializeAsync()
     {
         if (Chips.Count == 0)
