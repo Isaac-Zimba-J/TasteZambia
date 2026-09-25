@@ -151,7 +151,16 @@ public sealed class FamilyService(
         if (displayName.Length > 0) member.DisplayName = displayName;
         invite.RedeemedAt = now;
 
-        await family.SaveChangesAsync(ct);
+        try
+        {
+            await family.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Two people redeemed the same code at once: the loser's xmin no longer
+            // matches (the winner already saved), which is exactly "already used".
+            throw new InvalidOperationException("That invite has already been used or has expired.");
+        }
         return await family.GetAsync(invite.FamilyRecipeId, userId, ct);
     }
 

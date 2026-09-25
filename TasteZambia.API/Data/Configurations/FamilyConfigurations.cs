@@ -68,6 +68,9 @@ public class FamilyInviteConfiguration : IEntityTypeConfiguration<FamilyInvite>
         e.HasKey(x => x.Id);
         e.HasIndex(x => x.Code).IsUnique();
         e.Property(x => x.Code).HasMaxLength(8).IsRequired();
+        // Two people redeeming the same code at once must not both win: the loser's
+        // UPDATE has to fail so the code stays single-use under a race, not just sequentially.
+        e.UseXminConcurrency();
 
         // Invites cascade with the recipe; the member row they redeem into does not
         // cascade from here, so no FK is declared against FamilyMember.
