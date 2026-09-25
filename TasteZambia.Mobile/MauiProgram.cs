@@ -63,6 +63,14 @@ public static class MauiProgram
         builder.Services.AddSingleton<ILocalStore, PreferencesLocalStore>();
         builder.Services.AddHttpClient("me", Api).AddHttpMessageHandler<AuthenticatedHandler>();
 
+        // Media uploads need the bearer token too, and the queue must survive a restart,
+        // so this is a singleton over the same "me" client rather than a per-page instance.
+        builder.Services.AddSingleton<IPhotoPicker, MauiPhotoPicker>();
+        builder.Services.AddSingleton<IMediaUploader>(sp => new MediaUploader(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient("me"),
+            sp.GetRequiredService<ILocalStore>(),
+            TimeProvider.System));
+
         // The archive endpoints are anonymous today; the handler rides along so that
         // the day any of them needs a token, nothing on the app side changes.
         builder.Services.AddHttpClient<IDishRepository, HttpDishRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();

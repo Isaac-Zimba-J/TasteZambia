@@ -23,7 +23,15 @@ public sealed class ContributionDraft
     public bool CreditTeacher { get; set; } = true;
     public bool AddToFoodStories { get; set; } = true;
     public PrivacyLevel Privacy { get; set; } = PrivacyLevel.SharedWithFamily;
+
+    /// <summary>Still referenced by the family draft flow; a later task retires it.</summary>
     public List<string> PhotoPaths { get; set; } = [];
+
+    /// <summary>Ids the archive already has, for photos that made it through.</summary>
+    public List<Guid> PhotoIds { get; set; } = [];
+
+    /// <summary>Local cache paths for photos taken while the archive could not be reached.</summary>
+    public List<string> PendingPhotoPaths { get; set; } = [];
 }
 
 /// <summary>A draft on this phone. Drafts never leave the device until they are submitted.</summary>

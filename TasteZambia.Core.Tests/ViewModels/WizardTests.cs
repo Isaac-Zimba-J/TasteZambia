@@ -18,7 +18,8 @@ file sealed class Nav : INavigationService
 public class ShareViewModelTests
 {
     private static ShareViewModel Sut(IContributionService? svc = null, INavigationService? nav = null)
-        => new(svc ?? TestServices.Contributions(), new InMemoryRegionRepository(), new InMemoryIngredientRepository(), nav ?? new Nav());
+        => new(svc ?? TestServices.Contributions(), new InMemoryRegionRepository(), new InMemoryIngredientRepository(), nav ?? new Nav(),
+            new FakePhotoPicker(), new MediaUploader(TestServices.NoNetwork(), new InMemoryLocalStore(), TimeProvider.System));
 
     /// <summary>Types the walkthrough recipe into the wizard the way a contributor would.</summary>
     private static void TypeWalkthrough(ShareViewModel vm)
