@@ -21,8 +21,11 @@ public abstract class LoadOnceView : ContentView
 
     protected BaseViewModel ViewModel => (BaseViewModel)BindingContext;
 
-    /// <summary>Runs after the first load. Override to do more than initialise the ViewModel.</summary>
-    protected virtual Task LoadAsync() => ViewModel.InitializeAsync();
+    /// <summary>
+    /// Runs after the first load. Goes through the ViewModel's LoadAsync so the screen
+    /// carries its own loading and error state rather than sitting blank.
+    /// </summary>
+    protected virtual Task<bool> LoadAsync() => ViewModel.LoadAsync();
 
     private async void OnLoadedOnce(object? sender, EventArgs e)
     {
@@ -30,12 +33,10 @@ public abstract class LoadOnceView : ContentView
 
         try
         {
-            await LoadAsync();
-
             // Only a successful load counts. Tab views are singletons that are re-attached
             // on every visit, so a failure - the API down at launch, say - is retried the
             // next time the user comes back to the tab rather than leaving it blank forever.
-            _loaded = true;
+            _loaded = await LoadAsync();
         }
         catch (Exception ex)
         {

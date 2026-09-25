@@ -54,6 +54,8 @@ public sealed partial class RegionsViewModel(
 
     public string FoodsHeading => $"Foods of {SelectedName} Province";
 
+    protected override bool HasContent => Provinces.Count > 0;
+
     protected override void ClearForReload()
     {
         Provinces.Clear();

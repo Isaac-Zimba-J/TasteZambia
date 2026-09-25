@@ -80,13 +80,14 @@ public class RefreshTests
     }
 
     [Fact]
-    public async Task Refresh_StopsTheSpinnerEvenWhenTheLoadFails()
+    public async Task Refresh_WhenTheLoadFails_StopsTheSpinnerAndSaysWhy()
     {
         var vm = new ProfileViewModel(new ThrowingProfileRepository(), new Nav());
 
-        await Assert.ThrowsAsync<HttpRequestException>(() => vm.RefreshCommand.ExecuteAsync(null));
+        await vm.RefreshCommand.ExecuteAsync(null);
 
         Assert.False(vm.IsRefreshing);
+        Assert.Equal(BaseViewModel.OfflineMessage, vm.LoadError);   // reported, not thrown at the reader
     }
 
     private sealed class ThrowingProfileRepository : IProfileRepository

@@ -85,6 +85,8 @@ public sealed partial class ProfileViewModel(
     [ObservableProperty] private bool _hasContributions;
     [ObservableProperty] private bool _hasProfileDetails;
 
+    protected override bool HasContent => Collections.Count > 0;
+
     protected override void ClearForReload()
     {
         Collections.Clear();

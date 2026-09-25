@@ -76,6 +76,10 @@
                 </BindableLayout.ItemTemplate>
             </VerticalStackLayout>
 
+            <Label Text="{Binding ActionError}" IsVisible="{Binding ActionError, Converter={StaticResource HasText}}"
+                   Margin="20,0,20,10" FontFamily="ArchivoMedium" FontSize="12" LineHeight="1.5"
+                   TextColor="{StaticResource TzClayText}"/>
+
             <Border Style="{StaticResource PrimaryAction}" Margin="20"
                     Opacity="{Binding CanResubmit, Converter={StaticResource BoolToOpacity}}">
                 <Label Text="Resubmit for review" FontFamily="ArchivoSemiBold" FontSize="13.5"

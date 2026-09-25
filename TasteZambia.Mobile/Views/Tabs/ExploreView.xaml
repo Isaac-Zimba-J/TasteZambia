@@ -159,5 +159,8 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </RefreshView>
+        <controls:LoadState Grid.RowSpan="4" IsLoading="{Binding IsFirstLoad}" ErrorMessage="{Binding LoadError}"
+                            RetryCommand="{Binding RefreshCommand}" LoadingText="Searching the archive…"/>
+
     </Grid>
 </views:LoadOnceView>
