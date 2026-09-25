@@ -38,7 +38,20 @@ public sealed class FileSystemMediaStore(string root) : IMediaStore
     public Task<Stream?> OpenAsync(Guid id, string contentType, CancellationToken ct)
     {
         var path = PathFor(id, contentType);
-        return Task.FromResult<Stream?>(File.Exists(path) ? File.OpenRead(path) : null);
+        try
+        {
+            return Task.FromResult<Stream?>(File.OpenRead(path));
+        }
+        catch (FileNotFoundException)
+        {
+            // Blob was deleted, never existed, or concurrent delete won the race.
+            return Task.FromResult<Stream?>(null);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Fan-out directories never existed, so the blob was never written.
+            return Task.FromResult<Stream?>(null);
+        }
     }
 
     public Task DeleteAsync(Guid id, string contentType, CancellationToken ct)

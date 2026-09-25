@@ -39,6 +39,15 @@ public class FileSystemMediaStoreTests : IDisposable
     }
 
     [Fact]
+    public async Task Open_WhenTheBlobWasNeverWritten_IsNullEvenWithNoDirectory()
+    {
+        // Race-condition coverage: DirectoryNotFoundException from a non-existent fan-out path
+        // must return null, not throw. This simulates a concurrent delete that removes the
+        // directory structure between path construction and file open attempt.
+        Assert.Null(await Sut().OpenAsync(Guid.NewGuid(), "image/jpeg", default));
+    }
+
+    [Fact]
     public async Task Delete_RemovesIt_AndIsSafeToRepeat()
     {
         var store = Sut();
