@@ -1,6 +1,8 @@
 using TasteZambia.Core.Data;
 using TasteZambia.Core.Services;
 using TasteZambia.Core.ViewModels;
+using TasteZambia.Shared.Enums;
+using TasteZambia.Core.Models;
 
 namespace TasteZambia.Core.Tests.ViewModels;
 
@@ -15,39 +17,50 @@ public class ProfileViewModelTests
     }
 
     [Fact]
-    public async Task Initialize_LoadsChandaAndAllFourLists()
+    public async Task ANewReader_HasEmptyCountsAndNoContributions()
     {
         var vm = new ProfileViewModel(new InMemoryProfileRepository(), new Nav());
         await vm.InitializeAsync();
 
-        Assert.Equal("Chanda Mwaba", vm.Name);
-        Assert.Equal("Kitwe, Copperbelt · Bemba, English", vm.Meta);
-        Assert.Equal(23, vm.CookedCount);
-        Assert.Equal(14, vm.FavouriteCount);
-        Assert.Equal(3, vm.ContributedCount);
-        Assert.Equal(4, vm.PreservedCount);
-        Assert.Equal(4, vm.Collections.Count);
-        Assert.Equal(3, vm.Contributions.Count);
+        Assert.Equal("Taste Zambia reader", vm.Name);
+        Assert.Equal("", vm.Meta);
+        Assert.False(vm.HasProfileDetails);
+        Assert.Equal(0, vm.CookedCount);
+        Assert.Equal(0, vm.FavouriteCount);
+        Assert.Equal(0, vm.ContributedCount);
+        Assert.Equal(0, vm.PreservedCount);
+        Assert.Equal(4, vm.Collections.Count);   // the shelf stays; its counts are real
+        Assert.Empty(vm.Contributions);
+        Assert.False(vm.HasContributions);
         Assert.Equal(5, vm.SettingsRows.Count);
     }
 
     [Fact]
-    public async Task ContributionStatusesGetTheirV2Colours()
+    public async Task SavingAProfile_ShowsTheNameAndDetails()
     {
-        var vm = new ProfileViewModel(new InMemoryProfileRepository(), new Nav());
+        var repository = new InMemoryProfileRepository();
+        await repository.UpdateAsync("Chanda Mwaba", "Kitwe, Copperbelt", "Bemba, English");
+
+        var vm = new ProfileViewModel(repository, new Nav());
         await vm.InitializeAsync();
 
-        Assert.Equal("Published", vm.Contributions[0].StatusLabel);
-        Assert.Equal("#EEF2EC", vm.Contributions[0].StatusBackgroundHex);
-        Assert.Equal("#2F6A4D", vm.Contributions[0].StatusTextHex);
+        Assert.Equal("Chanda Mwaba", vm.Name);
+        Assert.Equal("Kitwe, Copperbelt · Bemba, English", vm.Meta);
+        Assert.True(vm.HasProfileDetails);
+    }
 
-        Assert.Equal("In review", vm.Contributions[1].StatusLabel);
-        Assert.Equal("#F7EEDA", vm.Contributions[1].StatusBackgroundHex);
-        Assert.Equal("#7A5A10", vm.Contributions[1].StatusTextHex);
+    [Theory]
+    [InlineData(ContributionStatus.Published, "Published", "#EEF2EC", "#2F6A4D")]
+    [InlineData(ContributionStatus.InReview, "In review", "#F7EEDA", "#7A5A10")]
+    [InlineData(ContributionStatus.ChangesRequested, "Changes requested", "#F7EEDA", "#7A5A10")]
+    [InlineData(ContributionStatus.Draft, "Draft", "#F0ECE4", "#6B5C4A")]
+    public void ContributionStatusesGetTheirV2Colours(ContributionStatus status, string label, string background, string text)
+    {
+        var row = new ContributionRowViewModel(new Contribution(Guid.NewGuid(), "Munkoyo", status, "Central Province"), new Nav());
 
-        Assert.Equal("Draft", vm.Contributions[2].StatusLabel);
-        Assert.Equal("#F0ECE4", vm.Contributions[2].StatusBackgroundHex);
-        Assert.Equal("#6B5C4A", vm.Contributions[2].StatusTextHex);
+        Assert.Equal(label, row.StatusLabel);
+        Assert.Equal(background, row.StatusBackgroundHex);
+        Assert.Equal(text, row.StatusTextHex);
     }
 
     [Fact]

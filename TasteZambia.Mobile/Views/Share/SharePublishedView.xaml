@@ -45,24 +45,24 @@
                 </VerticalStackLayout>
             </Border>
 
-            <VerticalStackLayout Padding="20,0" Spacing="12">
+            <VerticalStackLayout Padding="20,0" Spacing="12" IsVisible="{Binding HasReach}">
                 <Label Text="Since publishing" Style="{StaticResource MicroLabel}"/>
                 <Grid ColumnDefinitions="*,*,*" ColumnSpacing="11">
                     <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 15" Padding="15">
                         <VerticalStackLayout Spacing="3">
-                            <Label Text="{Binding OpenedCount}" FontFamily="NewsreaderSemiBold" FontSize="23" TextColor="{StaticResource TzGreenDeep}"/>
+                            <Label Text="—" FontFamily="NewsreaderSemiBold" FontSize="23" TextColor="{StaticResource TzGreenDeep}"/>
                             <Label Text="Opened" Style="{StaticResource MetaText}" FontSize="10.5"/>
                         </VerticalStackLayout>
                     </Border>
                     <Border Grid.Column="1" Style="{StaticResource Card}" StrokeShape="RoundRectangle 15" Padding="15">
                         <VerticalStackLayout Spacing="3">
-                            <Label Text="{Binding SavedCount}" FontFamily="NewsreaderSemiBold" FontSize="23" TextColor="{StaticResource TzGreenDeep}"/>
+                            <Label Text="—" FontFamily="NewsreaderSemiBold" FontSize="23" TextColor="{StaticResource TzGreenDeep}"/>
                             <Label Text="Saved" Style="{StaticResource MetaText}" FontSize="10.5"/>
                         </VerticalStackLayout>
                     </Border>
                     <Border Grid.Column="2" Style="{StaticResource Card}" StrokeShape="RoundRectangle 15" Padding="15">
                         <VerticalStackLayout Spacing="3">
-                            <Label Text="{Binding CookedCount}" FontFamily="NewsreaderSemiBold" FontSize="23" TextColor="{StaticResource TzGreenDeep}"/>
+                            <Label Text="—" FontFamily="NewsreaderSemiBold" FontSize="23" TextColor="{StaticResource TzGreenDeep}"/>
                             <Label Text="Cooked" Style="{StaticResource MetaText}" FontSize="10.5"/>
                         </VerticalStackLayout>
                     </Border>

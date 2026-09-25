@@ -24,6 +24,9 @@ file sealed class CountingProfileRepository(IContributionService contributions) 
         return Task.FromResult(SeedData.Profile);
     }
 
+    public Task UpdateAsync(string name, string location, string languages, CancellationToken ct = default)
+        => Task.CompletedTask;
+
     public Task<IReadOnlyList<RecipeCollection>> GetCollectionsAsync(CancellationToken ct = default)
         => Task.FromResult(SeedData.Collections);
 
@@ -89,6 +92,7 @@ public class RefreshTests
     private sealed class ThrowingProfileRepository : IProfileRepository
     {
         public Task<UserProfile> GetAsync(CancellationToken ct = default) => throw new HttpRequestException("offline");
+        public Task UpdateAsync(string name, string location, string languages, CancellationToken ct = default) => throw new HttpRequestException("offline");
         public Task<IReadOnlyList<RecipeCollection>> GetCollectionsAsync(CancellationToken ct = default) => throw new HttpRequestException("offline");
         public Task<IReadOnlyList<Contribution>> GetContributionsAsync(CancellationToken ct = default) => throw new HttpRequestException("offline");
     }

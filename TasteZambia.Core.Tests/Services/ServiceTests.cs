@@ -56,10 +56,10 @@ public class CatalogServiceTests
 public class FavouritesServiceTests
 {
     [Fact]
-    public void IfisashiIsSavedByDefault_ChikandaIsNot()
+    public void NothingIsSavedToStartWith()
     {
         var sut = TestServices.Favourites();
-        Assert.True(sut.IsSaved("ifisashi"));
+        Assert.False(sut.IsSaved("ifisashi"));
         Assert.False(sut.IsSaved("chikanda"));
     }
 

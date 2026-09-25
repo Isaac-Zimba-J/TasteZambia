@@ -173,6 +173,8 @@ public static class MauiProgram
         builder.Services.AddTransient<FamilyRecipesViewModel>();
         builder.Services.AddTransient<FamilyRecipesView>();
         builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddTransient<ProfileEditViewModel>();
+        builder.Services.AddTransient<ProfileEditView>();
         builder.Services.AddTransient<SettingsView>();
 
 #if ANDROID

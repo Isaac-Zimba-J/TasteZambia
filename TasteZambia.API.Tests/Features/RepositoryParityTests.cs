@@ -124,7 +124,8 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
     public async Task Profile_ReadsTheAccountAndCountsFromTheLocalStore()
     {
         var store = new PersonalStore(new InMemoryLocalStore(), TimeProvider.System);
-        store.SetSaved("chikanda", true);            // ifisashi (seeded) + chikanda = 2 saved
+        store.SetSaved("chikanda", true);
+        store.SetSaved("delele", true);
         store.SetDone("nshima", 1, true);
 
         var tokens = await (await _client.PostAsJsonAsync(ApiRoutes.Auth.Device,
@@ -138,6 +139,7 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         Assert.Equal("Chanda Mwaba", profile.Name);
         Assert.Equal(2, profile.FavouriteCount);
         Assert.Equal(1, profile.CookedCount);
+        Assert.Equal(0, profile.ContributedCount);   // nothing published on this account yet
 
         var collections = await repo.GetCollectionsAsync();
         Assert.Equal("2 recipes", collections[0].CountLabel);
@@ -160,5 +162,49 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         Assert.Equal(TasteZambia.Shared.Enums.ContributionStatus.InReview, row.Status);
         Assert.StartsWith("Northern Province · submitted ", row.Meta);
         client.Dispose();
+    }
+
+    [Fact]
+    public async Task Profile_OfANewReader_ReadsAsEmptyRatherThanInvented()
+    {
+        var (client, _) = await _factory.SignedInClientAsync();
+        using (client)
+        {
+            var store = new PersonalStore(new InMemoryLocalStore(), TimeProvider.System);
+            var repo = new HttpProfileRepository(client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client));
+
+            var profile = await repo.GetAsync();
+
+            Assert.Equal(HttpProfileRepository.DefaultName, profile.Name);
+            Assert.Equal("", profile.Location);
+            Assert.Equal(0, profile.FavouriteCount);
+            Assert.Equal(0, profile.CookedCount);
+            Assert.Equal(0, profile.ContributedCount);
+            Assert.Equal(0, profile.PreservedCount);
+
+            var collections = await repo.GetCollectionsAsync();
+            Assert.Equal("Nothing yet", collections[0].CountLabel);
+            Assert.Equal("Nothing preserved yet", collections[3].CountLabel);
+
+            Assert.Empty(await repo.GetContributionsAsync());
+        }
+    }
+
+    [Fact]
+    public async Task Profile_UpdateAsync_SavesTheNameToTheAccount()
+    {
+        var (client, _) = await _factory.SignedInClientAsync();
+        using (client)
+        {
+            var store = new PersonalStore(new InMemoryLocalStore(), TimeProvider.System);
+            var repo = new HttpProfileRepository(client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client));
+
+            await repo.UpdateAsync("Chanda Mwaba", "Kitwe, Copperbelt", "Bemba, English");
+
+            var profile = await repo.GetAsync();
+            Assert.Equal("Chanda Mwaba", profile.Name);
+            Assert.Equal("Kitwe, Copperbelt", profile.Location);
+            Assert.Equal("Bemba, English", profile.Languages);
+        }
     }
 }

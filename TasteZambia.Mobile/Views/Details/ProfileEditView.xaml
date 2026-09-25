@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:LoadOnceView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:TasteZambia.Mobile.Views"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Details.ProfileEditView"
+             x:DataType="vm:ProfileEditViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <Grid Padding="20,20,20,0" ColumnDefinitions="Auto,*">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" CircleBackground="Transparent"
+                                       SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
+                                       HorizontalOptions="Start" Command="{Binding BackCommand}"/>
+            </Grid>
+
+            <VerticalStackLayout Padding="20,10,20,0" Spacing="9">
+                <Label Text="Your account" Style="{StaticResource KickerLabel}"/>
+                <Label Text="How you are credited" Style="{StaticResource DisplayTitle}" CharacterSpacing="-0.31"/>
+                <Label Text="Anything you contribute to the archive carries this name. Nobody else sees your device."
+                       Style="{StaticResource BodyText}" TextColor="{StaticResource TzBodyMuted}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Padding="20" Spacing="16">
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="Your name" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource FieldCard}">
+                        <Entry Text="{Binding Name}" Placeholder="The name to credit" Style="{StaticResource FieldEntry}"
+                               FontFamily="NewsreaderSemiBold" FontSize="19"
+                               SemanticProperties.Description="Your name"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="Where you are" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource FieldCard}">
+                        <Entry Text="{Binding Location}" Placeholder="Town, province" Style="{StaticResource FieldEntry}"
+                               SemanticProperties.Description="Where you are"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="Languages you cook in" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource FieldCard}">
+                        <Entry Text="{Binding Languages}" Placeholder="Bemba, English" Style="{StaticResource FieldEntry}"
+                               SemanticProperties.Description="Languages you cook in"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasText}}"
+                       FontFamily="ArchivoMedium" FontSize="12" LineHeight="1.5"
+                       TextColor="{StaticResource TzClayText}"/>
+
+                <Border Style="{StaticResource PrimaryAction}"
+                        Opacity="{Binding CanSave, Converter={StaticResource BoolToOpacity}}">
+                    <Label Text="Save" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                           HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SaveCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </VerticalStackLayout>
+
+            <BoxView HeightRequest="26" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</views:LoadOnceView>

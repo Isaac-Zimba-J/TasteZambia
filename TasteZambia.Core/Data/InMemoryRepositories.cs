@@ -46,12 +46,20 @@ public sealed class InMemoryCategoryRepository : ICategoryRepository
 
 public sealed class InMemoryProfileRepository : IProfileRepository
 {
+    private UserProfile _profile = SeedData.Profile;
+
     public Task<UserProfile> GetAsync(CancellationToken ct = default)
-        => Task.FromResult(SeedData.Profile);
+        => Task.FromResult(_profile);
+
+    public Task UpdateAsync(string name, string location, string languages, CancellationToken ct = default)
+    {
+        _profile = _profile with { Name = name.Trim(), Location = location.Trim(), Languages = languages.Trim() };
+        return Task.CompletedTask;
+    }
 
     public Task<IReadOnlyList<RecipeCollection>> GetCollectionsAsync(CancellationToken ct = default)
         => Task.FromResult(SeedData.Collections);
 
     public Task<IReadOnlyList<Contribution>> GetContributionsAsync(CancellationToken ct = default)
-        => Task.FromResult(SeedData.Contributions);
+        => Task.FromResult<IReadOnlyList<Contribution>>([]);
 }
