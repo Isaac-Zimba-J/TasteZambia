@@ -28,6 +28,7 @@ public sealed class FakeContributionService : IContributionService
     public IReadOnlyList<RecipeDraft> Drafts => _real.Drafts;
     public LocalDraft? FindDraft(Guid id) => _real.FindDraft(id);
     public LocalDraft SaveDraft(ContributionDraft draft, Guid? id = null) => _real.SaveDraft(draft, id);
+    public void DeleteDraft(Guid id) => _real.DeleteDraft(id);
 
     public List<ContributionDraft> Submitted { get; } = [];
 

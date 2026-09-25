@@ -27,16 +27,51 @@ public class ShareLifecycleTests
         var vm = new ShareStartViewModel(TestServices.Contributions(), nav);
         await vm.InitializeAsync();
 
-        Assert.Equal(1, vm.PublishedCount);
-        Assert.Equal(1, vm.InReviewCount);
-        Assert.Equal(4, vm.PreservedCount);
-        Assert.Equal("0 drafts in progress", vm.DraftsLabel);
+        Assert.Equal(0, vm.PublishedCount);
+        Assert.Equal(0, vm.InReviewCount);
+        Assert.Equal(0, vm.PreservedCount);
+        Assert.Equal("No drafts yet", vm.DraftsLabel);
+        Assert.False(vm.HasDrafts);
 
         vm.GoShareCommand.Execute(null);
         vm.GoPreserveCommand.Execute(null);
         vm.GoDraftsCommand.Execute(null);
 
         Assert.Equal(["share", "famStart", "shareDraft"], nav.Routes);
+    }
+
+    [Fact]
+    public async Task ShareStart_CountsTheAccountsPublishedAndInReviewRecords()
+    {
+        var fake = new FakeContributionService();
+        fake.Add(Detail(ContributionStatus.Published, [Submitted(), Published("R")]));
+        fake.Add(Detail(ContributionStatus.InReview, [Submitted()]));
+        fake.Add(Detail(ContributionStatus.ChangesRequested, [Submitted(), ChangesRequested("R", "note")]));
+        fake.SaveDraft(new ContributionDraft { LocalName = "Munkoyo" });
+
+        var vm = new ShareStartViewModel(fake, new Nav());
+        await vm.InitializeAsync();
+
+        Assert.Equal(1, vm.PublishedCount);
+        Assert.Equal(2, vm.InReviewCount);   // in review and changes requested are both with the archive
+        Assert.Equal("1 draft in progress", vm.DraftsLabel);
+        Assert.True(vm.HasDrafts);
+    }
+
+    [Fact]
+    public async Task Drafts_CanBeDeleted()
+    {
+        var svc = TestServices.Contributions();
+        svc.SaveDraft(new ContributionDraft { LocalName = "Munkoyo" });
+        var vm = new DraftsViewModel(svc, new Nav());
+        await vm.InitializeAsync();
+        Assert.False(vm.IsEmpty);
+
+        vm.DeleteCommand.Execute(vm.Drafts[0]);
+
+        Assert.Empty(vm.Drafts);
+        Assert.True(vm.IsEmpty);
+        Assert.Empty(svc.Drafts);
     }
 
     [Fact]
@@ -222,7 +257,7 @@ public class ShareLifecycleTests
 
         Assert.Equal("Chibwabwa na Mbalala", vm.DishName);
         Assert.Equal("Recorded by Chanda Mwaba, Kitwe. As taught by Banakulu Mwaba of Mungwi, Northern Province. Verified against provincial records, September 2026.", vm.Credit);
-        Assert.Equal(318, vm.OpenedCount);
+        Assert.False(vm.HasReach);   // nothing counts reads yet, so the panel stays hidden
 
         await vm.OpenInArchiveCommand.ExecuteAsync(null);
         Assert.Equal(["recipe"], nav.Routes);

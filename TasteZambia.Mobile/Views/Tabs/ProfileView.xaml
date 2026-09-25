@@ -16,17 +16,27 @@
 
                 <!-- Header -->
                 <VerticalStackLayout Padding="20,24" BackgroundColor="{StaticResource TzGreenDeep}" Spacing="18">
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding EditProfileCommand}"/>
+                        </Grid.GestureRecognizers>
                         <Border WidthRequest="62" HeightRequest="62" Stroke="#99E8BD77" StrokeThickness="2"
-                                StrokeShape="RoundRectangle 31" Padding="0">
-                            <Image AutomationProperties.IsInAccessibleTree="False" Source="{Binding AvatarAsset}" Aspect="AspectFill"/>
+                                StrokeShape="RoundRectangle 31" Padding="0" BackgroundColor="#1FFFFFFF">
+                            <Image AutomationProperties.IsInAccessibleTree="False" Source="{Binding AvatarAsset}" Aspect="AspectFill"
+                                   IsVisible="{Binding AvatarAsset, Converter={StaticResource HasText}}"/>
                         </Border>
                         <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
                             <Label SemanticProperties.HeadingLevel="Level2" Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="26"
                                    LineHeight="1.05" TextColor="{StaticResource TzSurface}"/>
-                            <Label Text="{Binding Meta}" FontFamily="ArchivoRegular" FontSize="12"
+                            <Label Text="{Binding Meta}" IsVisible="{Binding HasProfileDetails}" FontFamily="ArchivoRegular" FontSize="12"
                                    LineHeight="1.4" TextColor="{StaticResource TzOnDark66}"/>
+                            <Label Text="Add your name so your recipes are credited" IsVisible="{Binding HasProfileDetails, Converter={StaticResource InvertedBool}}"
+                                   FontFamily="ArchivoRegular" FontSize="12" LineHeight="1.4" TextColor="{StaticResource TzOnDark66}"/>
                         </VerticalStackLayout>
+                        <controls:CircleButton Grid.Column="2" Icon="Edit" Diameter="34" IconSize="Size16"
+                                               CircleBackground="#1FFFFFFF" IconColor="{StaticResource TzGoldLight}"
+                                               SemanticLabel="Edit your profile" VerticalOptions="Center"
+                                               Command="{Binding EditProfileCommand}"/>
                     </Grid>
 
                     <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="14">
@@ -117,7 +127,7 @@
                 <!-- My Contributions -->
                 <VerticalStackLayout Padding="20,24,20,0" Spacing="12">
                     <Label Text="My Contributions" Style="{StaticResource SubsectionTitle}"/>
-                    <Border Stroke="{StaticResource TzHairline}" StrokeThickness="1"
+                    <Border IsVisible="{Binding HasContributions}" Stroke="{StaticResource TzHairline}" StrokeThickness="1"
                             StrokeShape="RoundRectangle 16" Padding="0" BackgroundColor="{StaticResource TzSurface}">
                         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Contributions}">
                             <BindableLayout.ItemTemplate>
@@ -139,6 +149,17 @@
                                     </VerticalStackLayout>
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border IsVisible="{Binding HasContributions, Converter={StaticResource InvertedBool}}"
+                            Stroke="{StaticResource TzBorderDashed}" StrokeThickness="1" StrokeDashArray="4,3"
+                            StrokeShape="RoundRectangle 16" Padding="18" BackgroundColor="Transparent">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Nothing submitted yet" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                                   TextColor="{StaticResource TzInk}"/>
+                            <Label Text="A recipe you share is reviewed by the archive team, then published with your name on it."
+                                   FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6"
+                                   TextColor="{StaticResource TzBodyMuted}"/>
                         </VerticalStackLayout>
                     </Border>
                 </VerticalStackLayout>

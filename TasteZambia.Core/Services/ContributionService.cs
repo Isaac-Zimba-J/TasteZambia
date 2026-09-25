@@ -19,6 +19,7 @@ public interface IContributionService
     IReadOnlyList<RecipeDraft> Drafts { get; }
     LocalDraft? FindDraft(Guid id);
     LocalDraft SaveDraft(ContributionDraft draft, Guid? id = null);
+    void DeleteDraft(Guid id);
 
     /// <summary>Sends the draft to the archive. On success the local draft is gone; the contribution is the record now.</summary>
     Task<Contribution> SubmitAsync(ContributionDraft draft, CancellationToken ct = default);
@@ -73,6 +74,8 @@ public sealed class ContributionService(DraftStore drafts, HttpClient api) : ICo
         AddToFoodStories = true,
         Privacy = PrivacyLevel.SharedWithFamily,
     };
+
+    public void DeleteDraft(Guid id) => drafts.Remove(id);
 
     public async Task<Contribution> SubmitAsync(ContributionDraft draft, CancellationToken ct = default)
     {

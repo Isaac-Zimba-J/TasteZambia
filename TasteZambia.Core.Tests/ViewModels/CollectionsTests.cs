@@ -103,11 +103,11 @@ public class CollectionsTests
         await vm.InitializeAsync();
 
         var ifisashi = vm.Items[0].Dish;
-        Assert.True(ifisashi.IsSaved);
+        Assert.False(ifisashi.IsSaved);
 
         ifisashi.ToggleSaveCommand.Execute(null);
 
-        Assert.False(ifisashi.IsSaved);
-        Assert.False(fav.IsSaved("ifisashi"));
+        Assert.True(ifisashi.IsSaved);
+        Assert.True(fav.IsSaved("ifisashi"));
     }
 }

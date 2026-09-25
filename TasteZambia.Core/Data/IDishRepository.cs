@@ -34,6 +34,10 @@ public interface ICategoryRepository
 public interface IProfileRepository
 {
     Task<UserProfile> GetAsync(CancellationToken ct = default);
+
+    /// <summary>Saves the reader's own name, location and languages to their account.</summary>
+    Task UpdateAsync(string name, string location, string languages, CancellationToken ct = default);
+
     Task<IReadOnlyList<RecipeCollection>> GetCollectionsAsync(CancellationToken ct = default);
     Task<IReadOnlyList<Contribution>> GetContributionsAsync(CancellationToken ct = default);
 }

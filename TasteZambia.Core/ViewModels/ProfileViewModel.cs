@@ -82,6 +82,8 @@ public sealed partial class ProfileViewModel(
     [ObservableProperty] private int _favouriteCount;
     [ObservableProperty] private int _contributedCount;
     [ObservableProperty] private int _preservedCount;
+    [ObservableProperty] private bool _hasContributions;
+    [ObservableProperty] private bool _hasProfileDetails;
 
     protected override void ClearForReload()
     {
@@ -97,7 +99,8 @@ public sealed partial class ProfileViewModel(
         var profile = await profiles.GetAsync();
 
         Name = profile.Name;
-        Meta = $"{profile.Location} · {profile.Languages}";
+        Meta = string.Join(" · ", new[] { profile.Location, profile.Languages }.Where(x => x.Length > 0));
+        HasProfileDetails = Meta.Length > 0;
         AvatarAsset = profile.AvatarAsset;
         CookedCount = profile.CookedCount;
         FavouriteCount = profile.FavouriteCount;
@@ -115,6 +118,8 @@ public sealed partial class ProfileViewModel(
         foreach (var contribution in await profiles.GetContributionsAsync())
             Contributions.Add(new ContributionRowViewModel(contribution, Navigation));
 
+        HasContributions = Contributions.Count > 0;
+
         foreach (var row in SeedData.SettingsRows)
             SettingsRows.Add(row);
     }
@@ -124,4 +129,5 @@ public sealed partial class ProfileViewModel(
     [RelayCommand] private Task OpenShare() => Navigation.GoToAsync("share");
     [RelayCommand] private Task OpenFamily() => Navigation.GoToAsync("famStart");
     [RelayCommand] private Task OpenSettings() => Navigation.GoToAsync("settings");
+    [RelayCommand] private Task EditProfile() => Navigation.GoToAsync("profileEdit");
 }

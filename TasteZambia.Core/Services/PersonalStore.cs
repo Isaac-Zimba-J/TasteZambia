@@ -35,14 +35,9 @@ public sealed class PersonalStore
         _state = local.Get<PersonalState>(Key) ?? Seed();
     }
 
-    // The design's starting state: ifisashi saved. Stamped at epoch so any real tap
-    // outranks it, and queued for sync so the account agrees with the device - otherwise
-    // the first sync response (an empty account) would silently un-save it.
-    private static PersonalState Seed() => new()
-    {
-        Saved = { ["ifisashi"] = new SavedFlag(true, DateTimeOffset.UnixEpoch) },
-        Outbox = { new SyncChangeDto(SyncChangeDto.Saved, "ifisashi", null, true, DateTimeOffset.UnixEpoch) },
-    };
+    // Nothing is saved until the reader saves it. An empty archive of their own is the
+    // honest starting point; the design's pre-saved dish was a mock-up convenience.
+    private static PersonalState Seed() => new();
 
     private static string StepKey(string dishId, int step) => $"{dishId}:{step}";
 

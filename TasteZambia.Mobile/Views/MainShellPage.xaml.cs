@@ -43,7 +43,8 @@ public partial class MainShellPage : ContentPage
         ["wantTry"]  = (typeof(WantToTryView),     "profile"),
         ["cooked"]   = (typeof(CookedView),        "profile"),
         ["famList"]  = (typeof(FamilyRecipesView), "profile"),
-        ["settings"] = (typeof(SettingsView),      "profile"),
+        ["settings"]    = (typeof(SettingsView),     "profile"),
+        ["profileEdit"] = (typeof(ProfileEditView),  "profile"),
     };
 
     /// <summary>Views pushed over the current section, most recent last.</summary>

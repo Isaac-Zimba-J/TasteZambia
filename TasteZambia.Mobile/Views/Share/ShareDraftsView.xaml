@@ -48,12 +48,17 @@
                                             <Border Stroke="{StaticResource TzBorder}" StrokeThickness="1"
                                                     StrokeShape="RoundRectangle 11" Padding="12,9">
                                                 <Label Text="Delete" FontFamily="ArchivoMedium" FontSize="11" TextColor="{StaticResource TzMuted}"/>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DraftsViewModel}}, Path=DeleteCommand}"
+                                                                          CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
                                             </Border>
                                             <Border BackgroundColor="{StaticResource TzGreenDeep}" StrokeThickness="0"
                                                     StrokeShape="RoundRectangle 11" Padding="14,9">
                                                 <Label Text="Continue" FontFamily="ArchivoSemiBold" FontSize="11" TextColor="{StaticResource TzSurface}"/>
                                                 <Border.GestureRecognizers>
-                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DraftsViewModel}}, Path=ContinueCommand}"/>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DraftsViewModel}}, Path=ContinueCommand}"
+                                                                          CommandParameter="{Binding .}"/>
                                                 </Border.GestureRecognizers>
                                             </Border>
                                         </HorizontalStackLayout>
@@ -63,6 +68,18 @@
                         </DataTemplate>
                     </BindableLayout.ItemTemplate>
                 </VerticalStackLayout>
+
+                <Border IsVisible="{Binding IsEmpty}" Margin="20,4,20,0" Stroke="{StaticResource TzBorderDashed}"
+                        StrokeThickness="1" StrokeDashArray="4,3" StrokeShape="RoundRectangle 18" Padding="18"
+                        BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="No drafts yet" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                               TextColor="{StaticResource TzInk}"/>
+                        <Label Text="Start a recipe and it is kept here until you submit it, even if you close the app."
+                               FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6"
+                               TextColor="{StaticResource TzBodyMuted}"/>
+                    </VerticalStackLayout>
+                </Border>
 
                 <Border Margin="20" BackgroundColor="{StaticResource TzCream}" StrokeThickness="0"
                         StrokeShape="RoundRectangle 16" Padding="15">

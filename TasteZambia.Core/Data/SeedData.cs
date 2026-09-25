@@ -315,26 +315,20 @@ public static class SeedData
         ("Foods We Ate Growing Up", "Community voices · 12 contributions"),
     ];
 
+    /// <summary>A reader who has not written anything yet. Real counts come from the account.</summary>
     public static readonly UserProfile Profile = new()
     {
-        Name = "Chanda Mwaba", Location = "Kitwe, Copperbelt", Languages = "Bemba, English",
-        AvatarAsset = ImgAvatar,
-        CookedCount = 23, FavouriteCount = 14, ContributedCount = 3, PreservedCount = 4,
+        Name = "Taste Zambia reader", Location = "", Languages = "",
+        AvatarAsset = "",
+        CookedCount = 0, FavouriteCount = 0, ContributedCount = 0, PreservedCount = 0,
     };
 
     public static readonly IReadOnlyList<RecipeCollection> Collections =
     [
-        new("My Favourite Zambian Foods", "14 recipes", "#A3452A"),
-        new("Recipes I Want to Try",      "9 recipes",  "#C07F1E"),
-        new("Recipes I've Cooked",        "23 recipes", "#2F6A4D"),
-        new("My Family Recipes",          "4 preserved", "#17402F"),
-    ];
-
-    public static readonly IReadOnlyList<Contribution> Contributions =
-    [
-        new(Guid.Empty, "Ubwali bwa Cassava",      ContributionStatus.Published, "Luapula · verified 12 Aug 2026"),
-        new(Guid.Empty, "Grandmother's Ifisashi",  ContributionStatus.InReview,  "Submitted 2 Sep 2026"),
-        new(Guid.Empty, "Munkoyo",                 ContributionStatus.Draft,     "Missing photos and ingredients"),
+        new("My Favourite Zambian Foods", "Nothing yet", "#A3452A"),
+        new("Recipes I Want to Try",      "Nothing yet", "#C07F1E"),
+        new("Recipes I've Cooked",        "Nothing yet", "#2F6A4D"),
+        new("My Family Recipes",          "Nothing preserved yet", "#17402F"),
     ];
 
     public static readonly IReadOnlyList<string> SettingsRows =

@@ -43,20 +43,20 @@ public class HomeViewModelTests
     }
 
     [Fact]
-    public async Task IfisashiStartsSaved_AndToggleFlipsTheState()
+    public async Task DishesStartUnsaved_AndToggleFlipsTheState()
     {
         var vm = Sut();
         await vm.InitializeAsync();
         var ifisashi = vm.Dishes[0];
 
-        Assert.True(ifisashi.IsSaved);
-        Assert.Equal("#A3452A", ifisashi.SaveColorHex);
+        Assert.False(ifisashi.IsSaved);
+        Assert.Equal("#57493A", ifisashi.SaveColorHex);
 
         ifisashi.ToggleSaveCommand.Execute(null);
 
-        Assert.False(ifisashi.IsSaved);
-        Assert.Equal("#57493A", ifisashi.SaveColorHex);
-        Assert.Contains("Save Ifisashi", ifisashi.SaveSemanticLabel);
+        Assert.True(ifisashi.IsSaved);
+        Assert.Equal("#A3452A", ifisashi.SaveColorHex);
+        Assert.Contains("Remove Ifisashi", ifisashi.SaveSemanticLabel);
     }
 
     [Fact]

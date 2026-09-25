@@ -14,16 +14,28 @@ public sealed partial class ShareStartViewModel(
     IContributionService contributions,
     INavigationService navigation) : BaseViewModel(navigation)
 {
-    [ObservableProperty] private int _publishedCount = 1;
-    [ObservableProperty] private int _inReviewCount = 1;
-    [ObservableProperty] private int _preservedCount = 4;
+    [ObservableProperty] private int _publishedCount;
+    [ObservableProperty] private int _inReviewCount;
+    [ObservableProperty] private int _preservedCount;   // Stage 4 gives this a source.
     [ObservableProperty] private string _draftsLabel = "";
+    [ObservableProperty] private bool _hasDrafts;
 
-    public override Task InitializeAsync()
+    public override async Task InitializeAsync()
     {
         var n = contributions.Drafts.Count;
-        DraftsLabel = $"{n} draft{(n == 1 ? "" : "s")} in progress";
-        return Task.CompletedTask;
+        HasDrafts = n > 0;
+        DraftsLabel = n == 0 ? "No drafts yet" : $"{n} draft{(n == 1 ? "" : "s")} in progress";
+
+        try
+        {
+            var mine = await contributions.GetContributionsAsync();
+            PublishedCount = mine.Count(c => c.Status == ContributionStatus.Published);
+            InReviewCount = mine.Count(c => c.Status is ContributionStatus.InReview or ContributionStatus.ChangesRequested);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            // Offline: the drafts on this phone are still worth showing.
+        }
     }
 
     [RelayCommand] private Task GoShare() => Navigation.GoToAsync("share");
@@ -38,11 +50,23 @@ public sealed partial class DraftsViewModel(
 {
     public ObservableCollection<RecipeDraft> Drafts { get; } = [];
 
+    [ObservableProperty] private bool _isEmpty;
+
     public override Task InitializeAsync()
     {
         Drafts.Clear();
         foreach (var d in contributions.Drafts) Drafts.Add(d);
+        IsEmpty = Drafts.Count == 0;
         return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private void Delete(RecipeDraft? draft)
+    {
+        if (draft is null) return;
+        contributions.DeleteDraft(draft.Id);
+        Drafts.Remove(draft);
+        IsEmpty = Drafts.Count == 0;
     }
 
     [RelayCommand]
@@ -157,10 +181,11 @@ public sealed partial class SharePublishedViewModel(
     [ObservableProperty] private string _credit = "";
     [ObservableProperty] private string? _publishedDishId;
 
-    // No analytics source yet; the design's reach numbers stand in until one exists.
-    public int OpenedCount => 318;
-    public int SavedCount => 64;
-    public int CookedCount => 11;
+    /// <summary>
+    /// The design shows how far a published recipe has travelled. Nothing counts reads
+    /// yet, so the panel stays hidden rather than showing a number nobody measured.
+    /// </summary>
+    public bool HasReach => false;
 
     public override async Task InitializeAsync()
     {
