@@ -70,3 +70,5 @@ secrets.json
 .env.local
 .claude/worktrees/
 media-dev/
+.env.production
+infra/docker/secrets/
