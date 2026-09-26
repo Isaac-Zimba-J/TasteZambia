@@ -5,6 +5,7 @@ using TasteZambia.Core.Models;
 using TasteZambia.Core.Services;
 using TasteZambia.Shared.Contracts.Family;
 using TasteZambia.Shared.Enums;
+using TasteZambia.Shared.Validation;
 
 namespace TasteZambia.Core.ViewModels;
 
@@ -93,18 +94,32 @@ public sealed partial class FamDraftViewModel(
         HasRecording = dto.Media.Any(m => m.Kind == MediaKind.Audio);
         Recording = new AudioClip(dto.TaughtBy.Length > 0 ? dto.TaughtBy : "Her recording", "", dto.Transcript == TranscriptState.Approved);
 
+        // The same four facts the percentage is built from, so the list and the number
+        // cannot tell the reader different things.
+        var steps = FamilyDraftProgress.Steps(
+            hasNameAndRegion: dto.LocalName.Length > 0 && dto.Province.Length > 0,
+            hasTeacherAndStory: dto.TaughtBy.Length > 0 && dto.Story.Length > 0,
+            hasMethod: dto.TraditionalMethod.Length > 0,
+            privacyChosen: dto.Privacy != PrivacyLevel.PrivateToMe);
+
+        // A photograph and a recording are invitations, not requirements - which is why they
+        // are notes under their steps rather than conditions on them.
+        var notes = new Dictionary<string, string>
+        {
+            ["Recipe name, region and photos"] = hasPhoto ? "" : "A photo brings it to life, but is not required.",
+            ["Her method, in her words"] = HasRecording ? "" : "Record her telling it, in any language.",
+        };
+
         Checklist.Clear();
-        Checklist.Add(new("Recipe name, region and photos",
-            hasPhoto ? null : "A photo brings it to life, but is not required.",
-            dto.LocalName.Length > 0 && dto.Province.Length > 0));
-        Checklist.Add(new("Who taught you, and the story", null, dto.TaughtBy.Length > 0 && dto.Story.Length > 0));
-        Checklist.Add(new("Her method, and a recording",
-            HasRecording ? null : "Record her telling it, in any language.",
-            dto.TraditionalMethod.Length > 0 && HasRecording));
-        Checklist.Add(new("Who can see it", null, true));
+        foreach (var step in steps)
+            Checklist.Add(new(step.Label,
+                notes.TryGetValue(step.Label, out var note) && note.Length > 0 ? note : null,
+                step.IsDone));
 
         var left = Checklist.Count(c => !c.IsDone);
-        ProgressLabel = $"{PercentComplete}% complete · {left} thing{(left == 1 ? "" : "s")} left";
+        ProgressLabel = left == 0
+            ? $"{PercentComplete}% complete"
+            : $"{PercentComplete}% complete · {left} thing{(left == 1 ? "" : "s")} left";
         TranscriptionNote = $"Transcription pending. A {(dto.Language.Length > 0 ? dto.Language : "family")} speaker on the archive team " +
                              "will transcribe it, and you approve the text before it is attached.";
     }

@@ -5,6 +5,7 @@ using TasteZambia.API.Data.Entities;
 using TasteZambia.API.Repositories;
 using TasteZambia.Shared.Contracts.Family;
 using TasteZambia.Shared.Enums;
+using TasteZambia.Shared.Validation;
 
 namespace TasteZambia.API.Services;
 
@@ -22,16 +23,13 @@ public interface IFamilyService
     Task<bool> SetPrivacyAsync(Guid id, string userId, PrivacyLevel privacy, CancellationToken ct);
     Task<bool> AttachMediaAsync(Guid id, Guid mediaId, string userId, CancellationToken ct);
 
+    /// <summary>The rule lives in Shared so the app's checklist cannot disagree with this number.</summary>
     static int PercentComplete(FamilyRecipe r)
-    {
-        // The design's draft checklist, four equal parts.
-        var done = 0;
-        if (r.LocalName.Length > 0 && r.Province.Length > 0) done++;
-        if (r.TaughtBy.Length > 0) done++;
-        if (r.Story.Length > 0 || r.TraditionalMethod.Length > 0) done++;
-        if (r.Privacy != PrivacyLevel.PrivateToMe) done++;
-        return done * 25;
-    }
+        => FamilyDraftProgress.Percent(
+            hasNameAndRegion: r.LocalName.Length > 0 && r.Province.Length > 0,
+            hasTeacherAndStory: r.TaughtBy.Length > 0 && r.Story.Length > 0,
+            hasMethod: r.TraditionalMethod.Length > 0,
+            privacyChosen: r.Privacy != PrivacyLevel.PrivateToMe);
 }
 
 public sealed class FamilyService(
