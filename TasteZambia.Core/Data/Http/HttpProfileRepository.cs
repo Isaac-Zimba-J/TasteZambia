@@ -12,7 +12,7 @@ namespace TasteZambia.Core.Data.Http;
 /// its personal data, so they are right even with no signal. Every number here is real:
 /// nothing on the Profile screen is a placeholder.
 /// </summary>
-public sealed class HttpProfileRepository(HttpClient me, PersonalStore store, IContributionService contributions) : IProfileRepository
+public sealed class HttpProfileRepository(HttpClient me, PersonalStore store, IContributionService contributions, IFamilyArchiveService family) : IProfileRepository
 {
     /// <summary>Shown until the reader adds a name of their own.</summary>
     public const string DefaultName = "Taste Zambia reader";
@@ -31,7 +31,7 @@ public sealed class HttpProfileRepository(HttpClient me, PersonalStore store, IC
             FavouriteCount = store.SavedDishIds.Count,
             CookedCount = store.CookedDishIds.Count,
             ContributedCount = published,
-            PreservedCount = 0,   // Stage 4 gives the family archive a real source.
+            PreservedCount = await PreservedCountAsync(ct),
         };
     }
 
@@ -46,6 +46,7 @@ public sealed class HttpProfileRepository(HttpClient me, PersonalStore store, IC
     {
         var saved = store.SavedDishIds.Count;
         var cooked = store.CookedDishIds.Count;
+        var preserved = await PreservedCountAsync(ct);
 
         return
         [
@@ -53,7 +54,7 @@ public sealed class HttpProfileRepository(HttpClient me, PersonalStore store, IC
             // Nothing writes a wishlist yet; the row stays so the shelf reads as designed.
             new("Recipes I Want to Try", "Nothing yet", "#C07F1E"),
             new("Recipes I've Cooked", Count(cooked, "recipe"), "#2F6A4D"),
-            new("My Family Recipes", "Nothing preserved yet", "#17402F"),
+            new("My Family Recipes", PreservedCount(preserved), "#17402F"),
         ];
     }
 
@@ -73,6 +74,22 @@ public sealed class HttpProfileRepository(HttpClient me, PersonalStore store, IC
         }
     }
 
+    private async Task<int> PreservedCountAsync(CancellationToken ct)
+    {
+        try
+        {
+            return (await family.GetShelfAsync(ct)).Count;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            // Offline: the rest of the profile still renders from the local store.
+            return 0;
+        }
+    }
+
     private static string Count(int n, string noun)
         => n == 0 ? "Nothing yet" : n == 1 ? $"1 {noun}" : $"{n} {noun}s";
+
+    private static string PreservedCount(int n)
+        => n == 0 ? "Nothing preserved yet" : n == 1 ? "1 preserved" : $"{n} preserved";
 }

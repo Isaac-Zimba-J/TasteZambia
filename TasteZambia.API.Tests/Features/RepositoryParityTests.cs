@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using TasteZambia.Core.Data;
 using TasteZambia.Core.Data.Http;
+using TasteZambia.Core.Models;
 using TasteZambia.Core.Services;
 using TasteZambia.Shared.Contracts.Auth;
 using TasteZambia.Shared.Contracts.Family;
@@ -136,7 +137,8 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens!.AccessToken);
         await _client.PutAsJsonAsync(ApiRoutes.Me.Profile, new UpdateProfileRequest("Chanda Mwaba", "Kitwe, Copperbelt", "Bemba, English"));
 
-        var repo = new HttpProfileRepository(_client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), _client));
+        var repo = new HttpProfileRepository(_client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), _client),
+            new FamilyArchiveService(new HttpFamilyRepository(_client)));
         var profile = await repo.GetAsync();
 
         Assert.Equal("Chanda Mwaba", profile.Name);
@@ -156,7 +158,8 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         var service = new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client);
         var submitted = await service.SubmitAsync(TasteZambia.Core.Data.SeedData.WalkthroughShareDraft());
 
-        var repo = new HttpProfileRepository(client, new PersonalStore(new InMemoryLocalStore(), TimeProvider.System), service);
+        var repo = new HttpProfileRepository(client, new PersonalStore(new InMemoryLocalStore(), TimeProvider.System), service,
+            new FamilyArchiveService(new HttpFamilyRepository(client)));
         var contributions = await repo.GetContributionsAsync();
 
         var row = Assert.Single(contributions);
@@ -174,7 +177,8 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         using (client)
         {
             var store = new PersonalStore(new InMemoryLocalStore(), TimeProvider.System);
-            var repo = new HttpProfileRepository(client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client));
+            var repo = new HttpProfileRepository(client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client),
+                new FamilyArchiveService(new HttpFamilyRepository(client)));
 
             var profile = await repo.GetAsync();
 
@@ -200,7 +204,8 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         using (client)
         {
             var store = new PersonalStore(new InMemoryLocalStore(), TimeProvider.System);
-            var repo = new HttpProfileRepository(client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client));
+            var repo = new HttpProfileRepository(client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client),
+                new FamilyArchiveService(new HttpFamilyRepository(client)));
 
             await repo.UpdateAsync("Chanda Mwaba", "Kitwe, Copperbelt", "Bemba, English");
 
@@ -208,6 +213,27 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
             Assert.Equal("Chanda Mwaba", profile.Name);
             Assert.Equal("Kitwe, Copperbelt", profile.Location);
             Assert.Equal("Bemba, English", profile.Languages);
+        }
+    }
+
+    [Fact]
+    public async Task Profile_PreservedCount_IsWhatTheFamilyShelfHolds()
+    {
+        var (client, _) = await _factory.SignedInClientAsync();
+        using (client)
+        {
+            var family = new FamilyArchiveService(new HttpFamilyRepository(client));
+            await family.PreserveAsync(new ContributionDraft { LocalName = "Ifisashi ya Banakulu", Province = "Northern" });
+            await family.PreserveAsync(new ContributionDraft { LocalName = "Inkoko ya Bataata", Province = "Copperbelt" });
+
+            var repo = new HttpProfileRepository(client, new PersonalStore(new InMemoryLocalStore(), TimeProvider.System),
+                new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client), family);
+
+            var profile = await repo.GetAsync();
+            Assert.Equal(2, profile.PreservedCount);
+
+            var collections = await repo.GetCollectionsAsync();
+            Assert.Equal("2 preserved", collections[3].CountLabel);
         }
     }
 
