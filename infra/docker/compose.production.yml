@@ -1,0 +1,80 @@
+# TasteZambia on a shared VPS, per Docs/shared-vps-deployment-pattern.md.
+# The api container joins proxy-net so nginx-proxy gives it a vhost and a
+# certificate; postgres stays on the default network and is reachable only
+# from this stack and from the host's loopback.
+#
+#   cd ~/apps/tastezambia
+#   docker compose -f infra/docker/compose.production.yml --env-file .env.production up -d --build
+
+name: tastezambia
+
+services:
+  api:
+    build:
+      context: ../..
+      dockerfile: TasteZambia.API/Dockerfile
+    image: tastezambia-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+
+      # nginx-proxy and acme-companion read these four.
+      VIRTUAL_HOST: ${API_HOST}
+      VIRTUAL_PORT: "8080"
+      LETSENCRYPT_HOST: ${API_HOST}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+
+      ConnectionStrings__Archive: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+
+      # Must be stable across restarts: a new key invalidates every phone's
+      # refresh token and silently signs everyone out.
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY}
+
+      Media__Root: /app/media
+      Logging__LogLevel__Default: Information
+      Logging__LogLevel__Microsoft.AspNetCore: Warning
+    volumes:
+      # Contributors' photographs and recordings. Losing this volume loses
+      # them - it is what the nightly backup must cover alongside the database.
+      - media:/app/media
+    networks: [default, proxy-net]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    # No VIRTUAL_HOST: this is never public.
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      # Loopback only, so `psql` works over SSH and nothing reaches it from
+      # outside. 5436 keeps clear of other apps on a shared server.
+      - "127.0.0.1:5436:5432"
+    networks: [default]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+networks:
+  proxy-net:
+    external: true
+
+volumes:
+  pgdata:
+  media:
