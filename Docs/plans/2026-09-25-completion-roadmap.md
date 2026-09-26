@@ -113,3 +113,30 @@ The services still returning `SeedData`, and the polish deferred while features 
 the start rather than be extended for them. Housekeeping third because it is cheapest
 once no screen is still fake. Hardening last, against the finished surface — a security
 pass over an API that is still growing endpoints has to be repeated.
+
+---
+
+## Open findings carried out of Stage 4 (2026-09-26)
+
+Stage 4 merged with its API side clean and ten findings open on the mobile side, all
+from the whole-branch review. They are recorded here because they are the next mobile
+work, ahead of anything in §2–§4. Every one is the app telling someone something untrue
+about their own archive.
+
+| # | Finding | Where |
+|---|---|---|
+| C2 | A photo taken offline is told "it will attach once you are back online". `PendingUpload` carries no target and `DrainAsync` discards the returned ids, so it attaches to nothing. Same on the Share side: `Draft.PhotoIds` never learns about a drained upload. | `MediaUploader.cs`, `FamilyLifecycleViewModels.cs:146`, `ShareViewModel.cs:252` |
+| I1 | `UploadAsync` returns `Guid?`, collapsing "queued, will retry" with "refused, deleted". A 413/415 reports as an offline save; the Share tile then spins forever. | `MediaUploader.cs:63`, both callers |
+| I2 | Recordings are uncompressed WAV (~88 KB/s), so the 40 MB ceiling arrives at ~8 minutes against a design sized for 12. Recordings also accumulate in `AppDataDirectory`. | `MauiVoiceRecorder.cs:14` |
+| I3 | The API seeds the owner as a member; the app assumes it does not. "FAMILY ONLY · 2 PEOPLE" with nobody invited, a dead "not yet shared" branch, "1 member have access", and the owner offered a Remove the server always refuses. | `FamilyLifecycleViewModels.cs:246,341` |
+| I4 | Two definitions of "complete" shown side by side — the service's `PercentComplete` and the draft checklist disagree in both directions. | `FamilyService.cs:25` vs `FamilyLifecycleViewModels.cs:92` |
+| I5 | The family wizard has no client-side validation and `EnsureSuccessStatusCode` turns a 400 into "Could not reach the archive". | `FamilyViewModel.cs:83`, `HttpFamilyRepository.CreateAsync` |
+| I6 | `AddNoteAsync` and `UpdateAsync` have no caller at all, while the copy promises "anyone you invite can add their own notes". | `FamilyArchiveService.cs:51`, `FamSavedViewModel:197` |
+| I7 | A 404 (removed member, deleted recipe) is not an exception, so `LoadState` shows nothing and the screen is a blank shell. | every `Fam*ViewModel`'s `if (dto is null) return;` |
+| I8 | The app claims publication into the public archive. `PublishedDishId` is assigned nowhere and strangers' public recipes are excluded from every shelf — "public" means readable by whoever holds the id. | `FamilyLifecycleViewModels.cs:330` |
+| — | Sixteen deferred minors, triaged as "can wait", are listed in the Stage 4 ledger's history. The load-bearing ones are: no route ever reclaims a blob (`IMediaService.DeleteAsync` has no caller, a cascading recipe delete orphans files), and `DrainAsync` forgets a refused upload silently. | various |
+
+The API side of Stage 4 is sound: the whole-branch review's one Critical there — a
+stranger permanently attaching files to a public family recipe — was fixed in `d0a2443`,
+along with orphaned contribution photos and a removed member keeping a recipe on their
+shelf.
