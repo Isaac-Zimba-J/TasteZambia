@@ -4,6 +4,7 @@
              xmlns:views="clr-namespace:TasteZambia.Mobile.Views"
              xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
              xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             xmlns:models="clr-namespace:TasteZambia.Core.Models;assembly=TasteZambia.Core"
              x:Class="TasteZambia.Mobile.Views.Family.FamStartView"
              x:DataType="vm:FamStartViewModel">
 
@@ -20,6 +21,50 @@
                 <Label Text="Write a recipe down the way it was taught to you, so it outlasts the person who taught it. Include their voice if you can."
                        Margin="0,11,0,0" FontFamily="ArchivoRegular" FontSize="13" LineHeight="1.7"
                        TextColor="{StaticResource TzOnDark84}"/>
+            </VerticalStackLayout>
+
+            <!-- Nothing preserved yet: the CTA above is the whole screen until this changes. -->
+            <Border IsVisible="{Binding IsEmpty}" Margin="20,20,20,0" BackgroundColor="{StaticResource TzCream}"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="16">
+                <Label Text="Nothing preserved yet. The first one you write down starts the shelf below."
+                       FontFamily="ArchivoRegular" FontSize="12" LineHeight="1.6" TextColor="{StaticResource TzBodyMuted}"/>
+            </Border>
+
+            <VerticalStackLayout Padding="20,20,20,0" Spacing="12" IsVisible="{Binding IsEmpty, Converter={StaticResource InvertedBool}}">
+                <Label Text="What you have preserved" Style="{StaticResource MicroLabel}"/>
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Recipes}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:PreservedRecipe">
+                            <Border Style="{StaticResource Card}" StrokeShape="RoundRectangle 18" Padding="16">
+                                <VerticalStackLayout Spacing="0">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                        <VerticalStackLayout Spacing="4">
+                                            <Label Text="{Binding Name}" FontFamily="NewsreaderSemiBold" FontSize="18" LineHeight="1.15"
+                                                   TextColor="{StaticResource TzInk}"/>
+                                            <Label FontFamily="ArchivoRegular" FontSize="11" LineHeight="1.4" TextColor="{StaticResource TzMuted}">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="As taught by "/>
+                                                        <Span Text="{Binding TaughtBy}"/>
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                        </VerticalStackLayout>
+                                        <controls:PillLabel Grid.Column="1" Text="{Binding Privacy}" VerticalOptions="Start"
+                                                            PillBackground="{Binding BadgeBgHex, Converter={StaticResource HexToColor}}"
+                                                            TextColor="{Binding BadgeFgHex, Converter={StaticResource HexToColor}}"/>
+                                    </Grid>
+                                    <Label Text="{Binding ExtrasLine}" Margin="0,12,0,0" FontFamily="PlexMonoRegular" FontSize="10.5"
+                                           TextColor="{StaticResource TzMuted2}"/>
+                                </VerticalStackLayout>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:FamStartViewModel}}, Path=OpenCommand}"
+                                                          CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
             </VerticalStackLayout>
 
             <VerticalStackLayout Padding="20,22,20,0" Spacing="0">

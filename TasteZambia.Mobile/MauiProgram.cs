@@ -1,5 +1,6 @@
 using FluentIcons.Maui;
 using Microsoft.Extensions.Logging;
+using Plugin.Maui.Audio;
 using TasteZambia.Core.Data;
 using TasteZambia.Core.Data.Http;
 using TasteZambia.Core.Services;
@@ -23,6 +24,7 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseFluentIcons()
+            .AddAudio()
             .ConfigureFonts(fonts =>
             {
                 // Newsreader and Archivo ship from Google Fonts as variable fonts only.
@@ -67,6 +69,7 @@ public static class MauiProgram
         // so this is a singleton over the same "me" client rather than a per-page instance.
         builder.Services.AddSingleton<IPhotoPicker, MauiPhotoPicker>();
         builder.Services.AddSingleton<IAppStorage, MauiAppStorage>();
+        builder.Services.AddSingleton<IVoiceRecorder, MauiVoiceRecorder>();
         builder.Services.AddSingleton<IMediaUploader>(sp => new MediaUploader(
             sp.GetRequiredService<IHttpClientFactory>().CreateClient("me"),
             sp.GetRequiredService<ILocalStore>(),
@@ -105,8 +108,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<IContributionService>(sp => new ContributionService(
             sp.GetRequiredService<DraftStore>(),
             sp.GetRequiredService<IHttpClientFactory>().CreateClient("me")));
-        // Singleton: a privacy change on famPublic must be visible everywhere.
-        builder.Services.AddSingleton<IFamilyArchiveService, FamilyArchiveService>();
+        // The family recipes are the account's, over HTTP; no local cache to keep in sync.
+        builder.Services.AddHttpClient<HttpFamilyRepository>(Api).AddHttpMessageHandler<AuthenticatedHandler>();
+        builder.Services.AddTransient<IFamilyArchiveService, FamilyArchiveService>();
         builder.Services.AddSingleton<ICollectionsService, CollectionsService>();
         // One instance, resolved as both the concrete type (App attaches the host
         // to it) and the interface the ViewModels depend on.

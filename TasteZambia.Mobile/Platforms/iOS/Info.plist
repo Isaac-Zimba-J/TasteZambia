@@ -4,6 +4,8 @@
 <dict>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>To record the person teaching you a family recipe, alongside what you write down.</string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>

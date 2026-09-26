@@ -39,7 +39,11 @@
                         <Label Text="{Binding PrivacyLabel}" FontFamily="ArchivoSemiBold" FontSize="13" LineHeight="1.25"
                                TextColor="{StaticResource TzInk}"/>
                         <Label Grid.Column="1" Text="Change" FontFamily="ArchivoMedium" FontSize="11"
-                               TextColor="{StaticResource TzGold}" VerticalOptions="Center"/>
+                               TextColor="{StaticResource TzGold}" VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ChangePrivacyCommand}"/>
+                            </Label.GestureRecognizers>
+                        </Label>
                     </Grid>
                     <Label Text="{Binding PrivacyNote}" FontFamily="ArchivoRegular" FontSize="11.5" LineHeight="1.6"
                            TextColor="{StaticResource TzBody}"/>
@@ -50,7 +54,11 @@
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Text="Who has access" FontFamily="NewsreaderSemiBold" FontSize="20" TextColor="{StaticResource TzInk}"/>
                     <Label Grid.Column="1" Text="+ Invite" FontFamily="ArchivoMedium" FontSize="11"
-                           TextColor="{StaticResource TzGold}" VerticalOptions="End"/>
+                           TextColor="{StaticResource TzGold}" VerticalOptions="End">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenFamilyViewCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
                 </Grid>
                 <Border Stroke="{StaticResource TzHairline}" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="0"
                         BackgroundColor="{StaticResource TzSurface}">

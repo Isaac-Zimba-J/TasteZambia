@@ -91,8 +91,39 @@
                 </BindableLayout.ItemTemplate>
             </VerticalStackLayout>
 
+            <!-- Add what is still missing: a photo, or her recording. -->
+            <Grid Padding="20,18,20,0" ColumnDefinitions="*,*" ColumnSpacing="11">
+                <Border StrokeShape="RoundRectangle 15" Padding="14" Stroke="{StaticResource TzBorderDashed}"
+                        StrokeThickness="1" StrokeDashArray="4,3" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <ic:FluentIcon Icon="Add" IconSize="Size16" ForegroundColor="{StaticResource TzFaint}" HorizontalOptions="Center"/>
+                        <Label Text="add a photo" FontFamily="PlexMonoRegular" FontSize="10.5"
+                               TextColor="{StaticResource TzMuted2}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AddPhotoCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="1" StrokeShape="RoundRectangle 15" Padding="14" IsVisible="{Binding HasRecording, Converter={StaticResource InvertedBool}}"
+                        Stroke="{StaticResource TzBorderDashed}" StrokeThickness="1" StrokeDashArray="4,3" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <ic:FluentIcon Icon="Mic" IconSize="Size16" ForegroundColor="{StaticResource TzFaint}" HorizontalOptions="Center"/>
+                        <Label Text="tap to record" IsVisible="{Binding IsRecording, Converter={StaticResource InvertedBool}}"
+                               FontFamily="PlexMonoRegular" FontSize="10.5" TextColor="{StaticResource TzMuted2}" HorizontalOptions="Center"/>
+                        <Label Text="recording… tap to stop" IsVisible="{Binding IsRecording}"
+                               FontFamily="PlexMonoRegular" FontSize="10.5" TextColor="{StaticResource TzClayText}" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ToggleRecordingCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+            <Label Text="{Binding MediaError}" IsVisible="{Binding MediaError, Converter={StaticResource HasText}}"
+                   Margin="20,8,20,0" FontFamily="ArchivoRegular" FontSize="11.5" TextColor="{StaticResource TzClayText}"/>
+
             <!-- Audio uploaded, transcription pending -->
-            <Border Style="{StaticResource DeepPanel}" Margin="20,22,20,0" Padding="16" StrokeShape="RoundRectangle 18">
+            <Border Style="{StaticResource DeepPanel}" Margin="20,22,20,0" Padding="16" StrokeShape="RoundRectangle 18"
+                    IsVisible="{Binding HasRecording}">
                 <VerticalStackLayout Spacing="0">
                     <Label Text="Audio uploaded" Style="{StaticResource MicroLabel}"
                            TextColor="{StaticResource TzGoldLight}" Margin="0,0,0,13"/>

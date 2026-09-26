@@ -42,7 +42,7 @@
                                                         PillBackground="{Binding BadgeBgHex, Converter={StaticResource HexToColor}}"
                                                         TextColor="{Binding BadgeFgHex, Converter={StaticResource HexToColor}}"/>
                                 </Grid>
-                                <Label Text="{Binding Extras}" Margin="0,12,0,0" FontFamily="PlexMonoRegular" FontSize="10.5"
+                                <Label Text="{Binding ExtrasLine}" Margin="0,12,0,0" FontFamily="PlexMonoRegular" FontSize="10.5"
                                        TextColor="{StaticResource TzMuted2}"/>
                             </VerticalStackLayout>
                         </Border>

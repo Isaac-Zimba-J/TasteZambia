@@ -61,16 +61,9 @@ public sealed class ContributionService(DraftStore drafts, HttpClient api) : ICo
     /// <summary>A blank draft. The contributor types everything; nothing is pre-filled.</summary>
     public ContributionDraft StartShareDraft() => new() { CreditTeacher = true };
 
+    /// <summary>A blank family draft. Nothing here is anyone's real grandmother; the contributor types it all.</summary>
     public ContributionDraft StartFamilyDraft() => new()
     {
-        LocalName = "Ifisashi ya Banakulu",
-        EnglishDescription = "Pumpkin leaves in groundnuts, the way my grandmother made it",
-        Province = "Northern",
-        Language = "Bemba",
-        TaughtBy = "Banakulu Mwaba, my father's mother",
-        TaughtByOrigin = "Mungwi, outside Kasama. She was taught by her own mother.",
-        Story = "She cooked this every time we arrived from Kitwe, before we had even put our bags down. She never measured the groundnuts. She said your hand learns the amount and your head forgets it.",
-        TraditionalMethod = "Clay pot on the mbaula. Groundnuts pounded, never blended. No tomato. She added the salt at the very end, off the heat.",
         AddToFoodStories = true,
         Privacy = PrivacyLevel.SharedWithFamily,
     };

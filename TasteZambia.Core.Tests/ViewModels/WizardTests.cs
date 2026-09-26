@@ -256,18 +256,18 @@ public class ShareViewModelTests
 
 public class FamilyViewModelTests
 {
-    private static FamilyViewModel Sut() => new(TestServices.Contributions(), new Nav());
+    private static FamilyViewModel Sut() => new(TestServices.Contributions(), new FakeFamilyService(), new Nav());
 
     [Fact]
-    public async Task StartsOnTheRecipeStepWithThePreFilledDraft()
+    public async Task StartsOnTheRecipeStepWithABlankDraft()
     {
         var vm = Sut();
         await vm.InitializeAsync();
 
         Assert.Equal(1, vm.Step);
         Assert.Equal("The recipe", vm.StepTitle);
-        Assert.Equal("Ifisashi ya Banakulu", vm.Draft.LocalName);
-        Assert.Equal("Bemba", vm.Draft.Language);
+        Assert.Equal("", vm.Draft.LocalName);
+        Assert.Equal("", vm.Draft.Language);
         Assert.False(vm.CanGoBack);
     }
 

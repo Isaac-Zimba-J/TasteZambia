@@ -1,6 +1,8 @@
 using TasteZambia.Core.Models;
 using TasteZambia.Core.Services;
+using TasteZambia.Core.Tests.Fakes;
 using TasteZambia.Core.ViewModels;
+using TasteZambia.Shared.Contracts.Family;
 using TasteZambia.Shared.Enums;
 
 namespace TasteZambia.Core.Tests.ViewModels;
@@ -15,98 +17,74 @@ file sealed class Nav : INavigationService
 
 public class FamilyLifecycleTests
 {
+    private static FamilyRecipeDto SomeRecipe() => new(Guid.NewGuid(), "Ifisashi ya Banakulu", "", "Northern", "Bemba",
+        "Banakulu Mwaba, Mungwi", "", "She cooked this every time we arrived.", "Clay pot on the mbaula.",
+        PrivacyLevel.SharedWithFamily, TranscriptState.None, null, 100, true, DateTimeOffset.UtcNow,
+        [], [], []);
+
     [Fact]
-    public void FamStart_ListsTheFourThingsYouWillBeAsked()
+    public async Task TheShelf_ShowsWhatIsPreserved_AndSaysSoWhenNothingIs()
     {
-        var nav = new Nav();
-        var vm = new FamStartViewModel(nav);
+        var family = new FakeFamilyService();
+        var vm = new FamStartViewModel(family, new Nav());
 
-        Assert.Equal(4, vm.Steps.Count);
-        Assert.Equal("Who can see it", vm.Steps[3].StepTitle);
+        await vm.LoadAsync();
+        Assert.True(vm.IsEmpty);
+        Assert.Empty(vm.Recipes);
 
-        vm.BeginCommand.Execute(null);
-        Assert.Equal("family", nav.Routes.Single());
+        family.Add(new FamilyRecipeDto(Guid.NewGuid(), "Ifisashi ya Banakulu", "", "Northern", "Bemba",
+            "Banakulu Mwaba, Mungwi", "", "She cooked this every time we arrived.", "Clay pot on the mbaula.",
+            PrivacyLevel.SharedWithFamily, TranscriptState.None, null, 100, true, DateTimeOffset.UtcNow,
+            [], [], []));
+
+        await vm.RefreshCommand.ExecuteAsync(null);
+
+        Assert.False(vm.IsEmpty);
+        var row = Assert.Single(vm.Recipes);
+        Assert.Equal("Ifisashi ya Banakulu", row.Name);
+        Assert.Equal("Banakulu Mwaba, Mungwi", row.TaughtBy);
+        Assert.Equal("Family", row.Privacy);
     }
 
     [Fact]
-    public async Task Draft_IsSeventyTwoPercentWithTwoItemsOutstanding()
+    public async Task ExtrasReadTheWayTheDesignWritesThem()
     {
-        var vm = new FamDraftViewModel(new FamilyArchiveService(), new Nav());
-        await vm.InitializeAsync();
-
-        Assert.Equal(72, vm.PercentComplete);
-        Assert.Equal(0.72, vm.Fraction, 3);
-        Assert.Equal("72% complete · 2 things left", vm.ProgressLabel);
-        Assert.Equal(4, vm.Checklist.Count);
-        Assert.True(vm.Checklist[0].IsDone);
-        Assert.False(vm.Checklist[2].IsDone);
-        Assert.Equal("Cooking steps", vm.Checklist[2].Label);
-        Assert.True(vm.Checklist[2].HasDetail);
-        Assert.False(vm.Checklist[0].HasDetail);
+        Assert.Equal("Audio 12:40 · 3 photos · 2 family notes",
+            PreservedRecipe.Extras(hasAudio: true, audioLength: "12:40", photos: 3, notes: 2, percentComplete: 100));
+        Assert.Equal("1 photo · no audio yet",
+            PreservedRecipe.Extras(hasAudio: false, audioLength: "", photos: 1, notes: 0, percentComplete: 100));
+        Assert.Equal("Draft · 40% complete",
+            PreservedRecipe.Extras(hasAudio: false, audioLength: "", photos: 0, notes: 0, percentComplete: 40));
     }
 
     [Fact]
-    public async Task Draft_CarriesAudioPendingTranscription()
+    public async Task InvitingARelative_ShowsTheCodeToShare()
     {
-        var vm = new FamDraftViewModel(new FamilyArchiveService(), new Nav());
-        await vm.InitializeAsync();
+        var family = new FakeFamilyService();
+        var id = family.Add(SomeRecipe());
+        var vm = new FamSharedViewModel(family, new Nav()) { Id = id };
+        await vm.LoadAsync();
 
-        Assert.Equal("Banakulu Mwaba, in Bemba", vm.Recording.Speaker);
-        Assert.Equal("12:40", vm.Recording.Duration);
-        Assert.False(vm.Recording.TranscriptApproved);
+        vm.NewMemberName = "Mutinta Mwaba";
+        vm.NewMemberRelation = "Sister, Lusaka";
+        await vm.InviteCommand.ExecuteAsync(null);
+
+        Assert.Equal(8, vm.InviteCode.Length);
+        Assert.Contains(vm.Members, m => m.Name == "Mutinta Mwaba" && m.Status == "Invited");
+        Assert.Equal("", vm.NewMemberName);   // the field clears, ready for the next one
     }
 
     [Fact]
-    public async Task Saved_ListsFourFamilyMembersWithOneStillInvited()
+    public async Task ChangingPrivacyToPublic_WarnsThatItLeavesTheFamily()
     {
-        var vm = new FamSavedViewModel(new FamilyArchiveService(), new Nav());
-        await vm.InitializeAsync();
+        var family = new FakeFamilyService();
+        var id = family.Add(SomeRecipe());
+        var vm = new FamPublicViewModel(family, new Nav()) { Id = id };
+        await vm.LoadAsync();
 
-        Assert.Equal(4, vm.Members.Count);
-        Assert.Equal("Owner", vm.Members[0].Status);
-        Assert.Equal("Invited", vm.Members[3].Status);
-        Assert.Equal("Kaunda Mwaba", vm.Members[3].Name);
-        Assert.Equal("#7A5A10", vm.Members[3].BadgeFgHex);
-        Assert.Equal(PrivacyLevel.SharedWithFamily, vm.Privacy);
-    }
+        await vm.SetPublicCommand.ExecuteAsync(null);
 
-    [Fact]
-    public async Task Shared_ShowsApprovedAudioAndTwoFamilyNotes()
-    {
-        var vm = new FamSharedViewModel(new FamilyArchiveService(), new Nav());
-        await vm.InitializeAsync();
-
-        Assert.True(vm.Recording.TranscriptApproved);
-        Assert.Equal("FAMILY ONLY · 4 PEOPLE", vm.AccessBadge);
-        Assert.Equal(2, vm.Notes.Count);
-        Assert.Equal("2 notes", vm.NotesCountLabel);
-        Assert.Equal("Aunt Bwalya", vm.Notes[0].Who);
-        Assert.Contains("never used tomato", vm.Notes[0].Body);
-    }
-
-    [Fact]
-    public async Task Public_HasFourProvenanceStepsEndingOnPublished()
-    {
-        var vm = new FamPublicViewModel(new FamilyArchiveService(), new Nav());
-        await vm.InitializeAsync();
-
-        Assert.Equal(4, vm.Provenance.Count);
-        Assert.Equal("Preserved privately", vm.Provenance[0].Label);
-        Assert.Equal("#2F6A4D", vm.Provenance[0].DotHex);
-        Assert.Equal("Published and credited", vm.Provenance[3].Label);
-        Assert.Equal("#C07F1E", vm.Provenance[3].DotHex);
-        Assert.Contains("cannot be removed", vm.CreditNote);
-    }
-
-    [Fact]
-    public async Task MakePrivate_WritesThroughToTheSharedService()
-    {
-        var archive = new FamilyArchiveService();
-        var vm = new FamPublicViewModel(archive, new Nav());
-        await vm.InitializeAsync();
-
-        vm.MakePrivateCommand.Execute(null);
-
-        Assert.Equal(PrivacyLevel.PrivateToMe, archive.Privacy);
+        Assert.Equal(PrivacyLevel.PublicInArchive, family.PrivacyOf(id));
+        Assert.Contains("everyone", vm.PrivacyNote, StringComparison.OrdinalIgnoreCase);
     }
 }
