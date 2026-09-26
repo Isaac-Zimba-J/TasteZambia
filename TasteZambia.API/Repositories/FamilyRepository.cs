@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TasteZambia.API.Data;
 using TasteZambia.API.Data.Entities;
 using TasteZambia.API.Services;
+using TasteZambia.Shared.Enums;
 
 namespace TasteZambia.API.Repositories;
 
@@ -32,7 +33,9 @@ public sealed class FamilyRepository(TasteZambiaDbContext db, IFamilyAccessServi
     public async Task<IReadOnlyList<FamilyRecipe>> ListForUserAsync(string userId, CancellationToken ct = default)
         => await access.VisibleTo(Graph.AsNoTracking(), userId)
             // A stranger's public recipe is not "theirs"; the shelf shows what they keep.
-            .Where(r => r.OwnerId == userId || r.Members.Any(m => m.UserId == userId))
+            // Removal is soft (the membership row stays, for the note they left) so a
+            // removed member must not still count as keeping it on their own shelf.
+            .Where(r => r.OwnerId == userId || r.Members.Any(m => m.UserId == userId && m.State == MemberState.Joined))
             .OrderByDescending(r => r.UpdatedAt)
             .ToListAsync(ct);
 

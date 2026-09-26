@@ -23,7 +23,11 @@ public sealed record SubmitContributionRequest(
     string TraditionalMethod,
     string TaughtBy,
     string TaughtByOrigin,
-    bool CreditTeacher);
+    bool CreditTeacher,
+    /// <summary>Uploads from the Share wizard's photo strip. Attached only once each is
+    /// confirmed to belong to the submitter, so an id is never a way to claim someone
+    /// else's upload.</summary>
+    IReadOnlyList<Guid> PhotoIds);
 
 public sealed record FlagAnswerDto(int FlagId, [Required] string Answer);
 public sealed record ResubmitRequest(IReadOnlyList<FlagAnswerDto> Answers);

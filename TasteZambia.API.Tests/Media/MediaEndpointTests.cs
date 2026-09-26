@@ -89,4 +89,13 @@ public class MediaEndpointTests(DatabaseFixture fixture) : IAsyncLifetime
         var response = await _client.PostAsync(ApiRoutes.Media.Collection, Upload(bytes, "audio/mp4", MediaKind.Audio));
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
+
+    [Fact]
+    public async Task AJpeg_DeclaredAsAudio_Is415_NotAMislabeledPhoto()
+    {
+        // Without this check a JPEG posted with kind=Audio would be stored and make a
+        // family recipe's HasAudio true - a photo playing as "her recording".
+        var response = await _client.PostAsync(ApiRoutes.Media.Collection, Upload([1, 2, 3], "image/jpeg", MediaKind.Audio));
+        Assert.Equal(HttpStatusCode.UnsupportedMediaType, response.StatusCode);
+    }
 }

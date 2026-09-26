@@ -28,8 +28,8 @@ public sealed class MediaController(ICurrentUser me, IMediaService media) : Cont
         {
             await using var content = file.OpenReadStream();
             var asset = await media.UploadAsync(UserId, kind, contentType, content, file.Length, ct);
-            return Created(ApiRoutes.Media.ById.Replace("{id}", asset.Id.ToString()),
-                new UploadResultDto(asset.Id, $"/api/v1/media/{asset.Id}"));
+            var location = ApiRoutes.Media.ById.Replace("{id}", asset.Id.ToString());
+            return Created(location, new UploadResultDto(asset.Id, location));
         }
         catch (ArgumentOutOfRangeException)
         {

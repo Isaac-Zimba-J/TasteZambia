@@ -18,6 +18,14 @@ public interface IFamilyAccessService
     /// <summary>Only the owner changes a family recipe. Members add notes; they do not edit.</summary>
     Task<bool> CanEditAsync(FamilyRecipe recipe, string userId, CancellationToken ct);
 
+    /// <summary>
+    /// A third thing, alongside reading and editing: may this person add to the recipe
+    /// (attach media, leave a note)? Readable-because-public is not the same as
+    /// belonging to the family - a stranger who can see a published recipe still may
+    /// not write into its archive.
+    /// </summary>
+    Task<bool> CanContributeAsync(FamilyRecipe recipe, string userId, CancellationToken ct);
+
     Task<bool> CanReadMediaAsync(MediaAsset asset, string userId, CancellationToken ct);
 }
 
@@ -37,6 +45,11 @@ public sealed class FamilyAccessService(TasteZambiaDbContext db) : IFamilyAccess
 
     public Task<bool> CanEditAsync(FamilyRecipe recipe, string userId, CancellationToken ct)
         => Task.FromResult(recipe.OwnerId == userId);
+
+    public Task<bool> CanContributeAsync(FamilyRecipe recipe, string userId, CancellationToken ct)
+        => Task.FromResult(
+            recipe.OwnerId == userId
+            || recipe.Members.Any(m => m.UserId == userId && m.State == MemberState.Joined));
 
     public async Task<bool> CanReadMediaAsync(MediaAsset asset, string userId, CancellationToken ct)
     {

@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
+using TasteZambia.API.Data;
 using TasteZambia.API.Data.Entities;
 using TasteZambia.API.Repositories;
 using TasteZambia.Shared.Contracts.Contributions;
@@ -26,6 +28,7 @@ public interface IContributionService
 public sealed partial class ContributionService(
     IContributionRepository contributions,
     IUserProfileRepository profiles,
+    TasteZambiaDbContext db,
     TimeProvider clock) : IContributionService
 {
     public const string AnonymousContributor = "A Taste Zambia contributor";
@@ -67,6 +70,18 @@ public sealed partial class ContributionService(
         };
 
         contributions.Add(c);
+
+        if (r.PhotoIds.Count > 0)
+        {
+            // Only the submitter's own uploads attach; an id that is not theirs (typo'd,
+            // guessed, or someone else's) is quietly skipped rather than failing a
+            // submission that is otherwise a person's real work.
+            var photos = await db.MediaAssets
+                .Where(a => r.PhotoIds.Contains(a.Id) && a.UserId == userId)
+                .ToListAsync(ct);
+            foreach (var photo in photos) photo.ContributionId = c.Id;
+        }
+
         await contributions.SaveChangesAsync(ct);
         return c;
     }

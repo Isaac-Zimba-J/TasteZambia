@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TasteZambia.API.Data;
 using TasteZambia.API.Data.Entities;
 using TasteZambia.Shared.Contracts.Family;
+using TasteZambia.Shared.Contracts.Me;
 using TasteZambia.Shared.Contracts.Media;
 using TasteZambia.Shared.Enums;
 using TasteZambia.Shared.Routes;
@@ -180,6 +181,41 @@ public class FamilyEndpointTests(DatabaseFixture fixture) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task SomeoneAlreadyJoined_CannotRedeemASecondCodeIntoTheSameFamily()
+    {
+        var recipe = await PreserveAsync();
+        await JoinRelativeAsync(recipe.Id);   // _relative is already Joined
+
+        var secondInvite = await (await _owner.PostAsJsonAsync(Route(ApiRoutes.Family.Members, recipe.Id),
+            new AddMemberRequest("Mutinta Again", "Sister"))).Content.ReadFromJsonAsync<InviteDto>();
+
+        var response = await _relative.PostAsJsonAsync(ApiRoutes.Family.Accept, new AcceptInviteRequest(secondInvite!.Code));
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+
+        var seen = await _owner.GetFromJsonAsync<FamilyRecipeDto>(Route(ApiRoutes.Family.ById, recipe.Id));
+        Assert.Single(seen!.Members, m => m.DisplayName == "Mutinta" && m.State == MemberState.Joined);
+        Assert.Single(seen.Members, m => m.DisplayName == "Mutinta Again" && m.State == MemberState.Invited);   // never redeemed
+    }
+
+    [Fact]
+    public async Task AcceptingAnInvite_KeepsTheOwnersChosenDisplayName()
+    {
+        // Give _relative's own profile a name, so an overwrite-with-the-joiner's-own-name
+        // bug would actually show up rather than silently no-op against an empty string.
+        await _relative.PutAsJsonAsync(ApiRoutes.Me.Profile, new UpdateProfileRequest("Mutinta as she calls herself", "", ""));
+
+        var recipe = await PreserveAsync();
+        var invite = await (await _owner.PostAsJsonAsync(Route(ApiRoutes.Family.Members, recipe.Id),
+            new AddMemberRequest("Mutinta Mwaba", "Sister"))).Content.ReadFromJsonAsync<InviteDto>();
+
+        await _relative.PostAsJsonAsync(ApiRoutes.Family.Accept, new AcceptInviteRequest(invite!.Code));
+
+        var seen = await _owner.GetFromJsonAsync<FamilyRecipeDto>(Route(ApiRoutes.Family.ById, recipe.Id));
+        // Not overwritten with whatever the joining account's own profile name happens to be.
+        Assert.Contains(seen!.Members, m => m.DisplayName == "Mutinta Mwaba" && m.State == MemberState.Joined);
+    }
+
+    [Fact]
     public async Task RedeemingTheSameCode_Concurrently_OnlyOneWins()
     {
         var recipe = await PreserveAsync();
@@ -249,6 +285,32 @@ public class FamilyEndpointTests(DatabaseFixture fixture) : IAsyncLifetime
         var upload = await UploadPhotoAsync(_relative);    // a perfectly valid upload of their own
 
         var response = await _relative.PutAsync(MediaRoute(recipe.Id, upload.Id), null);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task AStranger_CannotAttachMediaToAPublicRecipe_EvenWithTheirOwnUpload()
+    {
+        var recipe = await PreserveAsync();
+        await _owner.PutAsJsonAsync(Route(ApiRoutes.Family.Privacy, recipe.Id), new SetPrivacyRequest(PrivacyLevel.PublicInArchive));
+
+        // The recipe is readable by anyone now, but "readable" is not "belongs to this family".
+        var strangersOwnUpload = await UploadPhotoAsync(_relative);
+        var response = await _relative.PutAsync(MediaRoute(recipe.Id, strangersOwnUpload.Id), null);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        var seen = await _owner.GetFromJsonAsync<FamilyRecipeDto>(Route(ApiRoutes.Family.ById, recipe.Id));
+        Assert.Empty(seen!.Media);
+    }
+
+    [Fact]
+    public async Task AStranger_CannotPostANoteOnAPublicRecipe()
+    {
+        var recipe = await PreserveAsync();
+        await _owner.PutAsJsonAsync(Route(ApiRoutes.Family.Privacy, recipe.Id), new SetPrivacyRequest(PrivacyLevel.PublicInArchive));
+
+        var response = await _relative.PostAsJsonAsync(Route(ApiRoutes.Family.Notes, recipe.Id),
+            new AddNoteRequest("I saw this recipe and have thoughts."));
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 

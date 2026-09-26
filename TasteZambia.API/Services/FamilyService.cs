@@ -145,10 +145,18 @@ public sealed class FamilyService(
         var member = await db.Set<FamilyMember>().FirstOrDefaultAsync(m => m.Id == invite.MemberId, ct);
         if (member is null) return null;
 
+        // A second code redeemed by someone already in this family would add a
+        // duplicate row rather than reuse the membership they already have.
+        var alreadyJoined = await db.Set<FamilyMember>().AnyAsync(
+            m => m.FamilyRecipeId == invite.FamilyRecipeId && m.UserId == userId && m.State == MemberState.Joined, ct);
+        if (alreadyJoined)
+            throw new InvalidOperationException("You are already a member of this family recipe.");
+
         member.UserId = userId;
         member.State = MemberState.Joined;
         member.JoinedAt = now;
-        if (displayName.Length > 0) member.DisplayName = displayName;
+        // The owner already named this member when they sent the invite; the person
+        // redeeming it does not get to relabel themselves over that choice.
         invite.RedeemedAt = now;
 
         try
@@ -180,7 +188,9 @@ public sealed class FamilyService(
     public async Task<FamilyNote?> AddNoteAsync(Guid id, string userId, string authorName, string body, CancellationToken ct)
     {
         var recipe = await family.GetAsync(id, userId, ct);
-        if (recipe is null) return null;
+        // Readable is not the same as belonging: a stranger can read a published recipe
+        // but must not be able to leave a note on someone else's family archive.
+        if (recipe is null || !await access.CanContributeAsync(recipe, userId, ct)) return null;
 
         var note = new FamilyNote
         {
@@ -211,7 +221,9 @@ public sealed class FamilyService(
     public async Task<bool> AttachMediaAsync(Guid id, Guid mediaId, string userId, CancellationToken ct)
     {
         var recipe = await family.GetAsync(id, userId, ct);
-        if (recipe is null) return false;
+        // family.GetAsync answers "can this user read it", which a public recipe grants
+        // to any stranger. Attaching needs the narrower "belongs to this family" check.
+        if (recipe is null || !await access.CanContributeAsync(recipe, userId, ct)) return false;
 
         // Members contribute photographs; only your own upload can be attached.
         var asset = await db.MediaAssets.FirstOrDefaultAsync(a => a.Id == mediaId && a.UserId == userId, ct);

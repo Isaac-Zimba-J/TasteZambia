@@ -175,6 +175,52 @@ public class FamilyAccessTests(DatabaseFixture fixture)
         Assert.Empty(await Repository().ListForUserAsync(stranger));
     }
 
+    // Removal is soft (the membership row, and the note they left, both stay) so
+    // ListForUserAsync must check State, not just presence in Members - otherwise a
+    // removed member keeps a recipe on their own shelf forever, public or not.
+    [Fact]
+    public async Task ListForUser_ExcludesARecipe_OnceTheMemberIsRemoved_EvenWhenItIsPublic()
+    {
+        var (owner, member, _) = await UsersAsync();
+        var id = await PreserveAsync(owner, PrivacyLevel.PublicInArchive, (member, MemberState.Joined));
+        Assert.Single(await Repository().ListForUserAsync(member));
+
+        await using (var db = fixture.NewContext())
+        {
+            var row = await db.Set<FamilyMember>().FirstAsync(m => m.FamilyRecipeId == id && m.UserId == member);
+            row.State = MemberState.Removed;
+            await db.SaveChangesAsync();
+        }
+
+        Assert.Empty(await Repository().ListForUserAsync(member));
+    }
+
+    // CanContributeAsync is the "may add to this" rule - deliberately narrower than
+    // CanReadAsync, since a public recipe is readable by any stranger but is still only
+    // the family's to write into.
+    [Theory]
+    [InlineData(true, null, PrivacyLevel.PrivateToMe, true)]
+    [InlineData(false, MemberState.Joined, PrivacyLevel.SharedWithFamily, true)]
+    [InlineData(false, MemberState.Invited, PrivacyLevel.SharedWithFamily, false)]
+    [InlineData(false, MemberState.Removed, PrivacyLevel.SharedWithFamily, false)]
+    [InlineData(false, null, PrivacyLevel.PublicInArchive, false)] // readable by a stranger, but not theirs to write into
+    [InlineData(false, null, PrivacyLevel.SharedWithFamily, false)]
+    public async Task CanContributeAsync_IsNarrowerThanCanRead(bool isOwner, MemberState? memberState, PrivacyLevel privacy, bool expected)
+    {
+        const string ownerId = "owner-id";
+        const string memberId = "member-id";
+        const string strangerId = "stranger-id";
+
+        var recipe = new FamilyRecipe { OwnerId = ownerId, LocalName = "Ifisashi ya Banakulu", Privacy = privacy };
+        if (memberState is { } state)
+            recipe.Members.Add(new FamilyMember { UserId = memberId, DisplayName = "Mutinta", State = state, InvitedAt = T0 });
+
+        var userId = isOwner ? ownerId : memberState is null ? strangerId : memberId;
+        var access = new FamilyAccessService(fixture.NewContext());
+
+        Assert.Equal(expected, await access.CanContributeAsync(recipe, userId, default));
+    }
+
     [Fact]
     public async Task AMembersMediaIsReadableByTheFamily_AndNotByStrangers()
     {

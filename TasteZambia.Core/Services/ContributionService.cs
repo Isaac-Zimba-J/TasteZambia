@@ -76,7 +76,10 @@ public sealed class ContributionService(DraftStore drafts, HttpClient api) : ICo
             draft.LocalName, draft.EnglishDescription, draft.Province, draft.MealType, draft.Language,
             draft.Ingredients.Select(i => new ContributionIngredientDto(i.IngredientKey, i.DisplayName, i.DisplaySubtitle, i.Quantity)).ToList(),
             draft.Steps, draft.Origin, draft.CulturalSignificance, draft.TraditionalMethod,
-            draft.TaughtBy, draft.TaughtByOrigin, draft.CreditTeacher);
+            draft.TaughtBy, draft.TaughtByOrigin, draft.CreditTeacher,
+            // Sending the wizard's photo ids along is the other half of this fix (mobile side);
+            // this compile fix only keeps the contract change from breaking the build.
+            []);
 
         var response = await api.PostAsJsonAsync(ApiRoutes.Me.Contributions, request, ct);
         response.EnsureSuccessStatusCode();

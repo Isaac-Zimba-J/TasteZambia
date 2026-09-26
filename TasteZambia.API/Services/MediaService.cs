@@ -24,6 +24,17 @@ public sealed class MediaService(TasteZambiaDbContext db, IMediaStore store, IFa
         if (MediaLimits.ExtensionFor(contentType) is null)
             throw new ArgumentOutOfRangeException(nameof(contentType), contentType, "Not an allowed media type.");
 
+        // A JPEG posted as MediaKind.Audio would make a family recipe's HasAudio true
+        // and every "with her recording" label fire on a photograph.
+        var kindMatchesType = kind switch
+        {
+            MediaKind.Photo => MediaLimits.IsImage(contentType),
+            MediaKind.Audio => MediaLimits.IsAudio(contentType),
+            _ => false,
+        };
+        if (!kindMatchesType)
+            throw new ArgumentOutOfRangeException(nameof(kind), kind, "The declared kind does not match the file's content type.");
+
         var ceiling = MediaLimits.MaxBytesFor(contentType);
         if (declaredLength > ceiling)
             throw new InvalidDataException($"That file is larger than the {ceiling / (1024 * 1024)} MB limit.");
