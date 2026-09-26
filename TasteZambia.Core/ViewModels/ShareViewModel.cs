@@ -47,6 +47,10 @@ public sealed partial class DraftPhotoViewModel : ObservableObject
 
     /// <summary>Still queued, or the reader just took it and the upload hasn't answered yet.</summary>
     public bool IsPending => MediaId is null;
+
+    /// <summary>Set only while this photo sits in <see cref="IMediaUploader"/>'s retry queue, so
+    /// removing it can cancel that queued send. Null once it is sent, rejected, or never queued.</summary>
+    public Guid? QueuedLocalId { get; set; }
 }
 
 public sealed partial class ShareViewModel(
@@ -160,6 +164,9 @@ public sealed partial class ShareViewModel(
         if (Ingredients.Count == 0) AddIngredient();
         if (Steps.Count == 0) AddStep();
 
+        // An uploaded photo's display copy is never referenced by the persisted draft (only
+        // PendingPhotoPaths is); once these rows are replaced it would just be litter.
+        PurgeUploadedDisplayCopies(Photos);
         Photos.Clear();
         // Uploaded photos have no local file left to show a thumbnail from; still queued
         // ones do, as long as the cache survived (it is deleted once the upload lands).
@@ -220,6 +227,8 @@ public sealed partial class ShareViewModel(
     {
         Photos.Remove(photo);
         if (File.Exists(photo.LocalPath)) File.Delete(photo.LocalPath);
+        // A reader who deleted a photograph must not have it land in the archive anyway.
+        if (photo.QueuedLocalId is { } localId) mediaUploader.Cancel(localId);
         SyncRowsToDraft();
     }
 
@@ -239,8 +248,22 @@ public sealed partial class ShareViewModel(
         Photos.Add(photo);
 
         var reopened = new PickedFile(picked.FileName, picked.ContentType, _ => Task.FromResult<Stream>(File.OpenRead(localPath)));
+        var beforeCount = mediaUploader.Pending.Count;
         photo.MediaId = await mediaUploader.UploadAsync(reopened, MediaKind.Photo, default);
+        // Nothing but "a new entry appeared" tells us this photo is the one that got queued;
+        // UploadAsync's signature is pinned by MediaUploaderTests and can't hand the id back.
+        if (photo.MediaId is null && mediaUploader.Pending.Count > beforeCount)
+            photo.QueuedLocalId = mediaUploader.Pending[^1].LocalId;
         SyncRowsToDraft();
+    }
+
+    /// <summary>Uploaded photos keep a display copy only for as long as this instance shows them;
+    /// it is never in the persisted draft, so once the rows move on it is pure litter.</summary>
+    private static void PurgeUploadedDisplayCopies(IEnumerable<DraftPhotoViewModel> photos)
+    {
+        foreach (var p in photos)
+            if (p.MediaId is not null && p.LocalPath.Length > 0 && File.Exists(p.LocalPath))
+                File.Delete(p.LocalPath);
     }
 
     /// <summary>What this step still needs, or null when it is ready. Steps 3 and 4 have no required fields.</summary>
@@ -287,6 +310,9 @@ public sealed partial class ShareViewModel(
             SubmitError = "";
             IsSubmitted = true;
             RefreshDraftsLabel();
+            // The recipe is away; nothing here needs a local display copy of an uploaded
+            // photo any more (the still-pending ones keep theirs until they too go).
+            PurgeUploadedDisplayCopies(Photos);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
@@ -338,6 +364,7 @@ public sealed partial class ShareViewModel(
         SyncRowsToDraft();
         if (Draft.LocalName.Trim().Length > 0)
             DraftId = contributions.SaveDraft(Draft, DraftId).Id;
+        PurgeUploadedDisplayCopies(Photos);
         return Navigation.GoBackAsync();
     }
 }

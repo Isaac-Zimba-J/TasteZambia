@@ -17,7 +17,16 @@ public interface IMediaUploader
     /// <summary>Retries everything queued. Returns how many went through.</summary>
     Task<int> DrainAsync(CancellationToken ct = default);
 
+    /// <summary>Removes a queued upload before it is ever sent — a no-op if it already went, or never queued.</summary>
+    void Cancel(Guid localId);
+
     IReadOnlyList<PendingUpload> Pending { get; }
+
+    /// <summary>Something was queued or unqueued; a caller may want to retry sooner rather than later.</summary>
+    event EventHandler? Changed;
+
+    /// <summary>A queued file's cache copy was gone when a drain reached it: lost, not merely delayed.</summary>
+    event EventHandler<Guid>? Lost;
 }
 
 /// <summary>
@@ -25,7 +34,7 @@ public interface IMediaUploader
 /// A reader who has just taken a picture of their grandmother's cooking should not lose
 /// it because the signal dropped.
 /// </summary>
-public sealed class MediaUploader(HttpClient api, ILocalStore local, TimeProvider clock) : IMediaUploader
+public sealed class MediaUploader(HttpClient api, ILocalStore local, TimeProvider clock, IAppStorage storage) : IMediaUploader
 {
     private const string Key = "media.pending";
     private readonly List<PendingUpload> _pending = local.Get<List<PendingUpload>>(Key) ?? [];
@@ -35,18 +44,28 @@ public sealed class MediaUploader(HttpClient api, ILocalStore local, TimeProvide
 
     public IReadOnlyList<PendingUpload> Pending => _pending.ToList();
 
+    public event EventHandler? Changed;
+    public event EventHandler<Guid>? Lost;
+
     public async Task<Guid?> UploadAsync(PickedFile file, MediaKind kind, CancellationToken ct = default)
     {
-        await using var content = await file.Open(ct);
-        var bytes = new MemoryStream();
-        await content.CopyToAsync(bytes, ct);
-        bytes.Position = 0;
+        // Land the bytes on disk once, at the path a retry would use anyway. Sending from
+        // this file (rather than a second in-memory copy) is what keeps a 40 MB recording
+        // from ever needing 80 MB resident at once.
+        var localId = Guid.NewGuid();
+        var path = CachePath(localId);
+        System.IO.Directory.CreateDirectory(storage.Directory);
+        await using (var content = await file.Open(ct))
+        await using (var dest = File.Create(path))
+            await content.CopyToAsync(dest, ct);
 
-        var outcome = await SendAsync(bytes, file.ContentType, kind, ct);
-        if (outcome.Id is { } id) return id;
-        if (outcome.Refused) return null;   // the archive will never take it; queueing would be a lie
+        var outcome = await SendFileAsync(path, file.ContentType, kind, ct);
+        if (outcome.Id is { } id) { File.Delete(path); return id; }
+        if (outcome.Refused) { File.Delete(path); return null; }   // the archive will never take it; queueing would be a lie
 
-        Queue(bytes.ToArray(), file.ContentType, kind);
+        _pending.Add(new PendingUpload(localId, file.ContentType, kind, path));
+        local.Set(Key, _pending);
+        Changed?.Invoke(this, EventArgs.Empty);
         return null;
     }
 
@@ -55,10 +74,17 @@ public sealed class MediaUploader(HttpClient api, ILocalStore local, TimeProvide
         var sent = 0;
         foreach (var item in _pending.ToList())
         {
-            if (!File.Exists(item.CachePath)) { Forget(item); continue; }
+            if (!File.Exists(item.CachePath))
+            {
+                // The file this queue exists to protect is simply gone (Android reclaimed
+                // it, or something else deleted it). Forgetting silently would repeat the
+                // exact loss this feature was built to prevent, so this is reported instead.
+                Forget(item);
+                Lost?.Invoke(this, item.LocalId);
+                continue;
+            }
 
-            await using var stream = File.OpenRead(item.CachePath);
-            var outcome = await SendAsync(stream, item.ContentType, item.Kind, ct);
+            var outcome = await SendFileAsync(item.CachePath, item.ContentType, item.Kind, ct);
             if (outcome.Id is null && !outcome.Refused)
                 break;   // still offline: keep the rest queued, in order
 
@@ -66,6 +92,25 @@ public sealed class MediaUploader(HttpClient api, ILocalStore local, TimeProvide
             if (outcome.Id is not null) sent++;
         }
         return sent;
+    }
+
+    public void Cancel(Guid localId)
+    {
+        var item = _pending.FirstOrDefault(p => p.LocalId == localId);
+        if (item is not null) Forget(item);
+    }
+
+    private async Task<SendOutcome> SendFileAsync(string path, string contentType, MediaKind kind, CancellationToken ct)
+    {
+        try
+        {
+            await using var stream = File.OpenRead(path);
+            return await SendAsync(stream, contentType, kind, ct);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            return SendOutcome.Unreachable;
+        }
     }
 
     private async Task<SendOutcome> SendAsync(Stream content, string contentType, MediaKind kind, CancellationToken ct)
@@ -95,21 +140,14 @@ public sealed class MediaUploader(HttpClient api, ILocalStore local, TimeProvide
         }
     }
 
-    private void Queue(byte[] bytes, string contentType, MediaKind kind)
-    {
-        var localId = Guid.NewGuid();
-        var path = Path.Combine(Path.GetTempPath(), $"tz-upload-{localId:N}");
-        File.WriteAllBytes(path, bytes);
-
-        _pending.Add(new PendingUpload(localId, contentType, kind, path));
-        local.Set(Key, _pending);
-    }
+    private string CachePath(Guid localId) => Path.Combine(storage.Directory, $"tz-upload-{localId:N}");
 
     private void Forget(PendingUpload item)
     {
         _pending.Remove(item);
         local.Set(Key, _pending);
         if (File.Exists(item.CachePath)) File.Delete(item.CachePath);
+        Changed?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>What became of one attempt to send a file to the archive.</summary>
