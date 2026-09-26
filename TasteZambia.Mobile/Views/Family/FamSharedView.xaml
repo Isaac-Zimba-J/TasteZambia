@@ -9,7 +9,8 @@
              x:Class="TasteZambia.Mobile.Views.Family.FamSharedView"
              x:DataType="vm:FamSharedViewModel">
 
-    <ScrollView>
+    <Grid>
+    <ScrollView IsVisible="{Binding IsFirstLoad, Converter={StaticResource InvertedBool}}">
         <VerticalStackLayout Spacing="0">
             <Grid HeightRequest="222">
                 <Image AutomationProperties.IsInAccessibleTree="False" Source="ifisashi.png" Aspect="AspectFill"/>
@@ -146,4 +147,9 @@
             <BoxView HeightRequest="6" Color="Transparent"/>
         </VerticalStackLayout>
     </ScrollView>
+
+    <controls:LoadState IsLoading="{Binding IsFirstLoad}" ErrorMessage="{Binding LoadError}"
+                        RetryCommand="{Binding RefreshCommand}"
+                        LoadingText="Reading the archive…"/>
+    </Grid>
 </views:LoadOnceView>

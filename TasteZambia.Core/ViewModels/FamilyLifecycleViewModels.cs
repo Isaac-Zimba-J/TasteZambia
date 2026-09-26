@@ -149,7 +149,13 @@ public sealed partial class FamDraftViewModel(
 
         try
         {
-            await archive.AttachMediaAsync(Id, mediaId.Value);
+            if (!await archive.AttachMediaAsync(Id, mediaId.Value))
+            {
+                // Arrived and was refused - not a connectivity problem, so it does not get the offline message.
+                MediaError = "Could not attach that upload. Try picking it again.";
+                return;
+            }
+
             var dto = await archive.GetAsync(Id);
             if (dto is not null) Apply(dto);
         }
@@ -279,8 +285,8 @@ public sealed partial class FamSharedViewModel(
         if (member is null) return;
         try
         {
-            await archive.RemoveMemberAsync(Id, member.Id);
-            Members.Remove(member);
+            if (await archive.RemoveMemberAsync(Id, member.Id)) Members.Remove(member);
+            else ActionError = NotAllowedMessage;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
@@ -339,6 +345,13 @@ public sealed partial class FamPublicViewModel(
         Provenance.Add(active > 0
             ? new ProvenanceStep("Shared with family", $"{active} member{(active == 1 ? "" : "s")} have access.", "#2F6A4D")
             : new ProvenanceStep("Not yet shared", "No one has been invited yet.", "#D8CDB9"));
+
+        // The design's "Family agreed to publish" and "Verified against Northern records" steps
+        // described a consent-and-review workflow this archive does not track yet - shown here,
+        // truthfully, as still pending rather than dropped outright or filled with invented data.
+        Provenance.Add(new ProvenanceStep("Family agreed to publish", "Not tracked by the archive yet.", "#D8CDB9"));
+        Provenance.Add(new ProvenanceStep("Verified against Northern records", "Not tracked by the archive yet.", "#D8CDB9"));
+
         Provenance.Add(IsPublic
             ? new ProvenanceStep("Published and credited", "Listed in the public archive, credited to your family.", "#C07F1E")
             : new ProvenanceStep("Not yet published", "Still private to your family.", "#D8CDB9"));
@@ -349,8 +362,11 @@ public sealed partial class FamPublicViewModel(
     {
         try
         {
-            await archive.SetPrivacyAsync(Id, PrivacyLevel.PublicInArchive);
-            if (_dto is not null) Apply(_dto with { Privacy = PrivacyLevel.PublicInArchive });
+            if (await archive.SetPrivacyAsync(Id, PrivacyLevel.PublicInArchive))
+            {
+                if (_dto is not null) Apply(_dto with { Privacy = PrivacyLevel.PublicInArchive });
+            }
+            else PrivacyNote = NotAllowedMessage;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
@@ -363,8 +379,11 @@ public sealed partial class FamPublicViewModel(
     {
         try
         {
-            await archive.SetPrivacyAsync(Id, PrivacyLevel.SharedWithFamily);
-            if (_dto is not null) Apply(_dto with { Privacy = PrivacyLevel.SharedWithFamily });
+            if (await archive.SetPrivacyAsync(Id, PrivacyLevel.SharedWithFamily))
+            {
+                if (_dto is not null) Apply(_dto with { Privacy = PrivacyLevel.SharedWithFamily });
+            }
+            else PrivacyNote = NotAllowedMessage;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {

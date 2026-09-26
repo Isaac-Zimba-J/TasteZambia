@@ -43,10 +43,14 @@ public sealed class HttpFamilyRepository(HttpClient http)
         return await response.Content.ReadFromJsonAsync<FamilyRecipeDto>(ct);
     }
 
-    public async Task RemoveMemberAsync(Guid id, Guid memberId, CancellationToken ct)
+    /// <summary>False on a 404 - a write from someone other than the owner, deliberately
+    /// indistinguishable from "no such recipe" so the caller cannot fish for which it was.</summary>
+    public async Task<bool> RemoveMemberAsync(Guid id, Guid memberId, CancellationToken ct)
     {
         var response = await http.DeleteAsync(Http.Path(Http.Path(ApiRoutes.Family.MemberById, "id", id.ToString()), "memberId", memberId.ToString()), ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
+        return true;
     }
 
     public async Task AddNoteAsync(Guid id, AddNoteRequest request, CancellationToken ct)
@@ -55,16 +59,25 @@ public sealed class HttpFamilyRepository(HttpClient http)
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task SetPrivacyAsync(Guid id, SetPrivacyRequest request, CancellationToken ct)
+    /// <summary>False on a 404 - a write from someone other than the owner. See <see cref="RemoveMemberAsync"/>.</summary>
+    public async Task<bool> SetPrivacyAsync(Guid id, SetPrivacyRequest request, CancellationToken ct)
     {
         var response = await http.PutAsJsonAsync(Http.Path(ApiRoutes.Family.Privacy, "id", id.ToString()), request, ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
+        return true;
     }
 
-    public async Task AttachMediaAsync(Guid id, Guid mediaId, CancellationToken ct)
+    /// <summary>False on a 404 - the recipe cannot be seen, or the upload is not this
+    /// account's own. Not the same refusal as <see cref="RemoveMemberAsync"/>'s: this one is
+    /// about the media, not who owns the recipe.</summary>
+    public async Task<bool> AttachMediaAsync(Guid id, Guid mediaId, CancellationToken ct)
     {
         var path = Http.Path(Http.Path(ApiRoutes.Family.Media, "id", id.ToString()), "mediaId", mediaId.ToString());
-        var response = await http.PostAsync(path, null, ct);
+        // The controller declares this route [HttpPut] - see FamilyController.AttachMedia.
+        var response = await http.PutAsync(path, null, ct);
+        if (response.StatusCode == HttpStatusCode.NotFound) return false;
         response.EnsureSuccessStatusCode();
+        return true;
     }
 }

@@ -8,7 +8,8 @@
              x:Class="TasteZambia.Mobile.Views.Family.FamPublicView"
              x:DataType="vm:FamPublicViewModel">
 
-    <ScrollView>
+    <Grid>
+    <ScrollView IsVisible="{Binding IsFirstLoad, Converter={StaticResource InvertedBool}}">
         <VerticalStackLayout Spacing="0">
             <VerticalStackLayout Padding="20,18,20,18" BackgroundColor="{StaticResource TzGreenDeep}" Spacing="0">
                 <controls:CircleButton Icon="ArrowLeft" Diameter="34" CircleBackground="{StaticResource TzOnDark14}"
@@ -78,4 +79,9 @@
             <BoxView HeightRequest="6" Color="Transparent"/>
         </VerticalStackLayout>
     </ScrollView>
+
+    <controls:LoadState IsLoading="{Binding IsFirstLoad}" ErrorMessage="{Binding LoadError}"
+                        RetryCommand="{Binding RefreshCommand}"
+                        LoadingText="Reading the archive…"/>
+    </Grid>
 </views:LoadOnceView>

@@ -12,10 +12,13 @@ public interface IFamilyArchiveService
     Task<FamilyRecipeDto> PreserveAsync(ContributionDraft draft, CancellationToken ct = default);
     Task<InviteDto?> InviteAsync(Guid id, string displayName, string relation, CancellationToken ct = default);
     Task<FamilyRecipeDto?> AcceptInviteAsync(string code, CancellationToken ct = default);
-    Task RemoveMemberAsync(Guid id, Guid memberId, CancellationToken ct = default);
+    /// <summary>False when the API refused it as not the caller's to change - a real answer, not a network failure.</summary>
+    Task<bool> RemoveMemberAsync(Guid id, Guid memberId, CancellationToken ct = default);
     Task AddNoteAsync(Guid id, string body, CancellationToken ct = default);
-    Task SetPrivacyAsync(Guid id, PrivacyLevel privacy, CancellationToken ct = default);
-    Task AttachMediaAsync(Guid id, Guid mediaId, CancellationToken ct = default);
+    /// <summary>False when the API refused it as not the caller's to change - a real answer, not a network failure.</summary>
+    Task<bool> SetPrivacyAsync(Guid id, PrivacyLevel privacy, CancellationToken ct = default);
+    /// <summary>False when the recipe or the upload could not be found for this account.</summary>
+    Task<bool> AttachMediaAsync(Guid id, Guid mediaId, CancellationToken ct = default);
 }
 
 /// <summary>
@@ -42,15 +45,15 @@ public sealed class FamilyArchiveService(HttpFamilyRepository repository) : IFam
     public Task<FamilyRecipeDto?> AcceptInviteAsync(string code, CancellationToken ct = default)
         => repository.AcceptAsync(new AcceptInviteRequest(code), ct);
 
-    public Task RemoveMemberAsync(Guid id, Guid memberId, CancellationToken ct = default)
+    public Task<bool> RemoveMemberAsync(Guid id, Guid memberId, CancellationToken ct = default)
         => repository.RemoveMemberAsync(id, memberId, ct);
 
     public Task AddNoteAsync(Guid id, string body, CancellationToken ct = default)
         => repository.AddNoteAsync(id, new AddNoteRequest(body), ct);
 
-    public Task SetPrivacyAsync(Guid id, PrivacyLevel privacy, CancellationToken ct = default)
+    public Task<bool> SetPrivacyAsync(Guid id, PrivacyLevel privacy, CancellationToken ct = default)
         => repository.SetPrivacyAsync(id, new SetPrivacyRequest(privacy), ct);
 
-    public Task AttachMediaAsync(Guid id, Guid mediaId, CancellationToken ct = default)
+    public Task<bool> AttachMediaAsync(Guid id, Guid mediaId, CancellationToken ct = default)
         => repository.AttachMediaAsync(id, mediaId, ct);
 }

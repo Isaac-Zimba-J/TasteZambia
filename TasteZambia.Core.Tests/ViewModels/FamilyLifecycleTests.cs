@@ -87,4 +87,34 @@ public class FamilyLifecycleTests
         Assert.Equal(PrivacyLevel.PublicInArchive, family.PrivacyOf(id));
         Assert.Contains("everyone", vm.PrivacyNote, StringComparison.OrdinalIgnoreCase);
     }
+
+    // Pins the "Important" fix: a write the API refuses because the caller is not the owner
+    // (a 404, same as "not found") must not be reported as a connectivity problem.
+
+    [Fact]
+    public async Task RemovingAMember_WhenTheApiRefusesTheWrite_SaysSoRatherThanBlamingTheConnection()
+    {
+        var family = new FakeFamilyService { DenyWrites = true };
+        var id = family.Add(SomeRecipe());
+        var vm = new FamSharedViewModel(family, new Nav()) { Id = id };
+        await vm.LoadAsync();
+
+        await vm.RemoveMemberCommand.ExecuteAsync(new FamilyMember(Guid.NewGuid(), "Mutinta", "Sister", "Joined", "", ""));
+
+        Assert.Equal(BaseViewModel.NotAllowedMessage, vm.ActionError);
+    }
+
+    [Fact]
+    public async Task PublishingToEveryone_WhenTheApiRefusesTheWrite_SaysSoRatherThanBlamingTheConnection()
+    {
+        var family = new FakeFamilyService { DenyWrites = true };
+        var id = family.Add(SomeRecipe());
+        var vm = new FamPublicViewModel(family, new Nav()) { Id = id };
+        await vm.LoadAsync();
+
+        await vm.SetPublicCommand.ExecuteAsync(null);
+
+        Assert.Equal(BaseViewModel.NotAllowedMessage, vm.PrivacyNote);
+        Assert.Equal(PrivacyLevel.SharedWithFamily, family.PrivacyOf(id));   // unchanged - the refusal was not applied locally
+    }
 }

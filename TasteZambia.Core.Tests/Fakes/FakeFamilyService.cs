@@ -10,6 +10,9 @@ public sealed class FakeFamilyService : IFamilyArchiveService
 {
     private readonly Dictionary<Guid, FamilyRecipeDto> _recipes = [];
 
+    /// <summary>Simulates the API's 404-for-a-non-owner-write, on every write this fake accepts a bool for.</summary>
+    public bool DenyWrites { get; set; }
+
     /// <summary>Seeds a recipe as though it already existed on the account. Returns its id.</summary>
     public Guid Add(FamilyRecipeDto dto)
     {
@@ -46,11 +49,12 @@ public sealed class FakeFamilyService : IFamilyArchiveService
     public Task<FamilyRecipeDto?> AcceptInviteAsync(string code, CancellationToken ct = default)
         => Task.FromResult<FamilyRecipeDto?>(null);
 
-    public Task RemoveMemberAsync(Guid id, Guid memberId, CancellationToken ct = default)
+    public Task<bool> RemoveMemberAsync(Guid id, Guid memberId, CancellationToken ct = default)
     {
+        if (DenyWrites) return Task.FromResult(false);
         var dto = _recipes[id];
         _recipes[id] = dto with { Members = dto.Members.Where(m => m.Id != memberId).ToList() };
-        return Task.CompletedTask;
+        return Task.FromResult(true);
     }
 
     public Task AddNoteAsync(Guid id, string body, CancellationToken ct = default)
@@ -60,13 +64,14 @@ public sealed class FakeFamilyService : IFamilyArchiveService
         return Task.CompletedTask;
     }
 
-    public Task SetPrivacyAsync(Guid id, PrivacyLevel privacy, CancellationToken ct = default)
+    public Task<bool> SetPrivacyAsync(Guid id, PrivacyLevel privacy, CancellationToken ct = default)
     {
+        if (DenyWrites) return Task.FromResult(false);
         _recipes[id] = _recipes[id] with { Privacy = privacy };
-        return Task.CompletedTask;
+        return Task.FromResult(true);
     }
 
-    public Task AttachMediaAsync(Guid id, Guid mediaId, CancellationToken ct = default) => Task.CompletedTask;
+    public Task<bool> AttachMediaAsync(Guid id, Guid mediaId, CancellationToken ct = default) => Task.FromResult(true);
 
     private static int PercentComplete(ContributionDraft draft)
         => new[] { draft.LocalName, draft.Province, draft.TaughtBy, draft.Story, draft.TraditionalMethod }
