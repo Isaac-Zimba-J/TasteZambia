@@ -98,6 +98,9 @@ public sealed partial class ShareViewModel(
     /// <summary>What still needs filling on this step; empty when the step is complete.</summary>
     [ObservableProperty] private string _validationMessage = "";
 
+    /// <summary>Why the last photograph did not go. Empty when there is nothing to report.</summary>
+    [ObservableProperty] private string _photoError = "";
+
     [ObservableProperty] private string _draftsLabel = "";
 
     /// <summary>Route parameter: continue an existing local draft instead of starting blank.</summary>
@@ -247,13 +250,31 @@ public sealed partial class ShareViewModel(
         var photo = new DraftPhotoViewModel { LocalPath = localPath };
         Photos.Add(photo);
 
+        // The draft owns the upload: a photo queued now is claimed by whichever submission
+        // this draft eventually becomes, so DraftId must exist before the upload starts.
+        DraftId ??= contributions.SaveDraft(Draft, DraftId).Id;
+
         var reopened = new PickedFile(picked.FileName, picked.ContentType, _ => Task.FromResult<Stream>(File.OpenRead(localPath)));
-        var beforeCount = mediaUploader.Pending.Count;
-        photo.MediaId = await mediaUploader.UploadAsync(reopened, MediaKind.Photo, default);
-        // Nothing but "a new entry appeared" tells us this photo is the one that got queued;
-        // UploadAsync's signature is pinned by MediaUploaderTests and can't hand the id back.
-        if (photo.MediaId is null && mediaUploader.Pending.Count > beforeCount)
-            photo.QueuedLocalId = mediaUploader.Pending[^1].LocalId;
+        switch (await mediaUploader.UploadAsync(reopened, MediaKind.Photo, UploadTarget.Draft(DraftId.Value), default))
+        {
+            case UploadOutcome.Sent sent:
+                photo.MediaId = sent.MediaId;
+                PhotoError = "";
+                break;
+
+            case UploadOutcome.Queued queued:
+                photo.QueuedLocalId = queued.LocalId;
+                PhotoError = "";
+                break;
+
+            case UploadOutcome.Refused refused:
+                // It will never be accepted, so the tile must not sit there pending forever.
+                Photos.Remove(photo);
+                if (File.Exists(localPath)) File.Delete(localPath);
+                PhotoError = refused.Reason;
+                break;
+        }
+
         SyncRowsToDraft();
     }
 
@@ -303,11 +324,19 @@ public sealed partial class ShareViewModel(
 
         try
         {
-            var contribution = await contributions.SubmitAsync(Draft);
+            // Whatever this draft's photographs uploaded to, claimed now. A photo still
+            // queued is not in this list and stays queued against the draft - which is
+            // why the confirmation says so rather than claiming everything arrived.
+            var claimed = DraftId is { } id ? mediaUploader.ClaimFor(id) : [];
+            var contribution = await contributions.SubmitAsync(Draft, claimed);
             SubmittedId = contribution.Id;
             SubmittedName = contribution.Name;
             SubmittedMeta = contribution.Meta;
             SubmitError = "";
+            PhotoError = Photos.Any(p => p.IsPending)
+                ? "One photograph is still waiting for a connection. It will be added to your recipe when it goes."
+                : "";
+            if (DraftId is { } submitted) mediaUploader.ForgetClaims(submitted);
             IsSubmitted = true;
             RefreshDraftsLabel();
             // The recipe is away; nothing here needs a local display copy of an uploaded

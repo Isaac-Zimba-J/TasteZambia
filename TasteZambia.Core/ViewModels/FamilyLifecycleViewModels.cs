@@ -139,29 +139,34 @@ public sealed partial class FamDraftViewModel(
 
     private async Task UploadAndAttachAsync(PickedFile file, MediaKind kind)
     {
-        var mediaId = await mediaUploader.UploadAsync(file, kind);
-        if (mediaId is null)
+        // The uploader attaches it to this recipe itself - on the spot when the archive is
+        // reachable, and on the next drain when it is not. This screen only reports.
+        var outcome = await mediaUploader.UploadAsync(file, kind, UploadTarget.FamilyRecipe(Id));
+
+        switch (outcome)
         {
-            // MediaUploader already queued it for the next time the archive is reachable.
-            MediaError = "Saved on your phone; it will attach once you are back online.";
-            return;
+            case UploadOutcome.Refused refused:
+                MediaError = refused.Reason;
+                return;
+
+            case UploadOutcome.Queued:
+                MediaError = "Saved on your phone. It will be added once you are back online.";
+                return;
+
+            case UploadOutcome.Sent:
+                MediaError = "";
+                break;
         }
 
         try
         {
-            if (!await archive.AttachMediaAsync(Id, mediaId.Value))
-            {
-                // Arrived and was refused - not a connectivity problem, so it does not get the offline message.
-                MediaError = "Could not attach that upload. Try picking it again.";
-                return;
-            }
-
             var dto = await archive.GetAsync(Id);
             if (dto is not null) Apply(dto);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
-            MediaError = OfflineMessage;
+            // It is in the archive; only this screen's refresh failed.
+            MediaError = "Added, but this screen could not refresh. Pull down to see it.";
         }
     }
 

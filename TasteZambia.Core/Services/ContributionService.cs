@@ -22,7 +22,11 @@ public interface IContributionService
     void DeleteDraft(Guid id);
 
     /// <summary>Sends the draft to the archive. On success the local draft is gone; the contribution is the record now.</summary>
-    Task<Contribution> SubmitAsync(ContributionDraft draft, CancellationToken ct = default);
+    /// <summary>
+    /// Sends the draft. <paramref name="photoIds"/> are the uploads this draft accumulated,
+    /// which the archive claims on submission after checking each one belongs to the sender.
+    /// </summary>
+    Task<Contribution> SubmitAsync(ContributionDraft draft, IReadOnlyList<Guid> photoIds, CancellationToken ct = default);
     Task<IReadOnlyList<Contribution>> GetContributionsAsync(CancellationToken ct = default);
     Task<ContributionDetailDto?> GetDetailAsync(Guid id, CancellationToken ct = default);
     Task<ContributionDetailDto> ResubmitAsync(Guid id, IReadOnlyList<FlagAnswerDto> answers, CancellationToken ct = default);
@@ -70,16 +74,14 @@ public sealed class ContributionService(DraftStore drafts, HttpClient api) : ICo
 
     public void DeleteDraft(Guid id) => drafts.Remove(id);
 
-    public async Task<Contribution> SubmitAsync(ContributionDraft draft, CancellationToken ct = default)
+    public async Task<Contribution> SubmitAsync(ContributionDraft draft, IReadOnlyList<Guid> photoIds, CancellationToken ct = default)
     {
         var request = new SubmitContributionRequest(
             draft.LocalName, draft.EnglishDescription, draft.Province, draft.MealType, draft.Language,
             draft.Ingredients.Select(i => new ContributionIngredientDto(i.IngredientKey, i.DisplayName, i.DisplaySubtitle, i.Quantity)).ToList(),
             draft.Steps, draft.Origin, draft.CulturalSignificance, draft.TraditionalMethod,
             draft.TaughtBy, draft.TaughtByOrigin, draft.CreditTeacher,
-            // Sending the wizard's photo ids along is the other half of this fix (mobile side);
-            // this compile fix only keeps the contract change from breaking the build.
-            []);
+            photoIds);
 
         var response = await api.PostAsJsonAsync(ApiRoutes.Me.Contributions, request, ct);
         response.EnsureSuccessStatusCode();

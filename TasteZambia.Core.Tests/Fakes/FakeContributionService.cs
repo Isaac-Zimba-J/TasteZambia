@@ -33,9 +33,13 @@ public class FakeContributionService : IContributionService
     public List<ContributionDraft> Submitted { get; } = [];
 
     /// <summary>Accepts the draft as a server would: the local copy is dropped and an InReview contribution comes back.</summary>
-    public Task<Contribution> SubmitAsync(ContributionDraft draft, CancellationToken ct = default)
+    /// <summary>The photo ids a submission carried, so a test can assert they were claimed.</summary>
+    public List<IReadOnlyList<Guid>> SubmittedPhotoIds { get; } = [];
+
+    public Task<Contribution> SubmitAsync(ContributionDraft draft, IReadOnlyList<Guid> photoIds, CancellationToken ct = default)
     {
         Submitted.Add(draft);
+        SubmittedPhotoIds.Add(photoIds);
         var id = Guid.NewGuid();
         return Task.FromResult(new Contribution(id, draft.LocalName, Shared.Enums.ContributionStatus.InReview,
             $"{draft.Province} Province · submitted just now"));

@@ -11,11 +11,11 @@ public class MediaUploaderTests
     private static PickedFile Photo(string name = "kitchen.jpg")
         => new(name, "image/jpeg", _ => Task.FromResult<Stream>(new MemoryStream([1, 2, 3, 4])));
 
-    private static (MediaUploader uploader, ScriptedHandler server, InMemoryLocalStore store, FakeAppStorage storage) Sut()
+    private static (MediaUploader uploader, ScriptedHandler server, InMemoryLocalStore store, TemporaryAppStorage storage) Sut()
     {
         var server = new ScriptedHandler();
         var store = new InMemoryLocalStore();
-        var storage = new FakeAppStorage();
+        var storage = new TemporaryAppStorage();
         var client = new HttpClient(server) { BaseAddress = new Uri("http://archive.test") };
         return (new MediaUploader(client, store, new FakeTimeProvider(), storage), server, store, storage);
     }
@@ -27,7 +27,8 @@ public class MediaUploaderTests
         var id = Guid.NewGuid();
         server.NextId = id;
 
-        Assert.Equal(id, await uploader.UploadAsync(Photo(), MediaKind.Photo, default));
+        var outcome = Assert.IsType<UploadOutcome.Sent>(await uploader.UploadAsync(Photo(), MediaKind.Photo, UploadTarget.None));
+        Assert.Equal(id, outcome.MediaId);
         Assert.Empty(uploader.Pending);
     }
 
@@ -37,7 +38,7 @@ public class MediaUploaderTests
         var (uploader, server, _, _) = Sut();
         server.IsOffline = true;
 
-        Assert.Null(await uploader.UploadAsync(Photo(), MediaKind.Photo, default));
+        Assert.IsType<UploadOutcome.Queued>(await uploader.UploadAsync(Photo(), MediaKind.Photo, UploadTarget.None));
 
         var pending = Assert.Single(uploader.Pending);
         Assert.Equal("image/jpeg", pending.ContentType);
@@ -49,8 +50,8 @@ public class MediaUploaderTests
     {
         var (uploader, server, _, _) = Sut();
         server.IsOffline = true;
-        await uploader.UploadAsync(Photo("first.jpg"), MediaKind.Photo, default);
-        await uploader.UploadAsync(Photo("second.jpg"), MediaKind.Photo, default);
+        await uploader.UploadAsync(Photo("first.jpg"), MediaKind.Photo, UploadTarget.None);
+        await uploader.UploadAsync(Photo("second.jpg"), MediaKind.Photo, UploadTarget.None);
         Assert.Equal(2, uploader.Pending.Count);
 
         server.IsOffline = false;
@@ -65,9 +66,9 @@ public class MediaUploaderTests
     {
         var (uploader, server, store, _) = Sut();
         server.IsOffline = true;
-        await uploader.UploadAsync(Photo(), MediaKind.Photo, default);
+        await uploader.UploadAsync(Photo(), MediaKind.Photo, UploadTarget.None);
 
-        var again = new MediaUploader(new HttpClient(server) { BaseAddress = new Uri("http://archive.test") }, store, new FakeTimeProvider(), new FakeAppStorage());
+        var again = new MediaUploader(new HttpClient(server) { BaseAddress = new Uri("http://archive.test") }, store, new FakeTimeProvider(), new TemporaryAppStorage());
 
         Assert.Single(again.Pending);
     }
@@ -78,7 +79,7 @@ public class MediaUploaderTests
         var (uploader, server, _, _) = Sut();
         server.Status = HttpStatusCode.UnsupportedMediaType;
 
-        Assert.Null(await uploader.UploadAsync(Photo("notes.pdf"), MediaKind.Photo, default));
+        Assert.IsType<UploadOutcome.Refused>(await uploader.UploadAsync(Photo("notes.pdf"), MediaKind.Photo, UploadTarget.None));
         Assert.Empty(uploader.Pending);   // the archive will never take it; queueing is a lie
     }
 
@@ -87,7 +88,7 @@ public class MediaUploaderTests
     {
         var (uploader, server, _, _) = Sut();
         server.IsOffline = true;
-        await uploader.UploadAsync(Photo(), MediaKind.Photo, default);
+        await uploader.UploadAsync(Photo(), MediaKind.Photo, UploadTarget.None);
         var queued = Assert.Single(uploader.Pending);
 
         uploader.Cancel(queued.LocalId);
@@ -104,12 +105,117 @@ public class MediaUploaderTests
     {
         var (uploader, server, _, storage) = Sut();
 
-        Assert.NotNull(await uploader.UploadAsync(Photo(), MediaKind.Photo, default));
+        Assert.NotNull(await uploader.UploadAsync(Photo(), MediaKind.Photo, UploadTarget.None));
 
         Assert.Empty(Directory.GetFiles(storage.Directory));
     }
 
     /// <summary>Answers uploads, or refuses to connect at all.</summary>
+    // ---- What the whole-branch review found broken: the queue had no destination, and
+    // ---- "queued" was indistinguishable from "refused". ----
+
+    [Fact]
+    public async Task AnUploadForAFamilyRecipe_AttachesItselfOnTheSpot()
+    {
+        var (uploader, server, _, _) = Sut();
+        var recipe = Guid.NewGuid();
+        server.NextId = Guid.NewGuid();
+
+        await uploader.UploadAsync(Photo(), MediaKind.Photo, UploadTarget.FamilyRecipe(recipe));
+
+        var attach = Assert.Single(server.Attaches);
+        Assert.Contains(recipe.ToString(), attach);
+        Assert.Contains(server.NextId.ToString(), attach);
+    }
+
+    [Fact]
+    public async Task AQueuedFamilyUpload_AttachesWhenTheDrainFinallyGoesThrough()
+    {
+        var (uploader, server, _, _) = Sut();
+        var recipe = Guid.NewGuid();
+        server.IsOffline = true;
+        await uploader.UploadAsync(Photo(), MediaKind.Photo, UploadTarget.FamilyRecipe(recipe));
+        Assert.Empty(server.Attaches);
+
+        server.IsOffline = false;
+        Assert.Equal(1, await uploader.DrainAsync());
+
+        // The point of the queue: the photograph reaches the recipe, not just the archive.
+        Assert.Contains(recipe.ToString(), Assert.Single(server.Attaches));
+    }
+
+    [Fact]
+    public async Task ADraftsUploads_AreHeldForItsSubmissionToClaim()
+    {
+        var (uploader, server, _, _) = Sut();
+        var draft = Guid.NewGuid();
+        var first = Guid.NewGuid();
+        server.NextId = first;
+        await uploader.UploadAsync(Photo("one.jpg"), MediaKind.Photo, UploadTarget.Draft(draft));
+
+        var second = Guid.NewGuid();
+        server.NextId = second;
+        await uploader.UploadAsync(Photo("two.jpg"), MediaKind.Photo, UploadTarget.Draft(draft));
+
+        Assert.Equal([first, second], uploader.ClaimFor(draft));
+        Assert.Empty(uploader.ClaimFor(Guid.NewGuid()));
+        Assert.Empty(server.Attaches);   // a draft has nothing to attach to yet
+
+        uploader.ForgetClaims(draft);
+        Assert.Empty(uploader.ClaimFor(draft));
+    }
+
+    [Fact]
+    public async Task AQueuedDraftUpload_JoinsTheClaimOnceItGoes()
+    {
+        var (uploader, server, _, _) = Sut();
+        var draft = Guid.NewGuid();
+        server.IsOffline = true;
+        await uploader.UploadAsync(Photo(), MediaKind.Photo, UploadTarget.Draft(draft));
+        Assert.Empty(uploader.ClaimFor(draft));
+
+        server.IsOffline = false;
+        server.NextId = Guid.NewGuid();
+        await uploader.DrainAsync();
+
+        Assert.Equal([server.NextId], uploader.ClaimFor(draft));
+    }
+
+    [Fact]
+    public async Task ARefusalCarriesAReasonWorthShowing_AndIsNotConfusedWithQueueing()
+    {
+        var (uploader, server, _, _) = Sut();
+        server.Status = HttpStatusCode.RequestEntityTooLarge;
+
+        var photo = Assert.IsType<UploadOutcome.Refused>(await uploader.UploadAsync(Photo(), MediaKind.Photo, UploadTarget.None));
+        Assert.Contains("photograph", photo.Reason);
+
+        var recording = Assert.IsType<UploadOutcome.Refused>(
+            await uploader.UploadAsync(new PickedFile("her-voice.m4a", "audio/mp4", _ => Task.FromResult<Stream>(new MemoryStream([1]))),
+                MediaKind.Audio, UploadTarget.None));
+        Assert.Contains("recording", recording.Reason);
+
+        Assert.Empty(uploader.Pending);   // refused, deleted - never queued
+    }
+
+    [Fact]
+    public async Task AQueuedUploadRefusedLater_TellsSomeoneRatherThanVanishing()
+    {
+        var (uploader, server, _, _) = Sut();
+        server.IsOffline = true;
+        await uploader.UploadAsync(Photo(), MediaKind.Photo, UploadTarget.None);
+
+        string? reported = null;
+        uploader.Rejected += (_, reason) => reported = reason;
+
+        server.IsOffline = false;
+        server.Status = HttpStatusCode.UnsupportedMediaType;
+        Assert.Equal(0, await uploader.DrainAsync());
+
+        Assert.NotNull(reported);
+        Assert.Empty(uploader.Pending);
+    }
+
     private sealed class ScriptedHandler : HttpMessageHandler
     {
         public bool IsOffline { get; set; }
@@ -117,9 +223,18 @@ public class MediaUploaderTests
         public Guid NextId { get; set; } = Guid.NewGuid();
         public int Uploads { get; private set; }
 
+        /// <summary>Every PUT the uploader made to attach a blob to a family recipe.</summary>
+        public List<string> Attaches { get; } = [];
+
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
         {
             if (IsOffline) throw new HttpRequestException("offline");
+
+            if (request.Method == HttpMethod.Put)
+            {
+                Attaches.Add(request.RequestUri!.AbsolutePath);
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NoContent));
+            }
 
             Uploads++;
             var response = new HttpResponseMessage(Status);
