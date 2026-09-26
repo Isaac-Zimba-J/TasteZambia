@@ -2,9 +2,13 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using TasteZambia.Core.Data;
 using TasteZambia.Core.Data.Http;
+using TasteZambia.Core.Models;
 using TasteZambia.Core.Services;
 using TasteZambia.Shared.Contracts.Auth;
+using TasteZambia.Shared.Contracts.Family;
 using TasteZambia.Shared.Contracts.Me;
+using TasteZambia.Shared.Contracts.Media;
+using TasteZambia.Shared.Enums;
 using TasteZambia.Shared.Routes;
 
 namespace TasteZambia.API.Tests.Features;
@@ -133,7 +137,8 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens!.AccessToken);
         await _client.PutAsJsonAsync(ApiRoutes.Me.Profile, new UpdateProfileRequest("Chanda Mwaba", "Kitwe, Copperbelt", "Bemba, English"));
 
-        var repo = new HttpProfileRepository(_client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), _client));
+        var repo = new HttpProfileRepository(_client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), _client),
+            new FamilyArchiveService(new HttpFamilyRepository(_client)));
         var profile = await repo.GetAsync();
 
         Assert.Equal("Chanda Mwaba", profile.Name);
@@ -153,7 +158,8 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         var service = new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client);
         var submitted = await service.SubmitAsync(TasteZambia.Core.Data.SeedData.WalkthroughShareDraft());
 
-        var repo = new HttpProfileRepository(client, new PersonalStore(new InMemoryLocalStore(), TimeProvider.System), service);
+        var repo = new HttpProfileRepository(client, new PersonalStore(new InMemoryLocalStore(), TimeProvider.System), service,
+            new FamilyArchiveService(new HttpFamilyRepository(client)));
         var contributions = await repo.GetContributionsAsync();
 
         var row = Assert.Single(contributions);
@@ -171,7 +177,8 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         using (client)
         {
             var store = new PersonalStore(new InMemoryLocalStore(), TimeProvider.System);
-            var repo = new HttpProfileRepository(client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client));
+            var repo = new HttpProfileRepository(client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client),
+                new FamilyArchiveService(new HttpFamilyRepository(client)));
 
             var profile = await repo.GetAsync();
 
@@ -197,7 +204,8 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
         using (client)
         {
             var store = new PersonalStore(new InMemoryLocalStore(), TimeProvider.System);
-            var repo = new HttpProfileRepository(client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client));
+            var repo = new HttpProfileRepository(client, store, new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client),
+                new FamilyArchiveService(new HttpFamilyRepository(client)));
 
             await repo.UpdateAsync("Chanda Mwaba", "Kitwe, Copperbelt", "Bemba, English");
 
@@ -205,6 +213,63 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
             Assert.Equal("Chanda Mwaba", profile.Name);
             Assert.Equal("Kitwe, Copperbelt", profile.Location);
             Assert.Equal("Bemba, English", profile.Languages);
+        }
+    }
+
+    [Fact]
+    public async Task Profile_PreservedCount_IsWhatTheFamilyShelfHolds()
+    {
+        var (client, _) = await _factory.SignedInClientAsync();
+        using (client)
+        {
+            var family = new FamilyArchiveService(new HttpFamilyRepository(client));
+            await family.PreserveAsync(new ContributionDraft { LocalName = "Ifisashi ya Banakulu", Province = "Northern" });
+            await family.PreserveAsync(new ContributionDraft { LocalName = "Inkoko ya Bataata", Province = "Copperbelt" });
+
+            var repo = new HttpProfileRepository(client, new PersonalStore(new InMemoryLocalStore(), TimeProvider.System),
+                new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client), family);
+
+            var profile = await repo.GetAsync();
+            Assert.Equal(2, profile.PreservedCount);
+
+            var collections = await repo.GetCollectionsAsync();
+            Assert.Equal("2 preserved", collections[3].CountLabel);
+        }
+    }
+
+    /// <summary>
+    /// The regression for the family archive's own verb mismatch: <c>HttpFamilyRepository</c>
+    /// used to call the media endpoint with POST while the controller declares it PUT, so every
+    /// attach 404'd. A fake service never noticed, because it does not speak HTTP at all - this
+    /// drives the real repository against the real API, the same as the other repositories above.
+    /// </summary>
+    [Fact]
+    public async Task Family_AttachMediaAsync_ReallyAttachesThroughTheLiveMediaRoute()
+    {
+        var (client, _) = await _factory.SignedInClientAsync();
+        using (client)
+        {
+            var repo = new HttpFamilyRepository(client);
+            var recipe = await repo.CreateAsync(new CreateFamilyRecipeRequest(
+                "Ifisashi ya Banakulu", "Pumpkin leaves in groundnuts", "Northern", "Bemba",
+                "Banakulu Mwaba", "Mungwi", "She cooked this every time.", "Clay pot on the mbaula.",
+                PrivacyLevel.SharedWithFamily), CancellationToken.None);
+
+            var file = new ByteArrayContent([1, 2, 3]);
+            file.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
+            var upload = new MultipartFormDataContent
+            {
+                { file, "file", "photo.png" },
+                { new StringContent(MediaKind.Photo.ToString()), "kind" },
+            };
+            var uploaded = await (await client.PostAsync(ApiRoutes.Media.Collection, upload))
+                .Content.ReadFromJsonAsync<UploadResultDto>();
+
+            var attached = await repo.AttachMediaAsync(recipe.Id, uploaded!.Id, CancellationToken.None);
+            Assert.True(attached);   // would be false (a 404 swallowed as "not found") under the wrong verb
+
+            var seen = await repo.GetAsync(recipe.Id, CancellationToken.None);
+            Assert.Contains(seen!.Media, m => m.Id == uploaded.Id);
         }
     }
 }

@@ -24,7 +24,7 @@ public class ShareLifecycleTests
     public async Task ShareStart_ShowsBothRoutesAndTheRecordCounts()
     {
         var nav = new Nav();
-        var vm = new ShareStartViewModel(TestServices.Contributions(), nav);
+        var vm = new ShareStartViewModel(TestServices.Contributions(), new FakeFamilyService(), nav);
         await vm.InitializeAsync();
 
         Assert.Equal(0, vm.PublishedCount);
@@ -49,11 +49,15 @@ public class ShareLifecycleTests
         fake.Add(Detail(ContributionStatus.ChangesRequested, [Submitted(), ChangesRequested("R", "note")]));
         fake.SaveDraft(new ContributionDraft { LocalName = "Munkoyo" });
 
-        var vm = new ShareStartViewModel(fake, new Nav());
+        var family = new FakeFamilyService();
+        await family.PreserveAsync(new ContributionDraft { LocalName = "Ifisashi ya Banakulu", Province = "Northern" });
+
+        var vm = new ShareStartViewModel(fake, family, new Nav());
         await vm.InitializeAsync();
 
         Assert.Equal(1, vm.PublishedCount);
         Assert.Equal(2, vm.InReviewCount);   // in review and changes requested are both with the archive
+        Assert.Equal(1, vm.PreservedCount);
         Assert.Equal("1 draft in progress", vm.DraftsLabel);
         Assert.True(vm.HasDrafts);
     }

@@ -50,3 +50,28 @@ public enum ReviewEventKind
     Published = 4,
     Withdrawn = 5,
 }
+
+/// <summary>What a stored blob is. Decides its size ceiling and how the app renders it.</summary>
+public enum MediaKind
+{
+    Photo = 0,
+    Audio = 1,
+}
+
+/// <summary>Where someone stands with a family recipe they were invited to.</summary>
+public enum MemberState
+{
+    Invited = 0,
+    Joined = 1,
+    Removed = 2,
+}
+
+/// <summary>How far a recording has got through transcription. Stage 5 drives the rest.</summary>
+public enum TranscriptState
+{
+    None = 0,
+    Pending = 1,
+    Transcribing = 2,
+    AwaitingApproval = 3,
+    Approved = 4,
+}

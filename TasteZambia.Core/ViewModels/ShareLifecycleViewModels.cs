@@ -12,11 +12,12 @@ namespace TasteZambia.Core.ViewModels;
 
 public sealed partial class ShareStartViewModel(
     IContributionService contributions,
+    IFamilyArchiveService family,
     INavigationService navigation) : BaseViewModel(navigation)
 {
     [ObservableProperty] private int _publishedCount;
     [ObservableProperty] private int _inReviewCount;
-    [ObservableProperty] private int _preservedCount;   // Stage 4 gives this a source.
+    [ObservableProperty] private int _preservedCount;
     [ObservableProperty] private string _draftsLabel = "";
     [ObservableProperty] private bool _hasDrafts;
 
@@ -31,6 +32,7 @@ public sealed partial class ShareStartViewModel(
             var mine = await contributions.GetContributionsAsync();
             PublishedCount = mine.Count(c => c.Status == ContributionStatus.Published);
             InReviewCount = mine.Count(c => c.Status is ContributionStatus.InReview or ContributionStatus.ChangesRequested);
+            PreservedCount = (await family.GetShelfAsync()).Count;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {

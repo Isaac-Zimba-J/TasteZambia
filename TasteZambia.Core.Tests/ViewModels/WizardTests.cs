@@ -18,7 +18,8 @@ file sealed class Nav : INavigationService
 public class ShareViewModelTests
 {
     private static ShareViewModel Sut(IContributionService? svc = null, INavigationService? nav = null)
-        => new(svc ?? TestServices.Contributions(), new InMemoryRegionRepository(), new InMemoryIngredientRepository(), nav ?? new Nav());
+        => new(svc ?? TestServices.Contributions(), new InMemoryRegionRepository(), new InMemoryIngredientRepository(), nav ?? new Nav(),
+            new FakePhotoPicker(), new MediaUploader(TestServices.NoNetwork(), new InMemoryLocalStore(), TimeProvider.System, new FakeAppStorage()));
 
     /// <summary>Types the walkthrough recipe into the wizard the way a contributor would.</summary>
     private static void TypeWalkthrough(ShareViewModel vm)
@@ -255,18 +256,18 @@ public class ShareViewModelTests
 
 public class FamilyViewModelTests
 {
-    private static FamilyViewModel Sut() => new(TestServices.Contributions(), new Nav());
+    private static FamilyViewModel Sut() => new(TestServices.Contributions(), new FakeFamilyService(), new Nav());
 
     [Fact]
-    public async Task StartsOnTheRecipeStepWithThePreFilledDraft()
+    public async Task StartsOnTheRecipeStepWithABlankDraft()
     {
         var vm = Sut();
         await vm.InitializeAsync();
 
         Assert.Equal(1, vm.Step);
         Assert.Equal("The recipe", vm.StepTitle);
-        Assert.Equal("Ifisashi ya Banakulu", vm.Draft.LocalName);
-        Assert.Equal("Bemba", vm.Draft.Language);
+        Assert.Equal("", vm.Draft.LocalName);
+        Assert.Equal("", vm.Draft.Language);
         Assert.False(vm.CanGoBack);
     }
 

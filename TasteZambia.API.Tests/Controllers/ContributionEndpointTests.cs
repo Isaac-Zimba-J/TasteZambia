@@ -30,7 +30,7 @@ public class ContributionEndpointTests(DatabaseFixture fixture) : IAsyncLifetime
         "Chibwabwa na Mbalala", "Pumpkin leaves cooked with pounded groundnuts and nothing else", "Northern", "Relish", "",
         [new("chibwabwa", "Chibwabwa", "Pumpkin leaves", "2 bundles")],
         ["Shred the leaves fine and rinse them twice.", "Pound the groundnuts until the oil starts to show."],
-        "Cooked in Mungwi.", "The relish cooked when there is no money for meat.", "Clay pot on charcoal.", "", "", true);
+        "Cooked in Mungwi.", "The relish cooked when there is no money for meat.", "Clay pot on charcoal.", "", "", true, []);
 
     private static string Route(string template, Guid id) => template.Replace("{id}", id.ToString());
 

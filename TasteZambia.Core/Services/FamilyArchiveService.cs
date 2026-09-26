@@ -1,69 +1,59 @@
+using TasteZambia.Core.Data.Http;
 using TasteZambia.Core.Models;
+using TasteZambia.Shared.Contracts.Family;
 using TasteZambia.Shared.Enums;
 
 namespace TasteZambia.Core.Services;
 
 public interface IFamilyArchiveService
 {
-    int PercentComplete { get; }
-    AudioClip Recording { get; }
-    AudioClip ApprovedRecording { get; }
-    PrivacyLevel Privacy { get; }
-    void SetPrivacy(PrivacyLevel level);
-    IReadOnlyList<DraftChecklistItem> Checklist { get; }
-    IReadOnlyList<FamilyMember> Members { get; }
-    IReadOnlyList<FamilyNote> Notes { get; }
-    IReadOnlyList<ProvenanceStep> Provenance { get; }
-    IReadOnlyList<PreservedRecipe> PreservedRecipes { get; }
+    Task<IReadOnlyList<PreservedRecipe>> GetShelfAsync(CancellationToken ct = default);
+    Task<FamilyRecipeDto?> GetAsync(Guid id, CancellationToken ct = default);
+    Task<FamilyRecipeDto> PreserveAsync(ContributionDraft draft, CancellationToken ct = default);
+    Task<InviteDto?> InviteAsync(Guid id, string displayName, string relation, CancellationToken ct = default);
+    Task<FamilyRecipeDto?> AcceptInviteAsync(string code, CancellationToken ct = default);
+    /// <summary>False when the API refused it as not the caller's to change - a real answer, not a network failure.</summary>
+    Task<bool> RemoveMemberAsync(Guid id, Guid memberId, CancellationToken ct = default);
+    Task AddNoteAsync(Guid id, string body, CancellationToken ct = default);
+    /// <summary>False when the API refused it as not the caller's to change - a real answer, not a network failure.</summary>
+    Task<bool> SetPrivacyAsync(Guid id, PrivacyLevel privacy, CancellationToken ct = default);
+    /// <summary>False when the recipe or the upload could not be found for this account.</summary>
+    Task<bool> AttachMediaAsync(Guid id, Guid mediaId, CancellationToken ct = default);
 }
 
-public sealed class FamilyArchiveService : IFamilyArchiveService
+/// <summary>
+/// A thin client over the account's family recipes. <see cref="HttpFamilyRepository"/> carries
+/// the wire calls; this maps the shelf listing to <see cref="PreservedRecipe"/> and passes the
+/// rest through as the DTOs the five screens already bind to.
+/// </summary>
+public sealed class FamilyArchiveService(HttpFamilyRepository repository) : IFamilyArchiveService
 {
-    public int PercentComplete => 72;
+    public async Task<IReadOnlyList<PreservedRecipe>> GetShelfAsync(CancellationToken ct = default)
+        => (await repository.GetShelfAsync(ct)).Select(PreservedRecipe.From).ToList();
 
-    public AudioClip Recording { get; } = new("Banakulu Mwaba, in Bemba", "12:40", false);
-    public AudioClip ApprovedRecording { get; } = new("Her voice, in Bemba", "12:40", true);
+    public Task<FamilyRecipeDto?> GetAsync(Guid id, CancellationToken ct = default)
+        => repository.GetAsync(id, ct);
 
-    public PrivacyLevel Privacy { get; private set; } = PrivacyLevel.SharedWithFamily;
-    public void SetPrivacy(PrivacyLevel level) => Privacy = level;
+    public Task<FamilyRecipeDto> PreserveAsync(ContributionDraft draft, CancellationToken ct = default)
+        => repository.CreateAsync(new CreateFamilyRecipeRequest(
+            draft.LocalName, draft.EnglishDescription, draft.Province, draft.Language,
+            draft.TaughtBy, draft.TaughtByOrigin, draft.Story, draft.TraditionalMethod, draft.Privacy), ct);
 
-    public IReadOnlyList<DraftChecklistItem> Checklist { get; } =
-    [
-        new("Recipe name, region and photos", null, true),
-        new("Who taught you, and the story", null, true),
-        new("Cooking steps", "Two of four written", false),
-        new("Who can see it", "Not chosen yet — private until you do", false),
-    ];
+    public Task<InviteDto?> InviteAsync(Guid id, string displayName, string relation, CancellationToken ct = default)
+        => repository.InviteAsync(id, new AddMemberRequest(displayName, relation), ct);
 
-    public IReadOnlyList<FamilyMember> Members { get; } =
-    [
-        new("Chanda Mwaba",  "You · owner",        "Owner",   "#EEF2EC", "#2F6A4D"),
-        new("Mutinta Mwaba", "Sister, Lusaka",     "Joined",  "#EEF2EC", "#2F6A4D"),
-        new("Aunt Bwalya",   "Mungwi",             "Joined",  "#EEF2EC", "#2F6A4D"),
-        new("Kaunda Mwaba",  "Cousin, Manchester", "Invited", "#F7EEDA", "#7A5A10"),
-    ];
+    public Task<FamilyRecipeDto?> AcceptInviteAsync(string code, CancellationToken ct = default)
+        => repository.AcceptAsync(new AcceptInviteRequest(code), ct);
 
-    public IReadOnlyList<FamilyNote> Notes { get; } =
-    [
-        new("Aunt Bwalya", "Added a note · 4 Sep",
-            "She never used tomato in this. If you add tomato it becomes a different relish and she would have said so."),
-        new("Mutinta Mwaba", "Added a photo · 5 Sep",
-            "Found the picture from Christmas 2011, the year we all came home. The pot in it is the same clay pot."),
-    ];
+    public Task<bool> RemoveMemberAsync(Guid id, Guid memberId, CancellationToken ct = default)
+        => repository.RemoveMemberAsync(id, memberId, ct);
 
-    public IReadOnlyList<ProvenanceStep> Provenance { get; } =
-    [
-        new("Preserved privately",               "Written down in March 2026, with her recording.",                  "#2F6A4D"),
-        new("Family agreed to publish",          "All four members with access consented in August.",                "#2F6A4D"),
-        new("Verified against Northern records", "Reviewed by Namakau Sitali, September 2026.",                      "#2F6A4D"),
-        new("Published and credited",            "Listed under Northern Province, linked to chibwabwa and mbalala.", "#C07F1E"),
-    ];
+    public Task AddNoteAsync(Guid id, string body, CancellationToken ct = default)
+        => repository.AddNoteAsync(id, new AddNoteRequest(body), ct);
 
-    public IReadOnlyList<PreservedRecipe> PreservedRecipes { get; } =
-    [
-        new("Ifisashi ya Banakulu",  "Banakulu Mwaba, Mungwi", "Public",  "#EEF2EC", "#2F6A4D", "Audio 12:40 · 3 photos · 2 family notes"),
-        new("Inkoko ya Bataata",     "my father, Kitwe",       "Family",  "#F7EEDA", "#7A5A10", "1 photo · no audio yet"),
-        new("Munkoyo wa Ba Shikulu", "Grandfather, Solwezi",   "Private", "#F0ECE4", "#6B5C4A", "Draft · 40% complete"),
-        new("Chikanda ya Ba Mayo",   "my mother, Chinsali",    "Family",  "#F7EEDA", "#7A5A10", "Audio 6:12 · 2 photos"),
-    ];
+    public Task<bool> SetPrivacyAsync(Guid id, PrivacyLevel privacy, CancellationToken ct = default)
+        => repository.SetPrivacyAsync(id, new SetPrivacyRequest(privacy), ct);
+
+    public Task<bool> AttachMediaAsync(Guid id, Guid mediaId, CancellationToken ct = default)
+        => repository.AttachMediaAsync(id, mediaId, ct);
 }

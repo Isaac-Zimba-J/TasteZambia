@@ -26,7 +26,7 @@ public class ContributionStateMachineTests(DatabaseFixture fixture) : IAsyncLife
         db.Users.Add(user);
         await db.SaveChangesAsync();
         var clock = new FakeTimeProvider(T0);
-        return (new ContributionService(new ContributionRepository(db), new UserProfileRepository(db), clock), user.Id, clock);
+        return (new ContributionService(new ContributionRepository(db), new UserProfileRepository(db), db, clock), user.Id, clock);
     }
 
     private static SubmitContributionRequest Chibwabwa() => new(
@@ -34,7 +34,7 @@ public class ContributionStateMachineTests(DatabaseFixture fixture) : IAsyncLife
         [new("chibwabwa", "Chibwabwa", "Pumpkin leaves", "2 bundles"), new(null, "Salt", "Mucele", "To taste")],
         ["Shred the leaves fine and rinse them twice.", "Pound the groundnuts until the oil starts to show."],
         "Cooked in Mungwi and the villages around Kasama.", "This is the relish cooked when there is no money for meat.",
-        "Clay pot on charcoal.", "", "", true);
+        "Clay pot on charcoal.", "", "", true, []);
 
     [Fact]
     public async Task Submit_ArrivesInReviewWithASubmittedEvent()
@@ -48,6 +48,29 @@ public class ContributionStateMachineTests(DatabaseFixture fixture) : IAsyncLife
         Assert.Equal(ContributionService.AnonymousContributor, c.ContributorName);   // profile has no name yet
         Assert.Equal(2, c.Ingredients.Count);
         Assert.Equal(2, c.Steps.Count);
+    }
+
+    [Fact]
+    public async Task Submit_AttachesTheSubmittersOwnPhotos_AndSkipsSomeoneElsesId()
+    {
+        var (svc, uid, _) = await SutAsync();
+
+        await using var seed = fixture.NewContext();
+        var stranger = new ArchiveUser { UserName = $"device-{Guid.NewGuid():N}" };
+        seed.Users.Add(stranger);
+        var mine1 = new MediaAsset { UserId = uid, Kind = MediaKind.Photo, ContentType = "image/jpeg", Length = 1, CreatedAt = T0 };
+        var mine2 = new MediaAsset { UserId = uid, Kind = MediaKind.Photo, ContentType = "image/jpeg", Length = 1, CreatedAt = T0 };
+        var theirs = new MediaAsset { UserId = stranger.Id, Kind = MediaKind.Photo, ContentType = "image/jpeg", Length = 1, CreatedAt = T0 };
+        seed.MediaAssets.AddRange(mine1, mine2, theirs);
+        await seed.SaveChangesAsync();
+
+        // A bad id (someone else's upload) is dropped, not a reason to fail the submission.
+        var c = await svc.SubmitAsync(uid, Chibwabwa() with { PhotoIds = [mine1.Id, mine2.Id, theirs.Id] }, default);
+        Assert.Equal(ContributionStatus.InReview, c.Status);
+
+        await using var check = fixture.NewContext();
+        Assert.Equal(2, await check.MediaAssets.CountAsync(a => a.ContributionId == c.Id));
+        Assert.Null(await check.MediaAssets.Where(a => a.Id == theirs.Id).Select(a => a.ContributionId).SingleAsync());
     }
 
     [Fact]
@@ -185,7 +208,7 @@ public class ContributionStateMachineTests(DatabaseFixture fixture) : IAsyncLife
     private ContributionService NewService()
     {
         var db = fixture.NewContext();
-        return new ContributionService(new ContributionRepository(db), new UserProfileRepository(db), new FakeTimeProvider(T0));
+        return new ContributionService(new ContributionRepository(db), new UserProfileRepository(db), db, new FakeTimeProvider(T0));
     }
 
     private async Task ForceStatusAsync(Guid id, ContributionStatus status)

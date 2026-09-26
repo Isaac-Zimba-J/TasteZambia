@@ -25,6 +25,7 @@ public sealed partial class PrivacyOptionViewModel(
 
 public sealed partial class FamilyViewModel(
     IContributionService contributions,
+    IFamilyArchiveService archive,
     INavigationService navigation) : BaseViewModel(navigation)
 {
     public ContributionDraft Draft { get; private set; } = new();
@@ -47,6 +48,9 @@ public sealed partial class FamilyViewModel(
     public bool IsStep4 => Step == 4;
     public bool CanGoBack => Step > 1;
     public string NextLabel => Step == 4 ? "Save to the archive" : "Continue";
+
+    /// <summary>Why the save did not go through. Empty when there is nothing to report.</summary>
+    [ObservableProperty] private string _submitError = "";
 
     public override Task InitializeAsync()
     {
@@ -75,7 +79,23 @@ public sealed partial class FamilyViewModel(
         Draft.Privacy = option.Level;
     }
 
-    [RelayCommand] private void Next() => Step = Math.Min(4, Step + 1);
+    [RelayCommand]
+    private async Task Next()
+    {
+        if (Step < 4) { Step++; return; }
+
+        try
+        {
+            var recipe = await archive.PreserveAsync(Draft);
+            SubmitError = "";
+            await Navigation.GoToAsync("famDraft", new Dictionary<string, object> { ["id"] = recipe.Id });
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            SubmitError = OfflineMessage;
+        }
+    }
+
     [RelayCommand] private void Back() => Step = Math.Max(1, Step - 1);
     [RelayCommand] private Task Close() => Navigation.GoBackAsync();
 }

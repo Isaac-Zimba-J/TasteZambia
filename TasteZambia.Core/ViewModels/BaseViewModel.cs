@@ -12,6 +12,10 @@ public abstract partial class BaseViewModel(INavigationService navigation) : Obs
     /// <summary>Shown when the failure is not the network's fault. The detail is in the log.</summary>
     public const string UnexpectedMessage = "Something went wrong loading this. Try again.";
 
+    /// <summary>Shown when the API refuses a write because it is not the caller's to make. The
+    /// server answers this the same as "not found" so it does not confirm the recipe exists.</summary>
+    public const string NotAllowedMessage = "Only the person who preserved this recipe can change that.";
+
     protected INavigationService Navigation { get; } = navigation;
 
     [ObservableProperty]

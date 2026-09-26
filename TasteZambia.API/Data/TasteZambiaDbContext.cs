@@ -24,6 +24,14 @@ public class TasteZambiaDbContext(DbContextOptions<TasteZambiaDbContext> options
     // Community contributions on their way into the archive.
     public DbSet<Contribution> Contributions => Set<Contribution>();
 
+    public DbSet<MediaAsset> MediaAssets => Set<MediaAsset>();
+
+    // The family archive: kept private by default, opened up by FamilyAccessService alone.
+    public DbSet<FamilyRecipe> FamilyRecipes => Set<FamilyRecipe>();
+    public DbSet<FamilyMember> FamilyMembers => Set<FamilyMember>();
+    public DbSet<FamilyNote> FamilyNotes => Set<FamilyNote>();
+    public DbSet<FamilyInvite> FamilyInvites => Set<FamilyInvite>();
+
     protected override void OnModelCreating(ModelBuilder b)
     {
         // Identity configures its own tables here. It MUST run before ours.

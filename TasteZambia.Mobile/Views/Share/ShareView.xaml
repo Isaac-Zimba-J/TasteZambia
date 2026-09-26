@@ -76,20 +76,47 @@
                     </Grid>
                     <VerticalStackLayout Spacing="7">
                         <Label Text="Photos of the finished dish" Style="{StaticResource FieldLabel}"/>
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" HeightRequest="84">
-                            <Border WidthRequest="84" StrokeThickness="0" StrokeShape="RoundRectangle 13" Padding="0">
-                                <controls:StripePlaceholder/>
-                            </Border>
-                            <Border Grid.Column="1" Stroke="{StaticResource TzBorderDashed}" StrokeThickness="1"
-                                    StrokeDashArray="4,3" StrokeShape="RoundRectangle 13" BackgroundColor="Transparent">
-                                <VerticalStackLayout Spacing="5" VerticalOptions="Center" HorizontalOptions="Center">
-                                    <ic:FluentIcon Icon="Add" IconSize="Size20"
-                                                   ForegroundColor="{StaticResource TzFaint}"/>
-                                    <Label Text="photos come with the next update" FontFamily="PlexMonoRegular" FontSize="10.5"
-                                           TextColor="{StaticResource TzMuted2}"/>
-                                </VerticalStackLayout>
-                            </Border>
-                        </Grid>
+                        <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                            <HorizontalStackLayout Spacing="10">
+                                <HorizontalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Photos}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:DraftPhotoViewModel">
+                                            <Grid WidthRequest="84" HeightRequest="84">
+                                                <Border StrokeThickness="0" StrokeShape="RoundRectangle 13" Padding="0"
+                                                        BackgroundColor="{StaticResource TzSurface}">
+                                                    <Image Source="{Binding LocalPath}" Aspect="AspectFill"/>
+                                                </Border>
+                                                <ActivityIndicator IsRunning="{Binding IsPending}" IsVisible="{Binding IsPending}"
+                                                                   Color="{StaticResource TzGold}"
+                                                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                <controls:CircleButton Icon="Dismiss" Diameter="22" IconSize="Size12"
+                                                                       CircleBackground="#B3221A12" IconColor="{StaticResource TzSurface}"
+                                                                       SemanticLabel="Remove photo" Margin="0,4,4,0"
+                                                                       HorizontalOptions="End" VerticalOptions="Start"
+                                                                       Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ShareViewModel}}, Path=RemovePhotoCommand}"
+                                                                       CommandParameter="{Binding .}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </HorizontalStackLayout>
+
+                                <Border WidthRequest="84" HeightRequest="84" Stroke="{StaticResource TzBorderDashed}" StrokeThickness="1"
+                                        StrokeDashArray="4,3" StrokeShape="RoundRectangle 13" BackgroundColor="Transparent">
+                                    <VerticalStackLayout Spacing="6" VerticalOptions="Center" HorizontalOptions="Center">
+                                        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                                            <controls:CircleButton Icon="Camera" Diameter="30" IconSize="Size16"
+                                                                   CircleBackground="{StaticResource TzCream}" IconColor="{StaticResource TzGold}"
+                                                                   SemanticLabel="Take a photo" Command="{Binding AddPhotoCommand}"/>
+                                            <controls:CircleButton Icon="Image" Diameter="30" IconSize="Size16"
+                                                                   CircleBackground="{StaticResource TzCream}" IconColor="{StaticResource TzGold}"
+                                                                   SemanticLabel="Choose a photo" Command="{Binding ChoosePhotoCommand}"/>
+                                        </HorizontalStackLayout>
+                                        <Label Text="add photo" FontFamily="PlexMonoRegular" FontSize="10.5"
+                                               TextColor="{StaticResource TzMuted2}" HorizontalOptions="Center"/>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </HorizontalStackLayout>
+                        </ScrollView>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
 

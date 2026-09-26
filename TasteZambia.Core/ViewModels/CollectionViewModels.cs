@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using TasteZambia.Core.Models;
 using TasteZambia.Core.Services;
@@ -113,13 +114,16 @@ public sealed partial class FamilyRecipesViewModel(
     IFamilyArchiveService archive, INavigationService navigation) : BaseViewModel(navigation)
 {
     public ObservableCollection<PreservedRecipe> Items { get; } = [];
-    public string CountLabel => $"{archive.PreservedRecipes.Count} preserved";
 
-    public override Task InitializeAsync()
+    [ObservableProperty] private string _countLabel = "";
+
+    protected override bool HasContent => Items.Count > 0;
+
+    public override async Task InitializeAsync()
     {
-        if (Items.Count > 0) return Task.CompletedTask;
-        foreach (var r in archive.PreservedRecipes) Items.Add(r);
-        return Task.CompletedTask;
+        Items.Clear();
+        foreach (var r in await archive.GetShelfAsync()) Items.Add(r);
+        CountLabel = Items.Count == 1 ? "1 preserved" : $"{Items.Count} preserved";
     }
 
     [RelayCommand] private Task PreserveAnother() => Navigation.GoToAsync("famStart");

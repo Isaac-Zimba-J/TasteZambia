@@ -1,6 +1,9 @@
 using TasteZambia.Core.Data;
 using TasteZambia.Core.Services;
+using TasteZambia.Core.Tests.Fakes;
 using TasteZambia.Core.ViewModels;
+using TasteZambia.Shared.Contracts.Family;
+using TasteZambia.Shared.Enums;
 
 namespace TasteZambia.Core.Tests.ViewModels;
 
@@ -63,20 +66,28 @@ public class CollectionsTests
     }
 
     [Fact]
-    public async Task FamilyRecipes_ShowFourWithMixedPrivacy()
+    public async Task FamilyRecipes_ShowMixedPrivacy()
     {
         var nav = new Nav();
-        var vm = new FamilyRecipesViewModel(new FamilyArchiveService(), nav);
+        var family = new FakeFamilyService();
+        family.Add(NewRecipe("Ifisashi ya Banakulu", PrivacyLevel.PublicInArchive));
+        family.Add(NewRecipe("Inkoko ya Bataata", PrivacyLevel.SharedWithFamily));
+        family.Add(NewRecipe("Munkoyo wa Ba Shikulu", PrivacyLevel.PrivateToMe));
+        var vm = new FamilyRecipesViewModel(family, nav);
         await vm.InitializeAsync();
 
-        Assert.Equal(4, vm.Items.Count);
-        Assert.Equal("Public", vm.Items[0].Privacy);
-        Assert.Equal("Private", vm.Items[2].Privacy);
-        Assert.Equal("4 preserved", vm.CountLabel);
+        Assert.Equal(3, vm.Items.Count);
+        Assert.Contains(vm.Items, i => i.Name == "Ifisashi ya Banakulu" && i.Privacy == "Public");
+        Assert.Contains(vm.Items, i => i.Name == "Munkoyo wa Ba Shikulu" && i.Privacy == "Private");
+        Assert.Equal("3 preserved", vm.CountLabel);
 
         vm.PreserveAnotherCommand.Execute(null);
         Assert.Equal("famStart", nav.Routes.Single());
     }
+
+    private static FamilyRecipeDto NewRecipe(string name, PrivacyLevel privacy) => new(
+        Guid.NewGuid(), name, "", "Northern", "Bemba", "", "", "", "",
+        privacy, TranscriptState.None, null, 100, true, DateTimeOffset.UtcNow, [], [], []);
 
     [Fact]
     public async Task Settings_HasEightLanguagesAndFiveToggles()

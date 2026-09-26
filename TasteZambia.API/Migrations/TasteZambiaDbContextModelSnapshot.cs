@@ -667,6 +667,187 @@ namespace TasteZambia.API.Migrations
                     b.ToTable("dishes", (string)null);
                 });
 
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.FamilyInvite", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("FamilyRecipeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("RedeemedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("FamilyRecipeId");
+
+                    b.ToTable("family_invites", (string)null);
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.FamilyMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<Guid>("FamilyRecipeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("InvitedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("JoinedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Relation")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FamilyRecipeId", "UserId");
+
+                    b.ToTable("family_members", (string)null);
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.FamilyNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AuthorUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("FamilyRecipeId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FamilyRecipeId");
+
+                    b.ToTable("family_notes", (string)null);
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.FamilyRecipe", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LocalName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Privacy")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Province")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("PublishedDishId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Story")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TaughtBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TaughtByOrigin")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TraditionalMethod")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Transcript")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId", "UpdatedAt");
+
+                    b.ToTable("family_recipes", (string)null);
+                });
+
             modelBuilder.Entity("TasteZambia.API.Data.Entities.FlaggedField", b =>
                 {
                     b.Property<int>("Id")
@@ -813,6 +994,51 @@ namespace TasteZambia.API.Migrations
                     b.HasIndex("IngredientKey", "SortOrder");
 
                     b.ToTable("ingredient_usages", (string)null);
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.MediaAsset", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Caption")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid?>("ContributionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("FamilyRecipeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("Length")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContributionId");
+
+                    b.HasIndex("FamilyRecipeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("media_assets", (string)null);
                 });
 
             modelBuilder.Entity("TasteZambia.API.Data.Entities.MethodNarrative", b =>
@@ -1360,6 +1586,33 @@ namespace TasteZambia.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.FamilyInvite", b =>
+                {
+                    b.HasOne("TasteZambia.API.Data.Entities.FamilyRecipe", null)
+                        .WithMany()
+                        .HasForeignKey("FamilyRecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.FamilyMember", b =>
+                {
+                    b.HasOne("TasteZambia.API.Data.Entities.FamilyRecipe", null)
+                        .WithMany("Members")
+                        .HasForeignKey("FamilyRecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.FamilyNote", b =>
+                {
+                    b.HasOne("TasteZambia.API.Data.Entities.FamilyRecipe", null)
+                        .WithMany("Notes")
+                        .HasForeignKey("FamilyRecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("TasteZambia.API.Data.Entities.FlaggedField", b =>
                 {
                     b.HasOne("TasteZambia.API.Data.Entities.Contribution", null)
@@ -1385,6 +1638,14 @@ namespace TasteZambia.API.Migrations
                         .HasForeignKey("IngredientKey")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.MediaAsset", b =>
+                {
+                    b.HasOne("TasteZambia.API.Data.Entities.FamilyRecipe", null)
+                        .WithMany("Media")
+                        .HasForeignKey("FamilyRecipeId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("TasteZambia.API.Data.Entities.MethodNarrative", b =>
@@ -1529,6 +1790,15 @@ namespace TasteZambia.API.Migrations
             modelBuilder.Entity("TasteZambia.API.Data.Entities.Dish", b =>
                 {
                     b.Navigation("Recipe");
+                });
+
+            modelBuilder.Entity("TasteZambia.API.Data.Entities.FamilyRecipe", b =>
+                {
+                    b.Navigation("Media");
+
+                    b.Navigation("Members");
+
+                    b.Navigation("Notes");
                 });
 
             modelBuilder.Entity("TasteZambia.API.Data.Entities.Ingredient", b =>

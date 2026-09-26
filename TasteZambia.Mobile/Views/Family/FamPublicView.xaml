@@ -8,14 +8,15 @@
              x:Class="TasteZambia.Mobile.Views.Family.FamPublicView"
              x:DataType="vm:FamPublicViewModel">
 
-    <ScrollView>
+    <Grid>
+    <ScrollView IsVisible="{Binding IsFirstLoad, Converter={StaticResource InvertedBool}}">
         <VerticalStackLayout Spacing="0">
             <VerticalStackLayout Padding="20,18,20,18" BackgroundColor="{StaticResource TzGreenDeep}" Spacing="0">
                 <controls:CircleButton Icon="ArrowLeft" Diameter="34" CircleBackground="{StaticResource TzOnDark14}"
                                        SemanticLabel="Go back" IconColor="{StaticResource TzSurface}"
                                        HorizontalOptions="Start" Margin="0,0,0,14" Command="{Binding BackCommand}"/>
                 <Border HorizontalOptions="Start" BackgroundColor="#33E8BD77" Stroke="#80E8BD77" StrokeThickness="1"
-                        StrokeShape="RoundRectangle 20" Padding="11,5" Margin="0,0,0,13">
+                        StrokeShape="RoundRectangle 20" Padding="11,5" Margin="0,0,0,13" IsVisible="{Binding IsPublic}">
                     <Label Text="NOW IN THE PUBLIC ARCHIVE" FontFamily="ArchivoMedium" FontSize="9.5" CharacterSpacing="0.38"
                            TextColor="{StaticResource TzGoldLight}"/>
                 </Border>
@@ -58,7 +59,17 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Border Style="{StaticResource SecondaryAction}" Margin="20">
+            <Label Text="{Binding PrivacyNote}" Margin="20,20,20,0" FontFamily="ArchivoRegular" FontSize="11.5"
+                   LineHeight="1.6" TextColor="{StaticResource TzBodyMuted}"/>
+
+            <Border Style="{StaticResource PrimaryAction}" Margin="20" IsVisible="{Binding IsPublic, Converter={StaticResource InvertedBool}}">
+                <Label Text="Publish to everyone" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                       HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SetPublicCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+            <Border Style="{StaticResource SecondaryAction}" Margin="20" IsVisible="{Binding IsPublic}">
                 <Label Text="Make private again" FontFamily="ArchivoSemiBold" FontSize="12.5"
                        HorizontalOptions="Center" TextColor="{StaticResource TzBody}"/>
                 <Border.GestureRecognizers>
@@ -68,4 +79,9 @@
             <BoxView HeightRequest="6" Color="Transparent"/>
         </VerticalStackLayout>
     </ScrollView>
+
+    <controls:LoadState IsLoading="{Binding IsFirstLoad}" ErrorMessage="{Binding LoadError}"
+                        RetryCommand="{Binding RefreshCommand}"
+                        LoadingText="Reading the archive…"/>
+    </Grid>
 </views:LoadOnceView>
