@@ -8,11 +8,23 @@ public sealed record FamilyMember(Guid Id, string Name, string Role, string Stat
     private const string JoinedBg = "#EEF2EC", JoinedFg = "#2F6A4D";
     private const string InvitedBg = "#F7EEDA", InvitedFg = "#7A5A10";
 
-    public static FamilyMember From(FamilyMemberDto dto) => dto.State switch
+    /// <summary>The person who preserved the recipe. The archive will not remove them from it.</summary>
+    public bool IsOwner { get; init; }
+
+    public bool CanRemove => !IsOwner;
+
+    public static FamilyMember From(FamilyMemberDto dto)
     {
-        MemberState.Joined => new(dto.Id, dto.DisplayName, dto.Relation, "Joined", JoinedBg, JoinedFg),
-        _ => new(dto.Id, dto.DisplayName, dto.Relation, "Invited", InvitedBg, InvitedFg),
-    };
+        var (status, bg, fg) = dto.State == MemberState.Joined
+            ? ("Joined", JoinedBg, JoinedFg)
+            : ("Invited", InvitedBg, InvitedFg);
+
+        // The owner's row reads as themselves, not as somebody who accepted an invitation.
+        return new FamilyMember(dto.Id, dto.DisplayName, dto.Relation, dto.IsOwner ? "You" : status, bg, fg)
+        {
+            IsOwner = dto.IsOwner,
+        };
+    }
 }
 
 public sealed record FamilyNote(Guid Id, string Who, string When, string Body)

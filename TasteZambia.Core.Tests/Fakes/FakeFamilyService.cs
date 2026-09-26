@@ -28,11 +28,17 @@ public sealed class FakeFamilyService : IFamilyArchiveService
     public Task<FamilyRecipeDto?> GetAsync(Guid id, CancellationToken ct = default)
         => Task.FromResult(_recipes.GetValueOrDefault(id));
 
+    /// <summary>The owner's own membership row, as the API creates it.</summary>
+    public static readonly FamilyMemberDto Owner = new(Guid.NewGuid(), "You", "Owner", MemberState.Joined, IsOwner: true);
+
     public Task<FamilyRecipeDto> PreserveAsync(ContributionDraft draft, CancellationToken ct = default)
     {
         var dto = new FamilyRecipeDto(Guid.NewGuid(), draft.LocalName, draft.EnglishDescription, draft.Province, draft.Language,
             draft.TaughtBy, draft.TaughtByOrigin, draft.Story, draft.TraditionalMethod, draft.Privacy,
-            TranscriptState.None, null, PercentComplete(draft), true, DateTimeOffset.UtcNow, [], [], []);
+            TranscriptState.None, null, PercentComplete(draft), true, DateTimeOffset.UtcNow,
+            // The real API seeds the owner as a joined member. A fake that starts empty hides
+            // every off-by-one in the screens that count who has access.
+            [Owner], [], []);
         _recipes[dto.Id] = dto;
         return Task.FromResult(dto);
     }
@@ -41,7 +47,7 @@ public sealed class FakeFamilyService : IFamilyArchiveService
     {
         var dto = _recipes[id];
         var memberId = Guid.NewGuid();
-        var members = dto.Members.Append(new FamilyMemberDto(memberId, displayName, relation, MemberState.Invited)).ToList();
+        var members = dto.Members.Append(new FamilyMemberDto(memberId, displayName, relation, MemberState.Invited, false)).ToList();
         _recipes[id] = dto with { Members = members };
         return Task.FromResult<InviteDto?>(new InviteDto(memberId, "ABCD1234", DateTimeOffset.UtcNow.AddDays(7)));
     }

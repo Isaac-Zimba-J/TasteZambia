@@ -225,6 +225,17 @@ public sealed partial class FamDraftViewModel(
     [RelayCommand] private Task Back() => Navigation.GoBackAsync();
 }
 
+/// <summary>Wording for "how many people can see this", counting the owner honestly.</summary>
+internal static class Access
+{
+    public static string People(int total) => total switch
+    {
+        <= 1 => "JUST YOU",
+        2 => "YOU AND 1 OTHER",
+        _ => $"YOU AND {total - 1} OTHERS",
+    };
+}
+
 public sealed partial class FamSavedViewModel(
     IFamilyArchiveService archive, INavigationService navigation) : BaseViewModel(navigation)
 {
@@ -299,9 +310,9 @@ public sealed partial class FamSharedViewModel(
         RecipeName = dto.LocalName;
         TaughtBy = dto.TaughtBy.Length > 0 ? $"As taught by {dto.TaughtBy}" : "";
 
-        var active = dto.Members.Count(m => m.State != MemberState.Removed);
-        // +1: the owner reading this screen is never in the member list, but is always one of the people who can see it.
-        AccessBadge = $"FAMILY ONLY · {active + 1} PEOPLE";
+        // The owner is already one of these rows, so counting them again overstated it -
+        // a recipe nobody had been invited to read "2 PEOPLE".
+        AccessBadge = "FAMILY ONLY · " + Access.People(dto.Members.Count(m => m.State != MemberState.Removed));
 
         HasRecording = dto.Media.Any(m => m.Kind == MediaKind.Audio);
         Recording = new AudioClip(dto.TaughtBy, "", dto.Transcript == TranscriptState.Approved);
@@ -394,12 +405,14 @@ public sealed partial class FamPublicViewModel(
             ? $"{dto.TaughtBy}{(dto.TaughtByOrigin.Length > 0 ? $" of {dto.TaughtByOrigin}" : "")}."
             : "";
 
-        var active = dto.Members.Count(m => m.State != MemberState.Removed);
+        // Only people other than the owner count as having been let in; the owner is always
+        // on the list, so counting them made "not yet shared" unreachable.
+        var invited = dto.Members.Count(m => m.State != MemberState.Removed && !m.IsOwner);
 
         Provenance.Clear();
         Provenance.Add(new ProvenanceStep("Preserved privately", $"Written down on {dto.UpdatedAt:d MMMM yyyy}.", "#2F6A4D"));
-        Provenance.Add(active > 0
-            ? new ProvenanceStep("Shared with family", $"{active} member{(active == 1 ? "" : "s")} have access.", "#2F6A4D")
+        Provenance.Add(invited > 0
+            ? new ProvenanceStep("Shared with family", $"{invited} other {(invited == 1 ? "person has" : "people have")} access.", "#2F6A4D")
             : new ProvenanceStep("Not yet shared", "No one has been invited yet.", "#D8CDB9"));
 
         // The design's "Family agreed to publish" and "Verified against Northern records" steps

@@ -30,7 +30,12 @@ public sealed record AcceptInviteRequest([Required, MinLength(8), MaxLength(8)] 
 public sealed record AddNoteRequest([Required, MaxLength(2000)] string Body);
 public sealed record SetPrivacyRequest(PrivacyLevel Privacy);
 
-public sealed record FamilyMemberDto(Guid Id, string DisplayName, string Relation, MemberState State);
+/// <summary>
+/// One person on a family recipe. <paramref name="IsOwner"/> is the row belonging to whoever
+/// preserved it - they cannot be removed, and counting them as an invitee overstates who has
+/// been let in.
+/// </summary>
+public sealed record FamilyMemberDto(Guid Id, string DisplayName, string Relation, MemberState State, bool IsOwner);
 public sealed record FamilyNoteDto(Guid Id, string AuthorName, string Body, DateTimeOffset CreatedAt);
 public sealed record InviteDto(Guid MemberId, string Code, DateTimeOffset ExpiresAt);
 

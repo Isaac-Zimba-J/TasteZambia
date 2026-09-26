@@ -17,7 +17,7 @@ public static class FamilyMappings
         IFamilyService.PercentComplete(r), r.OwnerId == userId, r.UpdatedAt,
         // Removed stays visible with that state rather than vanishing - the point of
         // the enum value is to say what happened, not to hide it.
-        [.. r.Members.Select(m => m.ToDto())],
+        [.. r.Members.Select(m => m.ToDto(r.OwnerId))],
         [.. r.Notes.Select(n => n.ToDto())],
         [.. r.Media.Select(a => a.ToDto())]);
 
@@ -28,7 +28,7 @@ public static class FamilyMappings
         r.Media.Any(m => m.Kind == MediaKind.Audio),
         IFamilyService.PercentComplete(r), r.UpdatedAt);
 
-    public static FamilyMemberDto ToDto(this FamilyMember m) => new(m.Id, m.DisplayName, m.Relation, m.State);
+    public static FamilyMemberDto ToDto(this FamilyMember m, string ownerId) => new(m.Id, m.DisplayName, m.Relation, m.State, m.UserId == ownerId);
 
     public static FamilyNoteDto ToDto(this FamilyNote n) => new(n.Id, n.AuthorName, n.Body, n.CreatedAt);
 

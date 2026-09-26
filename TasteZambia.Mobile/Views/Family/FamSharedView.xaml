@@ -74,7 +74,10 @@
                                     <controls:PillLabel Grid.Column="1" Text="{Binding Status}" VerticalOptions="Center"
                                                         PillBackground="{Binding BadgeBgHex, Converter={StaticResource HexToColor}}"
                                                         TextColor="{Binding BadgeFgHex, Converter={StaticResource HexToColor}}"/>
-                                    <Label Grid.Column="2" Text="Remove" FontFamily="ArchivoMedium" FontSize="10.5"
+                                    <!-- Not on the owner's own row: the archive always refuses
+                                         that, so offering it is an invitation to be told no. -->
+                                    <Label Grid.Column="2" Text="Remove" IsVisible="{Binding CanRemove}"
+                                           FontFamily="ArchivoMedium" FontSize="10.5"
                                            TextColor="{StaticResource TzMuted}" VerticalOptions="Center">
                                         <Label.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:FamSharedViewModel}}, Path=RemoveMemberCommand}"

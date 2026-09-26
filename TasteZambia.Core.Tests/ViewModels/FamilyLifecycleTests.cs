@@ -117,4 +117,95 @@ public class FamilyLifecycleTests
         Assert.Equal(BaseViewModel.NotAllowedMessage, vm.PrivacyNote);
         Assert.Equal(PrivacyLevel.SharedWithFamily, family.PrivacyOf(id));   // unchanged - the refusal was not applied locally
     }
+
+    // ---- The owner is on the member list. Every screen that counts who can see a recipe
+    // ---- used to count them twice, or not notice they were there at all. ----
+
+    [Fact]
+    public async Task ARecipeNobodyWasInvitedTo_SaysJustYou()
+    {
+        var family = new FakeFamilyService();
+        var id = family.Add(SomeRecipe() with { Members = [FakeFamilyService.Owner] });
+        var vm = new FamSharedViewModel(family, new Nav()) { Id = id };
+
+        await vm.LoadAsync();
+
+        // It used to read "FAMILY ONLY · 2 PEOPLE" with nobody invited.
+        Assert.Equal("FAMILY ONLY · JUST YOU", vm.AccessBadge);
+    }
+
+    [Fact]
+    public async Task OneInvitedRelative_CountsAsOneOther()
+    {
+        var family = new FakeFamilyService();
+        var id = family.Add(SomeRecipe() with
+        {
+            Members = [FakeFamilyService.Owner, new FamilyMemberDto(Guid.NewGuid(), "Mutinta Mwaba", "Sister", MemberState.Joined, false)],
+        });
+        var vm = new FamSharedViewModel(family, new Nav()) { Id = id };
+
+        await vm.LoadAsync();
+
+        Assert.Equal("FAMILY ONLY · YOU AND 1 OTHER", vm.AccessBadge);
+    }
+
+    [Fact]
+    public async Task TheOwnersOwnRow_ReadsAsThemAndCannotBeRemoved()
+    {
+        var family = new FakeFamilyService();
+        var id = family.Add(SomeRecipe() with
+        {
+            Members = [FakeFamilyService.Owner, new FamilyMemberDto(Guid.NewGuid(), "Mutinta", "Sister", MemberState.Joined, false)],
+        });
+        var vm = new FamSharedViewModel(family, new Nav()) { Id = id };
+
+        await vm.LoadAsync();
+
+        var owner = Assert.Single(vm.Members, m => m.IsOwner);
+        Assert.Equal("You", owner.Status);
+        Assert.False(owner.CanRemove);          // the archive always refuses; do not offer it
+        Assert.True(vm.Members.Single(m => !m.IsOwner).CanRemove);
+    }
+
+    [Fact]
+    public async Task ProvenanceSaysNotYetShared_UntilSomeoneElseIsOnIt()
+    {
+        var family = new FakeFamilyService();
+        var alone = family.Add(SomeRecipe() with { Members = [FakeFamilyService.Owner] });
+        var vm = new FamPublicViewModel(family, new Nav()) { Id = alone };
+        await vm.LoadAsync();
+
+        // This branch was unreachable: the owner made the count always at least one.
+        Assert.Contains(vm.Provenance, p => p.Label == "Not yet shared");
+
+        var shared = family.Add(SomeRecipe() with
+        {
+            Members = [FakeFamilyService.Owner, new FamilyMemberDto(Guid.NewGuid(), "Mutinta", "Sister", MemberState.Joined, false)],
+        });
+        var sharedVm = new FamPublicViewModel(family, new Nav()) { Id = shared };
+        await sharedVm.LoadAsync();
+
+        var step = Assert.Single(sharedVm.Provenance, p => p.Label == "Shared with family");
+        Assert.Equal("1 other person has access.", step.Detail);   // was "1 member have access"
+    }
+
+    [Fact]
+    public async Task TwoInvitedRelatives_ReadAsPlural()
+    {
+        var family = new FakeFamilyService();
+        var id = family.Add(SomeRecipe() with
+        {
+            Members =
+            [
+                FakeFamilyService.Owner,
+                new FamilyMemberDto(Guid.NewGuid(), "Mutinta", "Sister", MemberState.Joined, false),
+                new FamilyMemberDto(Guid.NewGuid(), "Bwalya", "Aunt", MemberState.Joined, false),
+            ],
+        });
+        var vm = new FamPublicViewModel(family, new Nav()) { Id = id };
+
+        await vm.LoadAsync();
+
+        Assert.Equal("2 other people have access.", Assert.Single(vm.Provenance, p => p.Label == "Shared with family").Detail);
+    }
 }
