@@ -12,4 +12,11 @@ public interface IVoiceRecorder
 
     /// <summary>How long the current recording has run. Zero when idle.</summary>
     TimeSpan Elapsed { get; }
+
+    /// <summary>
+    /// How long this device can record before the file outgrows what the archive accepts.
+    /// It depends on the encoding the device actually supports, so it is only meaningful
+    /// once recording has started - before that it is the best case.
+    /// </summary>
+    TimeSpan MaxDuration { get; }
 }

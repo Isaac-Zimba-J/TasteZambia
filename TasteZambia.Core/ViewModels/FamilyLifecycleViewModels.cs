@@ -66,6 +66,10 @@ public sealed partial class FamDraftViewModel(
     [ObservableProperty] private AudioClip _recording = new("", "", false);
     [ObservableProperty] private bool _isRecording;
 
+    /// <summary>What this phone can manage, said before the reader starts talking.</summary>
+    [ObservableProperty] private string _recordingLimitNote = "";
+    [ObservableProperty] private string _recordingElapsedLabel = "";
+
     /// <summary>Why the last photo or recording did not attach. Empty when there is nothing to report.</summary>
     [ObservableProperty] private string _mediaError = "";
 
@@ -117,11 +121,10 @@ public sealed partial class FamDraftViewModel(
     private async Task ToggleRecording()
     {
         MediaError = "";
+
         if (recorder.IsRecording)
         {
-            var file = await recorder.StopAsync();
-            IsRecording = false;
-            if (file is not null) await UploadAndAttachAsync(file, MediaKind.Audio);
+            await FinishRecordingAsync();
             return;
         }
 
@@ -129,6 +132,8 @@ public sealed partial class FamDraftViewModel(
         {
             await recorder.StartAsync();
             IsRecording = true;
+            RecordingLimitNote = $"Up to {Minutes(recorder.MaxDuration)} on this phone.";
+            WatchTheClock();
         }
         catch (Exception)
         {
@@ -136,6 +141,52 @@ public sealed partial class FamDraftViewModel(
             MediaError = "Could not start recording. Check the microphone permission.";
         }
     }
+
+    /// <summary>
+    /// Stops on its own at the point the file would grow past what the archive accepts.
+    /// Letting it run and fail on upload would lose a recording someone sat down to make.
+    /// </summary>
+    private void WatchTheClock()
+    {
+        var limit = recorder.MaxDuration;
+        _ = Task.Run(async () =>
+        {
+            while (recorder.IsRecording)
+            {
+                if (recorder.Elapsed >= limit)
+                {
+                    await FinishRecordingAsync();
+                    MediaError = $"Recording stopped at {Minutes(limit)} - the longest the archive can take from this phone.";
+                    return;
+                }
+
+                RecordingElapsedLabel = Clock(recorder.Elapsed);
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+        });
+    }
+
+    private async Task FinishRecordingAsync()
+    {
+        var file = await recorder.StopAsync();
+        IsRecording = false;
+        RecordingElapsedLabel = "";
+        if (file is null) return;
+
+        await UploadAndAttachAsync(file, MediaKind.Audio);
+
+        // The uploader holds its own copy now, so the recorder's file is litter. Nothing
+        // else deletes it, and an uncompressed recording is not small.
+        if (file.LocalPath is { } path && File.Exists(path)) File.Delete(path);
+    }
+
+    private static string Minutes(TimeSpan span)
+    {
+        var whole = (int)span.TotalMinutes;
+        return whole == 1 ? "1 minute" : $"{whole} minutes";
+    }
+
+    private static string Clock(TimeSpan span) => $"{(int)span.TotalMinutes}:{span.Seconds:00}";
 
     private async Task UploadAndAttachAsync(PickedFile file, MediaKind kind)
     {

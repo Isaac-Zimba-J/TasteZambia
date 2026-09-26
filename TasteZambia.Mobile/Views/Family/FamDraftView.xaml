@@ -113,6 +113,13 @@
                                FontFamily="PlexMonoRegular" FontSize="10.5" TextColor="{StaticResource TzMuted2}" HorizontalOptions="Center"/>
                         <Label Text="recording… tap to stop" IsVisible="{Binding IsRecording}"
                                FontFamily="PlexMonoRegular" FontSize="10.5" TextColor="{StaticResource TzClayText}" HorizontalOptions="Center"/>
+                        <!-- How long has been recorded, and how long this phone can manage: a
+                             recording that outgrows the archive is one someone sat down to make. -->
+                        <Label Text="{Binding RecordingElapsedLabel}" IsVisible="{Binding RecordingElapsedLabel, Converter={StaticResource HasText}}"
+                               FontFamily="PlexMonoMedium" FontSize="12" TextColor="{StaticResource TzClayText}" HorizontalOptions="Center"/>
+                        <Label Text="{Binding RecordingLimitNote}" IsVisible="{Binding RecordingLimitNote, Converter={StaticResource HasText}}"
+                               FontFamily="ArchivoRegular" FontSize="9.5" LineHeight="1.4" HorizontalTextAlignment="Center"
+                               TextColor="{StaticResource TzMuted2}" HorizontalOptions="Center"/>
                     </VerticalStackLayout>
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding ToggleRecordingCommand}"/>
