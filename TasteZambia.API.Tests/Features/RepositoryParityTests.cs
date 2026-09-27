@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using TasteZambia.Core.Data;
@@ -156,7 +157,7 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
     {
         var (client, _) = await _factory.SignedInClientAsync();
         var service = new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client);
-        var submitted = await service.SubmitAsync(TasteZambia.Core.Data.SeedData.WalkthroughShareDraft());
+        var submitted = await service.SubmitAsync(TasteZambia.Core.Data.SeedData.WalkthroughShareDraft(), []);
 
         var repo = new HttpProfileRepository(client, new PersonalStore(new InMemoryLocalStore(), TimeProvider.System), service,
             new FamilyArchiveService(new HttpFamilyRepository(client)));
@@ -270,6 +271,85 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
 
             var seen = await repo.GetAsync(recipe.Id, CancellationToken.None);
             Assert.Contains(seen!.Media, m => m.Id == uploaded.Id);
+        }
+    }
+
+    [Fact]
+    public async Task AWizardPhotograph_ReachesTheContributionItWasTakenFor()
+    {
+        var (client, _) = await _factory.SignedInClientAsync();
+        using (client)
+        {
+            var uploader = new MediaUploader(client, new InMemoryLocalStore(), TimeProvider.System, new TemporaryAppStorage());
+            var draftId = Guid.NewGuid();
+
+            var photo = new PickedFile("kitchen.jpg", "image/jpeg", _ => Task.FromResult<Stream>(new MemoryStream([1, 2, 3, 4])));
+            var sent = Assert.IsType<UploadOutcome.Sent>(await uploader.UploadAsync(photo, MediaKind.Photo, UploadTarget.Draft(draftId)));
+
+            // The draft holds its uploads until a submission claims them.
+            Assert.Equal([sent.MediaId], uploader.ClaimFor(draftId));
+
+            var service = new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), client);
+            var submitted = await service.SubmitAsync(TasteZambia.Core.Data.SeedData.WalkthroughShareDraft(), uploader.ClaimFor(draftId));
+
+            // Before this fix the photograph was uploaded and then belonged to nothing.
+            await using var db = fixture.NewContext();
+            var asset = await db.MediaAssets.SingleAsync(a => a.Id == sent.MediaId);
+            Assert.Equal(submitted.Id, asset.ContributionId);
+        }
+    }
+
+    [Fact]
+    public async Task AnotherReadersPhotograph_CannotBeClaimedBySubmittingIt()
+    {
+        var (mine, _) = await _factory.SignedInClientAsync();
+        var (theirs, _) = await _factory.SignedInClientAsync();
+        using (mine)
+        using (theirs)
+        {
+            var theirUploader = new MediaUploader(theirs, new InMemoryLocalStore(), TimeProvider.System, new TemporaryAppStorage());
+            var theirPhoto = new PickedFile("not-mine.jpg", "image/jpeg", _ => Task.FromResult<Stream>(new MemoryStream([9])));
+            var theirs_ = Assert.IsType<UploadOutcome.Sent>(
+                await theirUploader.UploadAsync(theirPhoto, MediaKind.Photo, UploadTarget.None));
+
+            var service = new ContributionService(new DraftStore(new InMemoryLocalStore(), TimeProvider.System), mine);
+            var submitted = await service.SubmitAsync(TasteZambia.Core.Data.SeedData.WalkthroughShareDraft(), [theirs_.MediaId]);
+
+            // The submission succeeds - a person's work is not lost to one bad id - but the
+            // photograph stays theirs.
+            await using var db = fixture.NewContext();
+            var asset = await db.MediaAssets.SingleAsync(a => a.Id == theirs_.MediaId);
+            Assert.Null(asset.ContributionId);
+            Assert.NotEqual(Guid.Empty, submitted.Id);
+        }
+    }
+
+    [Fact]
+    public async Task AddingANote_ReachesTheRecipe_AndARefusalIsNotMistakenForBeingOffline()
+    {
+        var (owner, _) = await _factory.SignedInClientAsync();
+        var (stranger, _) = await _factory.SignedInClientAsync();
+        using (owner)
+        using (stranger)
+        {
+            var theirs = new FamilyArchiveService(new HttpFamilyRepository(owner));
+            var recipe = await theirs.PreserveAsync(new ContributionDraft
+            {
+                LocalName = "Ifisashi ya Banakulu",
+                Province = "Northern",
+                TaughtBy = "Banakulu Mwaba",
+            });
+
+            await theirs.AddNoteAsync(recipe.Id, "She never used tomato in this.");
+
+            var reread = await theirs.GetAsync(recipe.Id);
+            Assert.Single(reread!.Notes, n => n.Body == "She never used tomato in this.");
+
+            // A stranger's note is refused, and that must not read as a network failure -
+            // the archive answered, it just said no.
+            var notTheirs = new FamilyArchiveService(new HttpFamilyRepository(stranger));
+            await Assert.ThrowsAsync<FamilyRequestRefusedException>(
+                () => notTheirs.AddNoteAsync(recipe.Id, "Let me in."));
         }
     }
 }

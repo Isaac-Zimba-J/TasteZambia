@@ -15,12 +15,19 @@ public class SyncSchedulerTests
     private sealed class FakeMediaUploader : IMediaUploader
     {
         public int DrainCalls;
-        public Task<Guid?> UploadAsync(PickedFile file, MediaKind kind, CancellationToken ct = default) => Task.FromResult<Guid?>(null);
+
+        public Task<UploadOutcome> UploadAsync(PickedFile file, MediaKind kind, UploadTarget target, CancellationToken ct = default)
+            => Task.FromResult<UploadOutcome>(new UploadOutcome.Queued(Guid.NewGuid()));
+
         public Task<int> DrainAsync(CancellationToken ct = default) { DrainCalls++; return Task.FromResult(0); }
         public void Cancel(Guid localId) { }
+        public IReadOnlyList<Guid> ClaimFor(Guid draftId) => [];
+        public void ForgetClaims(Guid draftId) { }
         public IReadOnlyList<PendingUpload> Pending => [];
         public event EventHandler? Changed;
         public event EventHandler<Guid>? Lost;
+        public event EventHandler<string>? Rejected;
+        public event EventHandler<(Guid LocalId, Guid MediaId)>? Uploaded;
     }
 
     [Fact]

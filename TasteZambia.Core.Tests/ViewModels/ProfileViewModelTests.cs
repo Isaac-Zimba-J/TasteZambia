@@ -99,4 +99,59 @@ public class ProfileViewModelTests
         Assert.Equal(["#A3452A", "#C07F1E", "#2F6A4D", "#17402F"],
                      vm.Collections.Select(c => c.Tint));
     }
+
+    // ---- The editor's Save button ----
+
+    [Fact]
+    public void TheSaveButton_LightsUpAsSoonAsAReaderTypesAName()
+    {
+        var vm = new ProfileEditViewModel(new InMemoryProfileRepository(), new Nav());
+        var announced = new List<string?>();
+        vm.PropertyChanged += (_, e) => announced.Add(e.PropertyName);
+
+        Assert.False(vm.CanSave);
+
+        vm.Name = "Mwansa";
+
+        Assert.True(vm.CanSave);
+        // The button's look is bound to CanSave, not to the command, so the view has to hear it.
+        Assert.Contains(nameof(vm.CanSave), announced);
+        Assert.True(vm.SaveCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public void TheSaveButton_GoesBackToGrey_WhenTheNameIsEmptiedAgain()
+    {
+        var vm = new ProfileEditViewModel(new InMemoryProfileRepository(), new Nav());
+        vm.Name = "Mwansa";
+
+        var announced = new List<string?>();
+        vm.PropertyChanged += (_, e) => announced.Add(e.PropertyName);
+        vm.Name = "   ";   // whitespace is not a name
+
+        Assert.False(vm.CanSave);
+        Assert.Contains(nameof(vm.CanSave), announced);
+        Assert.False(vm.SaveCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task Saving_KeepsWhatTheReaderTyped_AndGoesBack()
+    {
+        var profiles = new InMemoryProfileRepository();
+        var vm = new ProfileEditViewModel(profiles, new Nav());
+        await vm.InitializeAsync();
+
+        Assert.Equal("", vm.Name);   // the placeholder name is not something they chose
+
+        vm.Name = " Mwansa Chanda ";
+        vm.Location = "Kasama";
+        vm.Languages = "Bemba, English";
+        await vm.SaveCommand.ExecuteAsync(null);
+
+        var saved = await profiles.GetAsync();
+        Assert.Equal("Mwansa Chanda", saved.Name);
+        Assert.Equal("Kasama", saved.Location);
+        Assert.Equal("Bemba, English", saved.Languages);
+        Assert.Equal("", vm.ErrorMessage);
+    }
 }

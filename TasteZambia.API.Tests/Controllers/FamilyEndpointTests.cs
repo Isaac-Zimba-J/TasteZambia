@@ -88,7 +88,21 @@ public class FamilyEndpointTests(DatabaseFixture fixture) : IAsyncLifetime
         var recipe = await (await _owner.PostAsJsonAsync(ApiRoutes.Family.Collection, sparse))
             .Content.ReadFromJsonAsync<FamilyRecipeDto>();
 
-        Assert.Equal(50, recipe!.PercentComplete);   // name+province and taught-by only
+        // Only the first of the design's four steps is done. "Who taught you, and the story"
+        // is one step, and this draft has the teacher without the story - so it does not
+        // count, which is what the checklist on the screen also shows.
+        Assert.Equal(25, recipe!.PercentComplete);
+    }
+
+    [Fact]
+    public async Task TheStoryOnItsOwn_CompletesTheStepItBelongsTo()
+    {
+        var withStory = Ifisashi() with { TraditionalMethod = "", Privacy = PrivacyLevel.PrivateToMe };
+        var recipe = await (await _owner.PostAsJsonAsync(ApiRoutes.Family.Collection, withStory))
+            .Content.ReadFromJsonAsync<FamilyRecipeDto>();
+
+        // Name and region, plus teacher and story. Method and privacy still to go.
+        Assert.Equal(50, recipe!.PercentComplete);
     }
 
     [Fact]

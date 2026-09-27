@@ -5,6 +5,7 @@ using TasteZambia.Core.Models;
 using TasteZambia.Core.Services;
 using TasteZambia.Shared.Contracts.Family;
 using TasteZambia.Shared.Enums;
+using TasteZambia.Shared.Validation;
 
 namespace TasteZambia.Core.ViewModels;
 
@@ -18,7 +19,7 @@ public sealed partial class FamStartViewModel(
         new("1", "The recipe",     "Name in your own language, region, photos."),
         new("2", "Who taught you", "Their name, where they learned it, and their voice if you can record it."),
         new("3", "The story",      "When it was cooked, what it meant, how they did it differently."),
-        new("4", "Who can see it", "Private, your family, or the public archive. Changeable at any time."),
+        new("4", "Who can see it", "Just you, your family, or anyone with its link. Changeable at any time."),
     ];
 
     public ObservableCollection<PreservedRecipe> Recipes { get; } = [];
@@ -66,6 +67,10 @@ public sealed partial class FamDraftViewModel(
     [ObservableProperty] private AudioClip _recording = new("", "", false);
     [ObservableProperty] private bool _isRecording;
 
+    /// <summary>What this phone can manage, said before the reader starts talking.</summary>
+    [ObservableProperty] private string _recordingLimitNote = "";
+    [ObservableProperty] private string _recordingElapsedLabel = "";
+
     /// <summary>Why the last photo or recording did not attach. Empty when there is nothing to report.</summary>
     [ObservableProperty] private string _mediaError = "";
 
@@ -74,7 +79,13 @@ public sealed partial class FamDraftViewModel(
     public override async Task InitializeAsync()
     {
         var dto = await archive.GetAsync(Id);
-        if (dto is null) return;
+        if (dto is null)
+        {
+            // Not an exception, so LoadAsync counts this a success and LoadState shows
+            // nothing. Saying so is the difference between an explanation and a blank page.
+            LoadError = NoLongerAvailableMessage;
+            return;
+        }
         Apply(dto);
     }
 
@@ -89,18 +100,32 @@ public sealed partial class FamDraftViewModel(
         HasRecording = dto.Media.Any(m => m.Kind == MediaKind.Audio);
         Recording = new AudioClip(dto.TaughtBy.Length > 0 ? dto.TaughtBy : "Her recording", "", dto.Transcript == TranscriptState.Approved);
 
+        // The same four facts the percentage is built from, so the list and the number
+        // cannot tell the reader different things.
+        var steps = FamilyDraftProgress.Steps(
+            hasNameAndRegion: dto.LocalName.Length > 0 && dto.Province.Length > 0,
+            hasTeacherAndStory: dto.TaughtBy.Length > 0 && dto.Story.Length > 0,
+            hasMethod: dto.TraditionalMethod.Length > 0,
+            privacyChosen: dto.Privacy != PrivacyLevel.PrivateToMe);
+
+        // A photograph and a recording are invitations, not requirements - which is why they
+        // are notes under their steps rather than conditions on them.
+        var notes = new Dictionary<string, string>
+        {
+            ["Recipe name, region and photos"] = hasPhoto ? "" : "A photo brings it to life, but is not required.",
+            ["Her method, in her words"] = HasRecording ? "" : "Record her telling it, in any language.",
+        };
+
         Checklist.Clear();
-        Checklist.Add(new("Recipe name, region and photos",
-            hasPhoto ? null : "A photo brings it to life, but is not required.",
-            dto.LocalName.Length > 0 && dto.Province.Length > 0));
-        Checklist.Add(new("Who taught you, and the story", null, dto.TaughtBy.Length > 0 && dto.Story.Length > 0));
-        Checklist.Add(new("Her method, and a recording",
-            HasRecording ? null : "Record her telling it, in any language.",
-            dto.TraditionalMethod.Length > 0 && HasRecording));
-        Checklist.Add(new("Who can see it", null, true));
+        foreach (var step in steps)
+            Checklist.Add(new(step.Label,
+                notes.TryGetValue(step.Label, out var note) && note.Length > 0 ? note : null,
+                step.IsDone));
 
         var left = Checklist.Count(c => !c.IsDone);
-        ProgressLabel = $"{PercentComplete}% complete · {left} thing{(left == 1 ? "" : "s")} left";
+        ProgressLabel = left == 0
+            ? $"{PercentComplete}% complete"
+            : $"{PercentComplete}% complete · {left} thing{(left == 1 ? "" : "s")} left";
         TranscriptionNote = $"Transcription pending. A {(dto.Language.Length > 0 ? dto.Language : "family")} speaker on the archive team " +
                              "will transcribe it, and you approve the text before it is attached.";
     }
@@ -117,11 +142,10 @@ public sealed partial class FamDraftViewModel(
     private async Task ToggleRecording()
     {
         MediaError = "";
+
         if (recorder.IsRecording)
         {
-            var file = await recorder.StopAsync();
-            IsRecording = false;
-            if (file is not null) await UploadAndAttachAsync(file, MediaKind.Audio);
+            await FinishRecordingAsync();
             return;
         }
 
@@ -129,6 +153,8 @@ public sealed partial class FamDraftViewModel(
         {
             await recorder.StartAsync();
             IsRecording = true;
+            RecordingLimitNote = $"Up to {Minutes(recorder.MaxDuration)} on this phone.";
+            WatchTheClock();
         }
         catch (Exception)
         {
@@ -137,36 +163,98 @@ public sealed partial class FamDraftViewModel(
         }
     }
 
+    /// <summary>
+    /// Stops on its own at the point the file would grow past what the archive accepts.
+    /// Letting it run and fail on upload would lose a recording someone sat down to make.
+    /// </summary>
+    private void WatchTheClock()
+    {
+        var limit = recorder.MaxDuration;
+        _ = Task.Run(async () =>
+        {
+            while (recorder.IsRecording)
+            {
+                if (recorder.Elapsed >= limit)
+                {
+                    await FinishRecordingAsync();
+                    MediaError = $"Recording stopped at {Minutes(limit)} - the longest the archive can take from this phone.";
+                    return;
+                }
+
+                RecordingElapsedLabel = Clock(recorder.Elapsed);
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+        });
+    }
+
+    private async Task FinishRecordingAsync()
+    {
+        var file = await recorder.StopAsync();
+        IsRecording = false;
+        RecordingElapsedLabel = "";
+        if (file is null) return;
+
+        await UploadAndAttachAsync(file, MediaKind.Audio);
+
+        // The uploader holds its own copy now, so the recorder's file is litter. Nothing
+        // else deletes it, and an uncompressed recording is not small.
+        if (file.LocalPath is { } path && File.Exists(path)) File.Delete(path);
+    }
+
+    private static string Minutes(TimeSpan span)
+    {
+        var whole = (int)span.TotalMinutes;
+        return whole == 1 ? "1 minute" : $"{whole} minutes";
+    }
+
+    private static string Clock(TimeSpan span) => $"{(int)span.TotalMinutes}:{span.Seconds:00}";
+
     private async Task UploadAndAttachAsync(PickedFile file, MediaKind kind)
     {
-        var mediaId = await mediaUploader.UploadAsync(file, kind);
-        if (mediaId is null)
+        // The uploader attaches it to this recipe itself - on the spot when the archive is
+        // reachable, and on the next drain when it is not. This screen only reports.
+        var outcome = await mediaUploader.UploadAsync(file, kind, UploadTarget.FamilyRecipe(Id));
+
+        switch (outcome)
         {
-            // MediaUploader already queued it for the next time the archive is reachable.
-            MediaError = "Saved on your phone; it will attach once you are back online.";
-            return;
+            case UploadOutcome.Refused refused:
+                MediaError = refused.Reason;
+                return;
+
+            case UploadOutcome.Queued:
+                MediaError = "Saved on your phone. It will be added once you are back online.";
+                return;
+
+            case UploadOutcome.Sent:
+                MediaError = "";
+                break;
         }
 
         try
         {
-            if (!await archive.AttachMediaAsync(Id, mediaId.Value))
-            {
-                // Arrived and was refused - not a connectivity problem, so it does not get the offline message.
-                MediaError = "Could not attach that upload. Try picking it again.";
-                return;
-            }
-
             var dto = await archive.GetAsync(Id);
             if (dto is not null) Apply(dto);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
-            MediaError = OfflineMessage;
+            // It is in the archive; only this screen's refresh failed.
+            MediaError = "Added, but this screen could not refresh. Pull down to see it.";
         }
     }
 
     [RelayCommand] private Task Finish() => Navigation.GoToAsync("famSaved", new Dictionary<string, object> { ["id"] = Id });
     [RelayCommand] private Task Back() => Navigation.GoBackAsync();
+}
+
+/// <summary>Wording for "how many people can see this", counting the owner honestly.</summary>
+internal static class Access
+{
+    public static string People(int total) => total switch
+    {
+        <= 1 => "JUST YOU",
+        2 => "YOU AND 1 OTHER",
+        _ => $"YOU AND {total - 1} OTHERS",
+    };
 }
 
 public sealed partial class FamSavedViewModel(
@@ -188,13 +276,19 @@ public sealed partial class FamSavedViewModel(
     public override async Task InitializeAsync()
     {
         var dto = await archive.GetAsync(Id);
-        if (dto is null) return;
+        if (dto is null)
+        {
+            // Not an exception, so LoadAsync counts this a success and LoadState shows
+            // nothing. Saying so is the difference between an explanation and a blank page.
+            LoadError = NoLongerAvailableMessage;
+            return;
+        }
 
         Privacy = dto.Privacy;
         (PrivacyLabel, PrivacyNote) = dto.Privacy switch
         {
-            PrivacyLevel.PublicInArchive => ("Public in the archive", "Anyone can read it. It keeps its credit to your family wherever it is shown."),
-            PrivacyLevel.SharedWithFamily => ("Shared with family", "Anyone you invite can read it and add their own notes. It stays out of the public archive."),
+            PrivacyLevel.PublicInArchive => ("Open beyond the family", "Anyone given its link can read it. It keeps its credit to your family wherever it is shown."),
+            PrivacyLevel.SharedWithFamily => ("Shared with family", "Anyone you invite can read it and add their own notes. Nobody outside the family can."),
             _ => ("Private to you", "Only you can open it. Nothing is reviewed or published."),
         };
 
@@ -230,6 +324,13 @@ public sealed partial class FamSharedViewModel(
     [ObservableProperty] private string _newMemberRelation = "";
     [ObservableProperty] private string _inviteCode = "";
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(AddNoteCommand))]
+    [NotifyPropertyChangedFor(nameof(CanAddNote))]   // the button's look is bound to it too
+    private string _newNote = "";
+
+    public bool CanAddNote => NewNote.Trim().Length > 0;
+
     /// <summary>Why the last invite or removal did not take. Empty when there is nothing to report.</summary>
     [ObservableProperty] private string _actionError = "";
 
@@ -238,14 +339,20 @@ public sealed partial class FamSharedViewModel(
     public override async Task InitializeAsync()
     {
         var dto = await archive.GetAsync(Id);
-        if (dto is null) return;
+        if (dto is null)
+        {
+            // Not an exception, so LoadAsync counts this a success and LoadState shows
+            // nothing. Saying so is the difference between an explanation and a blank page.
+            LoadError = NoLongerAvailableMessage;
+            return;
+        }
 
         RecipeName = dto.LocalName;
         TaughtBy = dto.TaughtBy.Length > 0 ? $"As taught by {dto.TaughtBy}" : "";
 
-        var active = dto.Members.Count(m => m.State != MemberState.Removed);
-        // +1: the owner reading this screen is never in the member list, but is always one of the people who can see it.
-        AccessBadge = $"FAMILY ONLY · {active + 1} PEOPLE";
+        // The owner is already one of these rows, so counting them again overstated it -
+        // a recipe nobody had been invited to read "2 PEOPLE".
+        AccessBadge = "FAMILY ONLY · " + Access.People(dto.Members.Count(m => m.State != MemberState.Removed));
 
         HasRecording = dto.Media.Any(m => m.Kind == MediaKind.Audio);
         Recording = new AudioClip(dto.TaughtBy, "", dto.Transcript == TranscriptState.Approved);
@@ -272,6 +379,33 @@ public sealed partial class FamSharedViewModel(
             NewMemberName = "";
             NewMemberRelation = "";
             await InitializeAsync();   // the person just invited now shows up as Invited
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            ActionError = OfflineMessage;
+        }
+    }
+
+    /// <summary>
+    /// The screen already told the reader "anyone you invite can add their own notes", and
+    /// the archive already accepted them. Only the command was missing.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanAddNote))]
+    private async Task AddNote()
+    {
+        var body = NewNote.Trim();
+        if (body.Length == 0) return;
+
+        try
+        {
+            await archive.AddNoteAsync(Id, body);
+            NewNote = "";
+            ActionError = "";
+            await InitializeAsync();   // the note appears where the family will read it
+        }
+        catch (FamilyRequestRefusedException ex)
+        {
+            ActionError = ex.Message;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
@@ -319,7 +453,13 @@ public sealed partial class FamPublicViewModel(
     public override async Task InitializeAsync()
     {
         _dto = await archive.GetAsync(Id);
-        if (_dto is not null) Apply(_dto);
+        if (_dto is null)
+        {
+            LoadError = NoLongerAvailableMessage;
+            return;
+        }
+
+        Apply(_dto);
     }
 
     private void Apply(FamilyRecipeDto dto)
@@ -327,23 +467,29 @@ public sealed partial class FamPublicViewModel(
         _dto = dto;
         Headline = dto.LocalName;
         IsPublic = dto.Privacy == PrivacyLevel.PublicInArchive;
+        // What opening a family recipe actually does today is widen who may read it - it does
+        // not list it anywhere. PublishedDishId is never set from here, and the shelf query
+        // deliberately keeps a stranger's public recipe off every shelf. Saying "published in
+        // the public archive" promised a place in the archive that nobody can reach.
         Intro = IsPublic
-            ? "The family chose to open this recipe to everyone. It kept its name, its recording and its credit."
-            : "Still just for the family. Publishing sends it to the public archive, with the same name, recording and credit.";
+            ? "The family opened this recipe up. Anyone given its link can read it, with its name, its recording and its credit."
+            : "Still just for the family. Opening it up lets anyone with its link read it, with the same name, recording and credit.";
         PrivacyNote = IsPublic
-            ? "Now visible to everyone in the public archive."
-            : "Only your family can see it right now. Publishing shows it to everyone.";
+            ? "Anyone with the link can read it. It is not listed in the public archive - that is a separate step the archive team takes."
+            : "Only your family can see it right now.";
 
         Credit = dto.TaughtBy.Length > 0
             ? $"{dto.TaughtBy}{(dto.TaughtByOrigin.Length > 0 ? $" of {dto.TaughtByOrigin}" : "")}."
             : "";
 
-        var active = dto.Members.Count(m => m.State != MemberState.Removed);
+        // Only people other than the owner count as having been let in; the owner is always
+        // on the list, so counting them made "not yet shared" unreachable.
+        var invited = dto.Members.Count(m => m.State != MemberState.Removed && !m.IsOwner);
 
         Provenance.Clear();
         Provenance.Add(new ProvenanceStep("Preserved privately", $"Written down on {dto.UpdatedAt:d MMMM yyyy}.", "#2F6A4D"));
-        Provenance.Add(active > 0
-            ? new ProvenanceStep("Shared with family", $"{active} member{(active == 1 ? "" : "s")} have access.", "#2F6A4D")
+        Provenance.Add(invited > 0
+            ? new ProvenanceStep("Shared with family", $"{invited} other {(invited == 1 ? "person has" : "people have")} access.", "#2F6A4D")
             : new ProvenanceStep("Not yet shared", "No one has been invited yet.", "#D8CDB9"));
 
         // The design's "Family agreed to publish" and "Verified against Northern records" steps
@@ -353,8 +499,12 @@ public sealed partial class FamPublicViewModel(
         Provenance.Add(new ProvenanceStep("Verified against Northern records", "Not tracked by the archive yet.", "#D8CDB9"));
 
         Provenance.Add(IsPublic
-            ? new ProvenanceStep("Published and credited", "Listed in the public archive, credited to your family.", "#C07F1E")
-            : new ProvenanceStep("Not yet published", "Still private to your family.", "#D8CDB9"));
+            ? new ProvenanceStep("Open to anyone with the link", "Readable outside your family, credited to them.", "#2F6A4D")
+            : new ProvenanceStep("Not yet opened up", "Still private to your family.", "#D8CDB9"));
+
+        // Listing a family recipe in the public archive is Stage 3's review path, which nothing
+        // here starts. Showing it as pending is the truth; showing it as done was not.
+        Provenance.Add(new ProvenanceStep("Listed in the public archive", "Not yet - the archive team lists a recipe after reviewing it.", "#D8CDB9"));
     }
 
     [RelayCommand]

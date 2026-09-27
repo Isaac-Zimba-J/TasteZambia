@@ -1,0 +1,76 @@
+# TasteZambia served on a bare IP address, for when there is no domain yet.
+#
+# The difference from compose.production.yml: there is no reverse proxy and no
+# certificate, so the api publishes its own port on the host and speaks plain
+# HTTP. Let's Encrypt cannot issue for an IP address - it validates DNS names -
+# so TLS is simply absent here. Read the "What this costs you" section of
+# infra/docker/README.md before pointing anything but your own test phone at it.
+#
+#   cd ~/apps/tastezambia
+#   docker compose -f infra/docker/compose.production.ip.yml --env-file .env.production up -d --build
+
+name: tastezambia
+
+services:
+  api:
+    build:
+      context: ../..
+      dockerfile: TasteZambia.API/Dockerfile
+    image: tastezambia-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # The port the phone dials: http://SERVER_IP:5080. Kestrel still listens
+      # on 8080 inside the container, exactly as it does behind the proxy.
+      - "${API_PORT:-5080}:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+
+      ConnectionStrings__Archive: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+
+      # Must be stable across restarts: a new key invalidates every phone's
+      # refresh token and silently signs everyone out.
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY}
+
+      Media__Root: /app/media
+      Logging__LogLevel__Default: Information
+      Logging__LogLevel__Microsoft.AspNetCore: Warning
+    volumes:
+      # Contributors' photographs and recordings. Losing this volume loses
+      # them - it is what the nightly backup must cover alongside the database.
+      - media:/app/media
+    networks: [default]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      # Loopback only, so `psql` works over SSH and nothing reaches it from
+      # outside. 5436 keeps clear of other apps on a shared server.
+      - "127.0.0.1:5436:5432"
+    networks: [default]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
+  media:

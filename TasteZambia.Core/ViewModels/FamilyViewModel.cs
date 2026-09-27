@@ -79,9 +79,28 @@ public sealed partial class FamilyViewModel(
         Draft.Privacy = option.Level;
     }
 
+    /// <summary>
+    /// What this step still needs, or null when it is ready. The archive requires a name and a
+    /// province, and finding that out from a 400 told the reader their connection was broken.
+    /// </summary>
+    public string? Validate() => Step switch
+    {
+        1 when Draft.LocalName.Trim().Length == 0 => "Give the recipe the name your family calls it.",
+        1 when Draft.Province.Length == 0 => "Choose the province it comes from.",
+        2 when Draft.TaughtBy.Trim().Length == 0 => "Say who taught you. This is what the record is for.",
+        _ => null,
+    };
+
     [RelayCommand]
     private async Task Next()
     {
+        if (Validate() is { } problem)
+        {
+            SubmitError = problem;
+            return;
+        }
+        SubmitError = "";
+
         if (Step < 4) { Step++; return; }
 
         try
@@ -94,8 +113,19 @@ public sealed partial class FamilyViewModel(
         {
             SubmitError = OfflineMessage;
         }
+        catch (FamilyRequestRefusedException ex)
+        {
+            // The archive arrived at an answer and said no. Blaming the network for that
+            // sends the reader to check their signal over something they can fix here.
+            SubmitError = ex.Message;
+        }
     }
 
-    [RelayCommand] private void Back() => Step = Math.Max(1, Step - 1);
+    [RelayCommand]
+    private void Back()
+    {
+        SubmitError = "";
+        Step = Math.Max(1, Step - 1);
+    }
     [RelayCommand] private Task Close() => Navigation.GoBackAsync();
 }

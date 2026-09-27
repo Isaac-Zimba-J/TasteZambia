@@ -1,3 +1,4 @@
+using System.Net;
 using System.Reflection;
 
 namespace TasteZambia.Mobile.Services;
@@ -9,7 +10,7 @@ namespace TasteZambia.Mobile.Services;
 ///
 /// The LAN address is NOT hardcoded - it changes with every Wi-Fi network. The deploy
 /// script injects it at build time (`-p:ArchiveApiHost=...`), which lands here as
-/// assembly metadata. Production supplies a real host; this is the dev default only.
+/// assembly metadata. The same switch points a build at a deployed server.
 /// </summary>
 public static class ArchiveApiOptions
 {
@@ -33,7 +34,7 @@ public static class ArchiveApiOptions
                 // is nothing sensible to fall back to; fail loudly rather than time out
                 // silently for 100 seconds.
                 return InjectedHost is { } host
-                    ? $"http://{host}:{Port}"
+                    ? UrlFor(host)
                     : throw new InvalidOperationException(
                         "No API host for a physical Android device. Deploy with scripts/android.sh, " +
                         "which injects the Mac's LAN address, or pass -p:ArchiveApiHost=<ip>.");
@@ -42,4 +43,12 @@ public static class ArchiveApiOptions
             return $"http://localhost:{Port}";
         }
     }
+
+    /// <summary>
+    /// A bare IP address means a server with no certificate - Let's Encrypt only issues for
+    /// DNS names - so it is reached over plain HTTP on the published port, and only a Debug
+    /// build may do that. A hostname means TLS terminates at the proxy on 443.
+    /// </summary>
+    internal static string UrlFor(string host)
+        => IPAddress.TryParse(host, out _) ? $"http://{host}:{Port}" : $"https://{host}";
 }

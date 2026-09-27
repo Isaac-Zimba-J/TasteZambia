@@ -62,12 +62,7 @@ public class RefreshTests
     [Fact]
     public async Task Refresh_DoesNotDuplicateRows()
     {
-        var vm = new HomeViewModel(
-            new CatalogService(new InMemoryDishRepository()),
-            new InMemoryCategoryRepository(),
-            TestServices.Favourites(),
-            new PreferenceService(),
-            new Nav());
+        var vm = TestServices.Home(new Nav());
 
         await vm.InitializeAsync();
         var first = vm.Dishes.Count;

@@ -13,7 +13,12 @@ public sealed partial class ProfileEditViewModel(
     IProfileRepository profiles,
     INavigationService navigation) : BaseViewModel(navigation)
 {
-    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(SaveCommand))] private string _name = "";
+    // The command's CanExecute is not enough: the button's own look is bound to CanSave, so
+    // without this it stays drawn as disabled however much the reader types.
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
+    [NotifyPropertyChangedFor(nameof(CanSave))]
+    private string _name = "";
     [ObservableProperty] private string _location = "";
     [ObservableProperty] private string _languages = "";
     [ObservableProperty] private string _errorMessage = "";

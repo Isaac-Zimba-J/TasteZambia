@@ -9,3 +9,12 @@ public interface IAppStorage
 {
     string Directory { get; }
 }
+
+/// <summary>
+/// A throwaway directory, for tests and previews. Lives here rather than in a test project
+/// because both test projects need it, the way InMemoryLocalStore is shared.
+/// </summary>
+public sealed class TemporaryAppStorage : IAppStorage
+{
+    public string Directory { get; } = System.IO.Directory.CreateTempSubdirectory("tz-media-").FullName;
+}

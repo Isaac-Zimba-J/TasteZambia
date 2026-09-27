@@ -16,6 +16,14 @@ public abstract partial class BaseViewModel(INavigationService navigation) : Obs
     /// server answers this the same as "not found" so it does not confirm the recipe exists.</summary>
     public const string NotAllowedMessage = "Only the person who preserved this recipe can change that.";
 
+    /// <summary>
+    /// Shown when a recipe the reader had is no longer theirs to open - they were removed from
+    /// it, or it is gone. A 404 is not an exception, so without this the screen stays blank and
+    /// says nothing at all.
+    /// </summary>
+    public const string NoLongerAvailableMessage =
+        "This recipe is no longer shared with you. Whoever preserved it may have removed your access.";
+
     protected INavigationService Navigation { get; } = navigation;
 
     [ObservableProperty]
