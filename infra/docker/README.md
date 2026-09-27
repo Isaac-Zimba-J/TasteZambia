@@ -1,40 +1,48 @@
 # Deploying the Taste Zambia API
 
-Follows `Docs/shared-vps-deployment-pattern.md`: one shared reverse-proxy stack
-in front, one compose stack per app behind it. Nothing here needs nginx config,
-certbot, or systemd.
+Two paths. Follow **one**.
 
-What ships: the API and its Postgres. The mobile app is not deployed — it is
-built and installed onto phones, and points at `API_HOST`.
+| | Use when | Address the phone dials |
+|---|---|---|
+| **A — bare IP** (this runbook) | No domain yet. Your own phone and a handful of testers. | `http://SERVER_IP:5080` |
+| **B — domain + HTTPS** ([below](#path-b--when-you-have-a-domain)) | Real contributors, or the Play Store. | `https://api.yourdomain/` |
+
+Path A has **no TLS**. Let's Encrypt validates DNS names, so it cannot issue a
+certificate for an IP address — this is not a setting we skipped, it is not
+available. [What that costs you](#what-path-a-costs-you) is worth reading before
+you hand the address to anyone else.
+
+What ships either way: the API and its Postgres. The mobile app is not deployed —
+it is built and installed onto phones, and points at whatever address you chose.
 
 ---
+
+# Path A — bare IP
 
 ## Before you start
 
-You need three things decided:
+You need two things:
 
 | | |
 |---|---|
-| `API_HOST` | The hostname the phones will talk to, e.g. `api.tastezambia.co.zm`. **Its DNS A record must resolve to the server before you bring the stack up** — Let's Encrypt validates over HTTP and fails otherwise. |
-| `LETSENCRYPT_EMAIL` | Where expiry warnings go. |
-| Server access | An SSH key on the server. The first step below is the only one that runs as root. |
+| The server's public IP | Written `SERVER_IP` throughout. Substitute it literally. |
+| SSH access as `root` | Step 1 is the only step that runs as root. |
 
----
+Nothing else is decided in advance — no hostname, no email, no DNS.
 
 ## 1. Prepare the server (once, as root)
 
-Skip this entirely if the server already has the `deploy` user and the proxy
-stack — go to step 3.
+Skip to step 2 if the server already has a `deploy` user and Docker.
 
 ```bash
-ssh root@YOUR_SERVER_IP
+ssh root@SERVER_IP
 
 apt update && apt upgrade -y
 
 # Docker Engine from the official script; the apt package lags badly.
 curl -fsSL https://get.docker.com | sh
 
-# A non-root user to own the apps. Nothing below this line needs root.
+# A non-root user to own the apps. Nothing after this step needs root.
 adduser --disabled-password --gecos "" deploy
 usermod -aG docker,sudo deploy
 mkdir -p /home/deploy/.ssh
@@ -42,88 +50,52 @@ cp /root/.ssh/authorized_keys /home/deploy/.ssh/
 chown -R deploy:deploy /home/deploy/.ssh
 chmod 700 /home/deploy/.ssh && chmod 600 /home/deploy/.ssh/authorized_keys
 
-# Only SSH, HTTP and HTTPS. The database is never exposed.
-ufw allow OpenSSH && ufw allow 80 && ufw allow 443 && ufw --force enable
+# SSH and the API port. Not 80 or 443 - nothing is listening there on this path.
+# The database is never opened; it binds to the server's loopback only.
+ufw allow OpenSSH && ufw allow 5080/tcp && ufw --force enable
 
 exit
 ```
 
-Confirm you can get back in as `deploy` **before** closing your root session:
+Confirm you can get back in as `deploy` **before** you close the root session:
 
 ```bash
-ssh deploy@YOUR_SERVER_IP 'docker ps'
+ssh deploy@SERVER_IP 'docker ps'
 ```
 
-## 2. The shared proxy stack (once, as `deploy`)
+> If the server already runs other apps, check 5080 is free first:
+> `ss -lntp | grep 5080`. If it is taken, pick another port and change it in
+> **both** places — `API_PORT` in step 2 and `ufw allow` above — then remember
+> the phone build in step 5 needs the same number.
+
+## 2. Configuration
 
 ```bash
-ssh deploy@YOUR_SERVER_IP
-
-docker network create proxy-net
-
-mkdir -p ~/apps/proxy-stack && cd ~/apps/proxy-stack
-cat > docker-compose.yml <<'COMPOSE'
-services:
-  nginx-proxy:
-    image: nginxproxy/nginx-proxy
-    restart: unless-stopped
-    ports: ["80:80", "443:443"]
-    volumes:
-      - conf:/etc/nginx/conf.d
-      - vhost:/etc/nginx/vhost.d
-      - html:/usr/share/nginx/html
-      - certs:/etc/nginx/certs:ro
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    networks: [proxy-net]
-
-  acme-companion:
-    image: nginxproxy/acme-companion
-    restart: unless-stopped
-    volumes_from: [nginx-proxy]
-    volumes:
-      - certs:/etc/nginx/certs
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks: [proxy-net]
-
-networks:
-  proxy-net:
-    external: true
-
-volumes:
-  conf:
-  vhost:
-  html:
-  certs:
-COMPOSE
-
-docker compose up -d
-docker compose ps        # both should be running
-```
-
-## 3. Bring up Taste Zambia
-
-```bash
-ssh deploy@YOUR_SERVER_IP
+ssh deploy@SERVER_IP
 mkdir -p ~/apps/tastezambia && cd ~/apps/tastezambia
 git clone https://github.com/Isaac-Zimba-J/TasteZambia.git .
 
-cp infra/docker/.env.production.example .env.production
+cp infra/docker/.env.production.ip.example .env.production
 chmod 600 .env.production
 
 # Generate the two secrets rather than inventing them:
 echo "POSTGRES_PASSWORD=$(openssl rand -base64 32)"
 echo "JWT_SIGNING_KEY=$(openssl rand -base64 48)"
 
-nano .env.production          # paste those in, set API_HOST and LETSENCRYPT_EMAIL
+nano .env.production      # paste both in; leave API_PORT at 5080
 ```
 
-A shorthand for the rest of this file:
+`JWT_SIGNING_KEY` must never change again. Every phone's session is signed with
+it, so replacing it signs everyone out with no way back. The API refuses to
+start in Production if you leave the example value in place.
+
+A shorthand for the rest of this file — note the `.ip.` in the filename:
 
 ```bash
-alias tz='docker compose -f infra/docker/compose.production.yml --env-file .env.production'
+alias tz='docker compose -f infra/docker/compose.production.ip.yml --env-file .env.production'
 ```
 
-Build, migrate, then start:
+## 3. Bring it up
 
 ```bash
 tz build
@@ -134,45 +106,52 @@ tz build
 tz run --rm api dotnet TasteZambia.API.dll --migrate
 
 tz up -d
-tz ps
+tz ps                     # api and db both "running", api eventually "healthy"
 ```
 
-Within 30–90 seconds acme-companion issues the certificate. Check:
+## 4. Check it from outside the server
+
+Run these **on your Mac**, not on the server — reaching it from the server
+itself proves nothing about the firewall.
 
 ```bash
-curl -s https://$API_HOST/health          # {"status":"healthy"}
-curl -s https://$API_HOST/api/v1/dishes | head -c 200
+curl -s http://SERVER_IP:5080/health                        # {"status":"healthy"}
+curl -s http://SERVER_IP:5080/api/v1/dishes | head -c 200   # the seeded archive
 ```
 
-If the certificate has not appeared, the DNS record is the usual cause:
+If `/health` hangs rather than refusing, it is the firewall or the provider's own
+security group, not the app. If it refuses immediately, the container is not
+listening — `tz logs api --tail 50`.
 
-```bash
-docker logs $(docker ps -qf name=acme-companion) --tail 40
-```
+## 5. Point the phone at it
 
-## 4. Point the app at it
-
-The phone build takes the API host at build time:
+The API address is baked in at build time. Pass the server's IP instead of your
+Mac's LAN address:
 
 ```bash
 # on your Mac, from the repository root
-dotnet build TasteZambia.Mobile -f net10.0-android -p:ArchiveApiHost=api.tastezambia.example
+dotnet build TasteZambia.Mobile -t:Run -f net10.0-android \
+  -p:ArchiveApiHost=SERVER_IP
 ```
 
-`scripts/android.sh` injects your Mac's LAN address for local work; a release
-build passes the production host instead. The app speaks HTTPS to that host —
-the `UsesCleartextTraffic` allowance is `#if DEBUG` only.
+That produces `http://SERVER_IP:5080` inside the app, which is what step 4 just
+proved works. `scripts/android.sh` keeps injecting your Mac's LAN address for
+local work — the two are the same switch, different value.
 
-## 5. Make yourself a reviewer
+**This has to be a Debug build.** .NET for Android adds
+`usesCleartextTraffic="true"` to the manifest in Debug only, so a Release APK or
+AAB will refuse every plain-HTTP request before it leaves the phone. That is
+Android's rule, not ours. A Release build needs Path B.
 
-Nothing seeds a privileged account in Production — a known password in a repo
-is not a login. Grant the role to your own device account instead.
+## 6. Make yourself a reviewer
 
-Sign in on the phone once so the account exists, then find it and promote it:
+Nothing seeds a privileged account in Production — a known password in a
+repository is not a login. Grant the role to your own device account instead.
+
+Sign in on the phone once so the account exists, then find it:
 
 ```bash
-# on the server
-psql -h 127.0.0.1 -p 5436 -U tastezambia -d tastezambia \
+tz exec -T db psql -U tastezambia -d tastezambia \
   -c 'select "UserName", "CreatedAt" from "AspNetUsers" order by "CreatedAt" desc limit 5;'
 ```
 
@@ -180,7 +159,7 @@ The first admin is a chicken-and-egg problem: `PUT /admin/users/{userName}/roles
 itself needs the admin role. Do the first one directly, once:
 
 ```bash
-psql -h 127.0.0.1 -p 5436 -U tastezambia -d tastezambia <<'SQL'
+tz exec -T db psql -U tastezambia -d tastezambia <<'SQL'
 insert into "AspNetUserRoles" ("UserId", "RoleId")
 select u."Id", r."Id"
   from "AspNetUsers" u, "AspNetRoles" r
@@ -190,8 +169,8 @@ on conflict do nothing;
 SQL
 ```
 
-Sign out and in on the phone afterwards — roles travel in the token, so an old
-one does not carry them.
+Sign out and back in on the phone afterwards — roles travel inside the token, so
+the one it already holds does not carry them.
 
 ---
 
@@ -207,9 +186,9 @@ tz up -d
 
 ## Backups — set this up on day one
 
-The pattern gives you none. Two volumes hold everything that cannot be rebuilt:
-`pgdata` (accounts, contributions, family recipes) and `media` (photographs and
-voice recordings).
+Two volumes hold everything that cannot be rebuilt: `pgdata` (accounts,
+contributions, family recipes) and `media` (photographs and voice recordings).
+Nothing backs them up for you.
 
 ```bash
 mkdir -p ~/backups
@@ -218,7 +197,7 @@ cat > ~/backups/tastezambia.sh <<'SH'
 set -euo pipefail
 cd /home/deploy/apps/tastezambia
 STAMP=$(date +%F)
-docker compose -f infra/docker/compose.production.yml --env-file .env.production \
+docker compose -f infra/docker/compose.production.ip.yml --env-file .env.production \
   exec -T db pg_dump -U tastezambia tastezambia | gzip > ~/backups/db-$STAMP.sql.gz
 docker run --rm -v tastezambia_media:/m -v /home/deploy/backups:/out alpine \
   tar czf /out/media-$STAMP.tar.gz -C /m .
@@ -229,15 +208,134 @@ chmod +x ~/backups/tastezambia.sh
 ```
 
 **Copy the dumps off the server.** A backup on the same disk as the data is not
-a backup.
+a backup. Also back up `.env.production` somewhere safe — without
+`JWT_SIGNING_KEY` a restored database signs nobody in.
 
 ## Housekeeping
 
 ```bash
+tz logs -f api
 docker system df                 # check monthly
 docker builder prune -a -f       # build cache grows fast
-docker compose -f infra/docker/compose.production.yml logs -f api
 ```
+
+---
+
+## What Path A costs you
+
+Plain HTTP is readable and rewritable by anything between the phone and the
+server — the Wi-Fi it is on, its mobile carrier, every network in between. In
+concrete terms:
+
+- **Session tokens travel in the clear.** Anyone who reads one can act as that
+  reader until it expires: submit contributions in their name, open the family
+  recipes shared with them.
+- **Contributed content travels in the clear** — the recipe text, the
+  photographs, the recording of somebody's grandmother.
+- **Nothing proves the server is yours.** A network that answers for
+  `SERVER_IP` first can serve the app whatever it likes.
+
+That is an acceptable trade for your own phone and people you can tell in
+person. It is not one to make on behalf of contributors who are trusting the
+archive with a family recipe, and the Play Store will not ship a Release build
+that talks to it at all.
+
+## Getting HTTPS without buying anything
+
+You need a **DNS name**, not a paid domain. Either of these gets you one free,
+and then Path B works unchanged:
+
+- **`sslip.io` / `nip.io`** — resolve automatically. If your server is
+  `203.0.113.9`, the name `203-0-113-9.sslip.io` already points at it, today,
+  with no account. Let's Encrypt issues for it happily. Set that as `API_HOST`.
+- **DuckDNS / Afraid.org** — a free subdomain you register and point at the IP.
+  Slightly nicer to read, one account to keep.
+
+Both are real DNS names, so the certificate is real and Android is satisfied.
+The only thing a paid domain buys you over these is a name you'd want on a
+poster.
+
+---
+
+# Path B — when you have a domain
+
+Same repository, different compose file: `compose.production.yml` instead of
+`compose.production.ip.yml`, and `.env.production.example` instead of
+`.env.production.ip.example`. It puts the API behind a shared nginx-proxy that
+terminates TLS, per `Docs/shared-vps-deployment-pattern.md` — no nginx config,
+no certbot, no systemd.
+
+**Changes from Path A:**
+
+1. **Firewall:** open 80 and 443 instead of 5080. The API no longer publishes a
+   host port at all; the proxy reaches it over `proxy-net`.
+   ```bash
+   ufw allow 80 && ufw allow 443 && ufw delete allow 5080/tcp
+   ```
+2. **DNS first.** The A record for `API_HOST` must already resolve to the server
+   before you bring the stack up — Let's Encrypt validates over HTTP and fails
+   otherwise.
+3. **The proxy stack**, once, as `deploy`:
+   ```bash
+   docker network create proxy-net
+
+   mkdir -p ~/apps/proxy-stack && cd ~/apps/proxy-stack
+   cat > docker-compose.yml <<'COMPOSE'
+   services:
+     nginx-proxy:
+       image: nginxproxy/nginx-proxy
+       restart: unless-stopped
+       ports: ["80:80", "443:443"]
+       volumes:
+         - conf:/etc/nginx/conf.d
+         - vhost:/etc/nginx/vhost.d
+         - html:/usr/share/nginx/html
+         - certs:/etc/nginx/certs:ro
+         - /var/run/docker.sock:/tmp/docker.sock:ro
+       networks: [proxy-net]
+
+     acme-companion:
+       image: nginxproxy/acme-companion
+       restart: unless-stopped
+       volumes_from: [nginx-proxy]
+       volumes:
+         - certs:/etc/nginx/certs
+         - /var/run/docker.sock:/var/run/docker.sock:ro
+       networks: [proxy-net]
+
+   networks:
+     proxy-net:
+       external: true
+
+   volumes:
+     conf:
+     vhost:
+     html:
+     certs:
+   COMPOSE
+
+   docker compose up -d && docker compose ps
+   ```
+4. **`.env.production`** gains `API_HOST` and `LETSENCRYPT_EMAIL`, and drops
+   `API_PORT`. Keep `POSTGRES_PASSWORD` and `JWT_SIGNING_KEY` **exactly as they
+   are** if you are moving an existing deployment across — changing the signing
+   key signs every phone out.
+5. **The alias** loses the `.ip.`:
+   ```bash
+   alias tz='docker compose -f infra/docker/compose.production.yml --env-file .env.production'
+   ```
+   Then `tz build && tz up -d`. Within 30–90 seconds the certificate appears:
+   ```bash
+   curl -s https://$API_HOST/health
+   docker logs $(docker ps -qf name=acme-companion) --tail 40   # if it does not
+   ```
+6. **The phone build** takes the hostname, and no port:
+   ```bash
+   dotnet build TasteZambia.Mobile -f net10.0-android -p:ArchiveApiHost=api.yourdomain
+   ```
+   No code change: `ArchiveApiOptions` reads what you pass. A bare IP becomes
+   `http://ip:5080`, a hostname becomes `https://host` — because an IP cannot
+   have a certificate and a name can.
 
 ---
 
