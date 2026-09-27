@@ -94,6 +94,8 @@ public static class MauiProgram
             sp.GetRequiredService<ILocalStore>(),
             sp.GetRequiredService<IHttpClientFactory>().CreateClient("me")));
         builder.Services.AddSingleton<ICatalogService, CatalogService>();
+        // Searches the whole archive - dishes, ingredients, stories and provinces - from Home.
+        builder.Services.AddSingleton<IArchiveSearchService, ArchiveSearchService>();
         builder.Services.AddSingleton<PersonalStore>(sp => new PersonalStore(sp.GetRequiredService<ILocalStore>(), TimeProvider.System));
         builder.Services.AddSingleton<IFavouritesService, FavouritesService>();
         builder.Services.AddSingleton<ICookingProgressService, CookingProgressService>();

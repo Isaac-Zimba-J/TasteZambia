@@ -37,8 +37,7 @@ internal sealed class SwitchableDishRepository : IDishRepository
 public class LoadStateTests
 {
     private static HomeViewModel Home(SwitchableDishRepository dishes)
-        => new(new CatalogService(dishes), new InMemoryCategoryRepository(),
-               TestServices.Favourites(), new PreferenceService(), new Nav());
+        => TestServices.Home(new Nav(), dishes);
 
     [Fact]
     public async Task ASuccessfulLoad_ClearsTheSpinnerAndReportsNoError()
