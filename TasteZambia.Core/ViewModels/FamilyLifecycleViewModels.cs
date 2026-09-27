@@ -326,6 +326,7 @@ public sealed partial class FamSharedViewModel(
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(AddNoteCommand))]
+    [NotifyPropertyChangedFor(nameof(CanAddNote))]   // the button's look is bound to it too
     private string _newNote = "";
 
     public bool CanAddNote => NewNote.Trim().Length > 0;

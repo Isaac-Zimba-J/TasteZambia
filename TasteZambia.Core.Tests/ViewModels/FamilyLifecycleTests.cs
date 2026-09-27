@@ -397,4 +397,25 @@ public class FamilyLifecycleTests
         Assert.Contains(vm.Provenance, p => p.Label == "Not yet opened up");
         Assert.Equal("Only your family can see it right now.", vm.PrivacyNote);
     }
+
+    [Fact]
+    public async Task TheAddNoteButton_LightsUpAsSoonAsARelativeTypes()
+    {
+        var family = new FakeFamilyService();
+        var id = family.Add(SomeRecipe());
+        var vm = new FamSharedViewModel(family, new Nav()) { Id = id };
+        await vm.LoadAsync();
+
+        var announced = new List<string?>();
+        vm.PropertyChanged += (_, e) => announced.Add(e.PropertyName);
+
+        Assert.False(vm.CanAddNote);
+
+        vm.NewNote = "Mama added bicarbonate to the chikanda.";
+
+        Assert.True(vm.CanAddNote);
+        // The button is drawn from CanAddNote, so it has to hear about it, not only the command.
+        Assert.Contains(nameof(vm.CanAddNote), announced);
+        Assert.True(vm.AddNoteCommand.CanExecute(null));
+    }
 }
