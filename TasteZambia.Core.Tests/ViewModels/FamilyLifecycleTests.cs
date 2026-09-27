@@ -85,7 +85,10 @@ public class FamilyLifecycleTests
         await vm.SetPublicCommand.ExecuteAsync(null);
 
         Assert.Equal(PrivacyLevel.PublicInArchive, family.PrivacyOf(id));
-        Assert.Contains("everyone", vm.PrivacyNote, StringComparison.OrdinalIgnoreCase);
+        // It must not claim a place in the public archive, because opening a family recipe
+        // does not create one - it only widens who may read it.
+        Assert.DoesNotContain("in the public archive.", vm.PrivacyNote);
+        Assert.Contains("link", vm.PrivacyNote, StringComparison.OrdinalIgnoreCase);
     }
 
     // Pins the "Important" fix: a write the API refuses because the caller is not the owner
@@ -357,5 +360,41 @@ public class FamilyLifecycleTests
         Assert.NotEqual(BaseViewModel.OfflineMessage, vm.ActionError);
         Assert.NotEqual("", vm.ActionError);
         Assert.Equal("Something worth keeping.", vm.NewNote);   // not cleared: it was never kept
+    }
+
+    // ---- Opening a family recipe up widens who may read it. It does not list it in the
+    // ---- public archive, and the screen used to say that it did. ----
+
+    [Fact]
+    public async Task OpeningARecipeUp_DoesNotClaimItIsListedInTheArchive()
+    {
+        var family = new FakeFamilyService();
+        var id = family.Add(SomeRecipe() with { Privacy = PrivacyLevel.PublicInArchive, Members = [FakeFamilyService.Owner] });
+        var vm = new FamPublicViewModel(family, new Nav()) { Id = id };
+
+        await vm.LoadAsync();
+
+        // PublishedDishId is never set from this screen, and the shelf query keeps a
+        // stranger's opened-up recipe off every shelf - so "listed in the public archive"
+        // described somewhere nobody could reach.
+        Assert.DoesNotContain(vm.Provenance, p => p.Label == "Published and credited");
+        Assert.Contains(vm.Provenance, p => p.Label == "Open to anyone with the link");
+
+        var listing = Assert.Single(vm.Provenance, p => p.Label == "Listed in the public archive");
+        Assert.Contains("Not yet", listing.Detail);
+        Assert.Equal("#D8CDB9", listing.DotHex);   // the pending tone, not the gold of done
+    }
+
+    [Fact]
+    public async Task AFamilyOnlyRecipe_SaysNobodyOutsideCanRead()
+    {
+        var family = new FakeFamilyService();
+        var id = family.Add(SomeRecipe() with { Privacy = PrivacyLevel.SharedWithFamily, Members = [FakeFamilyService.Owner] });
+        var vm = new FamPublicViewModel(family, new Nav()) { Id = id };
+
+        await vm.LoadAsync();
+
+        Assert.Contains(vm.Provenance, p => p.Label == "Not yet opened up");
+        Assert.Equal("Only your family can see it right now.", vm.PrivacyNote);
     }
 }

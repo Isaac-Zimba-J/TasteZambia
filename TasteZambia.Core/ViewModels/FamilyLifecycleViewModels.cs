@@ -19,7 +19,7 @@ public sealed partial class FamStartViewModel(
         new("1", "The recipe",     "Name in your own language, region, photos."),
         new("2", "Who taught you", "Their name, where they learned it, and their voice if you can record it."),
         new("3", "The story",      "When it was cooked, what it meant, how they did it differently."),
-        new("4", "Who can see it", "Private, your family, or the public archive. Changeable at any time."),
+        new("4", "Who can see it", "Just you, your family, or anyone with its link. Changeable at any time."),
     ];
 
     public ObservableCollection<PreservedRecipe> Recipes { get; } = [];
@@ -287,8 +287,8 @@ public sealed partial class FamSavedViewModel(
         Privacy = dto.Privacy;
         (PrivacyLabel, PrivacyNote) = dto.Privacy switch
         {
-            PrivacyLevel.PublicInArchive => ("Public in the archive", "Anyone can read it. It keeps its credit to your family wherever it is shown."),
-            PrivacyLevel.SharedWithFamily => ("Shared with family", "Anyone you invite can read it and add their own notes. It stays out of the public archive."),
+            PrivacyLevel.PublicInArchive => ("Open beyond the family", "Anyone given its link can read it. It keeps its credit to your family wherever it is shown."),
+            PrivacyLevel.SharedWithFamily => ("Shared with family", "Anyone you invite can read it and add their own notes. Nobody outside the family can."),
             _ => ("Private to you", "Only you can open it. Nothing is reviewed or published."),
         };
 
@@ -466,12 +466,16 @@ public sealed partial class FamPublicViewModel(
         _dto = dto;
         Headline = dto.LocalName;
         IsPublic = dto.Privacy == PrivacyLevel.PublicInArchive;
+        // What opening a family recipe actually does today is widen who may read it - it does
+        // not list it anywhere. PublishedDishId is never set from here, and the shelf query
+        // deliberately keeps a stranger's public recipe off every shelf. Saying "published in
+        // the public archive" promised a place in the archive that nobody can reach.
         Intro = IsPublic
-            ? "The family chose to open this recipe to everyone. It kept its name, its recording and its credit."
-            : "Still just for the family. Publishing sends it to the public archive, with the same name, recording and credit.";
+            ? "The family opened this recipe up. Anyone given its link can read it, with its name, its recording and its credit."
+            : "Still just for the family. Opening it up lets anyone with its link read it, with the same name, recording and credit.";
         PrivacyNote = IsPublic
-            ? "Now visible to everyone in the public archive."
-            : "Only your family can see it right now. Publishing shows it to everyone.";
+            ? "Anyone with the link can read it. It is not listed in the public archive - that is a separate step the archive team takes."
+            : "Only your family can see it right now.";
 
         Credit = dto.TaughtBy.Length > 0
             ? $"{dto.TaughtBy}{(dto.TaughtByOrigin.Length > 0 ? $" of {dto.TaughtByOrigin}" : "")}."
@@ -494,8 +498,12 @@ public sealed partial class FamPublicViewModel(
         Provenance.Add(new ProvenanceStep("Verified against Northern records", "Not tracked by the archive yet.", "#D8CDB9"));
 
         Provenance.Add(IsPublic
-            ? new ProvenanceStep("Published and credited", "Listed in the public archive, credited to your family.", "#C07F1E")
-            : new ProvenanceStep("Not yet published", "Still private to your family.", "#D8CDB9"));
+            ? new ProvenanceStep("Open to anyone with the link", "Readable outside your family, credited to them.", "#2F6A4D")
+            : new ProvenanceStep("Not yet opened up", "Still private to your family.", "#D8CDB9"));
+
+        // Listing a family recipe in the public archive is Stage 3's review path, which nothing
+        // here starts. Showing it as pending is the truth; showing it as done was not.
+        Provenance.Add(new ProvenanceStep("Listed in the public archive", "Not yet - the archive team lists a recipe after reviewing it.", "#D8CDB9"));
     }
 
     [RelayCommand]

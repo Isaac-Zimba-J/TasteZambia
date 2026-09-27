@@ -63,14 +63,16 @@
                    LineHeight="1.6" TextColor="{StaticResource TzBodyMuted}"/>
 
             <Border Style="{StaticResource PrimaryAction}" Margin="20" IsVisible="{Binding IsPublic, Converter={StaticResource InvertedBool}}">
-                <Label Text="Publish to everyone" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                <!-- "Publish" claimed a place in the public archive that this action does not
+                     create. What it does is widen who may read it. -->
+                <Label Text="Open it up beyond the family" FontFamily="ArchivoSemiBold" FontSize="12.5"
                        HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SetPublicCommand}"/>
                 </Border.GestureRecognizers>
             </Border>
             <Border Style="{StaticResource SecondaryAction}" Margin="20" IsVisible="{Binding IsPublic}">
-                <Label Text="Make private again" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                <Label Text="Keep it in the family again" FontFamily="ArchivoSemiBold" FontSize="12.5"
                        HorizontalOptions="Center" TextColor="{StaticResource TzBody}"/>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding MakePrivateCommand}"/>
