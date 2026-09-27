@@ -34,6 +34,9 @@ public sealed class FakeFamilyService : IFamilyArchiveService
     /// <summary>Refuse a create the way the archive does when the request is not acceptable.</summary>
     public bool RefuseCreate { get; set; }
 
+    /// <summary>Refuse a note the way the archive does when the recipe is not the caller's to add to.</summary>
+    public bool RefuseNotes { get; set; }
+
     public Task<FamilyRecipeDto> PreserveAsync(ContributionDraft draft, CancellationToken ct = default)
     {
         if (RefuseCreate)
@@ -71,6 +74,9 @@ public sealed class FakeFamilyService : IFamilyArchiveService
 
     public Task AddNoteAsync(Guid id, string body, CancellationToken ct = default)
     {
+        if (RefuseNotes)
+            throw new FamilyRequestRefusedException("This recipe is not yours to add a note to.");
+
         var dto = _recipes[id];
         _recipes[id] = dto with { Notes = dto.Notes.Append(new FamilyNoteDto(Guid.NewGuid(), "You", body, DateTimeOffset.UtcNow)).ToList() };
         return Task.CompletedTask;

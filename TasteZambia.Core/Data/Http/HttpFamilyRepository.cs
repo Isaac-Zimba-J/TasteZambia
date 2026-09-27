@@ -68,6 +68,14 @@ public sealed class HttpFamilyRepository(HttpClient http)
     public async Task AddNoteAsync(Guid id, AddNoteRequest request, CancellationToken ct)
     {
         var response = await http.PostAsJsonAsync(Http.Path(ApiRoutes.Family.Notes, "id", id.ToString()), request, ct);
+
+        // The archive answers 404 when the recipe is not the caller's to add to - it will not
+        // confirm that somebody else's recipe exists. Letting that become an
+        // HttpRequestException would tell the reader their connection had failed.
+        if (response.StatusCode == HttpStatusCode.NotFound)
+            throw new FamilyRequestRefusedException(
+                "This recipe is no longer yours to add a note to.");
+
         response.EnsureSuccessStatusCode();
     }
 

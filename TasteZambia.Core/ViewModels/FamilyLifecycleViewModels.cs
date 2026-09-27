@@ -79,7 +79,13 @@ public sealed partial class FamDraftViewModel(
     public override async Task InitializeAsync()
     {
         var dto = await archive.GetAsync(Id);
-        if (dto is null) return;
+        if (dto is null)
+        {
+            // Not an exception, so LoadAsync counts this a success and LoadState shows
+            // nothing. Saying so is the difference between an explanation and a blank page.
+            LoadError = NoLongerAvailableMessage;
+            return;
+        }
         Apply(dto);
     }
 
@@ -270,7 +276,13 @@ public sealed partial class FamSavedViewModel(
     public override async Task InitializeAsync()
     {
         var dto = await archive.GetAsync(Id);
-        if (dto is null) return;
+        if (dto is null)
+        {
+            // Not an exception, so LoadAsync counts this a success and LoadState shows
+            // nothing. Saying so is the difference between an explanation and a blank page.
+            LoadError = NoLongerAvailableMessage;
+            return;
+        }
 
         Privacy = dto.Privacy;
         (PrivacyLabel, PrivacyNote) = dto.Privacy switch
@@ -312,6 +324,12 @@ public sealed partial class FamSharedViewModel(
     [ObservableProperty] private string _newMemberRelation = "";
     [ObservableProperty] private string _inviteCode = "";
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(AddNoteCommand))]
+    private string _newNote = "";
+
+    public bool CanAddNote => NewNote.Trim().Length > 0;
+
     /// <summary>Why the last invite or removal did not take. Empty when there is nothing to report.</summary>
     [ObservableProperty] private string _actionError = "";
 
@@ -320,7 +338,13 @@ public sealed partial class FamSharedViewModel(
     public override async Task InitializeAsync()
     {
         var dto = await archive.GetAsync(Id);
-        if (dto is null) return;
+        if (dto is null)
+        {
+            // Not an exception, so LoadAsync counts this a success and LoadState shows
+            // nothing. Saying so is the difference between an explanation and a blank page.
+            LoadError = NoLongerAvailableMessage;
+            return;
+        }
 
         RecipeName = dto.LocalName;
         TaughtBy = dto.TaughtBy.Length > 0 ? $"As taught by {dto.TaughtBy}" : "";
@@ -354,6 +378,33 @@ public sealed partial class FamSharedViewModel(
             NewMemberName = "";
             NewMemberRelation = "";
             await InitializeAsync();   // the person just invited now shows up as Invited
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            ActionError = OfflineMessage;
+        }
+    }
+
+    /// <summary>
+    /// The screen already told the reader "anyone you invite can add their own notes", and
+    /// the archive already accepted them. Only the command was missing.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanAddNote))]
+    private async Task AddNote()
+    {
+        var body = NewNote.Trim();
+        if (body.Length == 0) return;
+
+        try
+        {
+            await archive.AddNoteAsync(Id, body);
+            NewNote = "";
+            ActionError = "";
+            await InitializeAsync();   // the note appears where the family will read it
+        }
+        catch (FamilyRequestRefusedException ex)
+        {
+            ActionError = ex.Message;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
@@ -401,7 +452,13 @@ public sealed partial class FamPublicViewModel(
     public override async Task InitializeAsync()
     {
         _dto = await archive.GetAsync(Id);
-        if (_dto is not null) Apply(_dto);
+        if (_dto is null)
+        {
+            LoadError = NoLongerAvailableMessage;
+            return;
+        }
+
+        Apply(_dto);
     }
 
     private void Apply(FamilyRecipeDto dto)

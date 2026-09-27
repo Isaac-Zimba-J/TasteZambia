@@ -285,4 +285,77 @@ public class FamilyLifecycleTests
         Assert.NotEqual(BaseViewModel.OfflineMessage, vm.SubmitError);
         Assert.Contains("archive", vm.SubmitError, StringComparison.OrdinalIgnoreCase);
     }
+
+    // ---- Notes were read-only while the privacy screen promised relatives could add them,
+    // ---- and a recipe you had lost access to rendered as a blank page. ----
+
+    [Fact]
+    public async Task ARelativeCanAddANote_AndItAppearsWhereTheFamilyReadsIt()
+    {
+        var family = new FakeFamilyService();
+        var id = family.Add(SomeRecipe() with { Members = [FakeFamilyService.Owner] });
+        var vm = new FamSharedViewModel(family, new Nav()) { Id = id };
+        await vm.LoadAsync();
+
+        Assert.False(vm.AddNoteCommand.CanExecute(null));   // nothing typed yet
+
+        vm.NewNote = "She never used tomato in this.";
+        Assert.True(vm.AddNoteCommand.CanExecute(null));
+
+        await vm.AddNoteCommand.ExecuteAsync(null);
+
+        Assert.Contains(vm.Notes, n => n.Body == "She never used tomato in this.");
+        Assert.Equal("", vm.NewNote);        // the box clears, ready for the next one
+        Assert.Equal("", vm.ActionError);
+    }
+
+    [Fact]
+    public async Task ANoteOfNothingButSpaces_IsNotSent()
+    {
+        var family = new FakeFamilyService();
+        var id = family.Add(SomeRecipe() with { Members = [FakeFamilyService.Owner] });
+        var vm = new FamSharedViewModel(family, new Nav()) { Id = id };
+        await vm.LoadAsync();
+
+        vm.NewNote = "   ";
+
+        Assert.False(vm.AddNoteCommand.CanExecute(null));
+    }
+
+    [Fact]
+    public async Task ARecipeYouCanNoLongerOpen_SaysSoRatherThanGoingBlank()
+    {
+        var family = new FakeFamilyService();
+        var gone = Guid.NewGuid();   // never added: the archive answers 404
+
+        foreach (var vm in new BaseViewModel[]
+                 {
+                     new FamSharedViewModel(family, new Nav()) { Id = gone },
+                     new FamPublicViewModel(family, new Nav()) { Id = gone },
+                 })
+        {
+            Assert.True(await vm.LoadAsync());   // a 404 is not a failure to load
+
+            // Before this, LoadError stayed empty, HasContent was false and IsFirstLoad was
+            // false - so LoadState showed nothing at all and the page was an empty shell.
+            Assert.Equal(BaseViewModel.NoLongerAvailableMessage, vm.LoadError);
+            Assert.True(vm.HasLoadError);
+        }
+    }
+
+    [Fact]
+    public async Task AFailedNote_SaysWhichKindOfFailureItWas()
+    {
+        var family = new FakeFamilyService { RefuseNotes = true };
+        var id = family.Add(SomeRecipe() with { Members = [FakeFamilyService.Owner] });
+        var vm = new FamSharedViewModel(family, new Nav()) { Id = id };
+        await vm.LoadAsync();
+
+        vm.NewNote = "Something worth keeping.";
+        await vm.AddNoteCommand.ExecuteAsync(null);
+
+        Assert.NotEqual(BaseViewModel.OfflineMessage, vm.ActionError);
+        Assert.NotEqual("", vm.ActionError);
+        Assert.Equal("Something worth keeping.", vm.NewNote);   // not cleared: it was never kept
+    }
 }

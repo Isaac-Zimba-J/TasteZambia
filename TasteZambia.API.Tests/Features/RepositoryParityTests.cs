@@ -323,4 +323,33 @@ public class RepositoryParityTests(DatabaseFixture fixture) : IAsyncLifetime
             Assert.NotEqual(Guid.Empty, submitted.Id);
         }
     }
+
+    [Fact]
+    public async Task AddingANote_ReachesTheRecipe_AndARefusalIsNotMistakenForBeingOffline()
+    {
+        var (owner, _) = await _factory.SignedInClientAsync();
+        var (stranger, _) = await _factory.SignedInClientAsync();
+        using (owner)
+        using (stranger)
+        {
+            var theirs = new FamilyArchiveService(new HttpFamilyRepository(owner));
+            var recipe = await theirs.PreserveAsync(new ContributionDraft
+            {
+                LocalName = "Ifisashi ya Banakulu",
+                Province = "Northern",
+                TaughtBy = "Banakulu Mwaba",
+            });
+
+            await theirs.AddNoteAsync(recipe.Id, "She never used tomato in this.");
+
+            var reread = await theirs.GetAsync(recipe.Id);
+            Assert.Single(reread!.Notes, n => n.Body == "She never used tomato in this.");
+
+            // A stranger's note is refused, and that must not read as a network failure -
+            // the archive answered, it just said no.
+            var notTheirs = new FamilyArchiveService(new HttpFamilyRepository(stranger));
+            await Assert.ThrowsAsync<FamilyRequestRefusedException>(
+                () => notTheirs.AddNoteAsync(recipe.Id, "Let me in."));
+        }
+    }
 }
