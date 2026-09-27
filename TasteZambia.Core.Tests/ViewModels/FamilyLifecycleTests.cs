@@ -208,4 +208,81 @@ public class FamilyLifecycleTests
 
         Assert.Equal("2 other people have access.", Assert.Single(vm.Provenance, p => p.Label == "Shared with family").Detail);
     }
+
+    // ---- The wizard had no validation, so the archive's "you left the name empty" arrived
+    // ---- as "Could not reach the archive. Check your connection." ----
+
+    [Fact]
+    public async Task TheWizardSaysWhatIsMissing_RatherThanLettingTheArchiveRefuse()
+    {
+        var family = new FakeFamilyService();
+        var vm = new FamilyViewModel(TestServices.Contributions(), family, new Nav());
+        await vm.LoadAsync();
+        vm.Draft.LocalName = "";
+        vm.Draft.Province = "";
+
+        await vm.NextCommand.ExecuteAsync(null);
+
+        Assert.Equal(1, vm.Step);   // it did not advance
+        Assert.Equal("Give the recipe the name your family calls it.", vm.SubmitError);
+
+        vm.Draft.LocalName = "Ifisashi ya Banakulu";
+        await vm.NextCommand.ExecuteAsync(null);
+        Assert.Equal("Choose the province it comes from.", vm.SubmitError);
+
+        vm.Draft.Province = "Northern";
+        await vm.NextCommand.ExecuteAsync(null);
+        Assert.Equal(2, vm.Step);
+        Assert.Equal("", vm.SubmitError);
+    }
+
+    [Fact]
+    public async Task WhoTaughtYou_IsWhatTheRecordIsFor_SoItIsRequired()
+    {
+        var family = new FakeFamilyService();
+        var vm = new FamilyViewModel(TestServices.Contributions(), family, new Nav());
+        await vm.LoadAsync();
+        vm.Draft.LocalName = "Ifisashi ya Banakulu";
+        vm.Draft.Province = "Northern";
+        vm.Draft.TaughtBy = "";
+
+        await vm.NextCommand.ExecuteAsync(null);   // to step 2
+        await vm.NextCommand.ExecuteAsync(null);   // refused
+
+        Assert.Equal(2, vm.Step);
+        Assert.Contains("who taught you", vm.SubmitError, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task GoingBack_ClearsWhateverWasComplainedAbout()
+    {
+        var family = new FakeFamilyService();
+        var vm = new FamilyViewModel(TestServices.Contributions(), family, new Nav());
+        await vm.LoadAsync();
+        vm.Draft.LocalName = "Ifisashi";
+        vm.Draft.Province = "Northern";
+        await vm.NextCommand.ExecuteAsync(null);
+        await vm.NextCommand.ExecuteAsync(null);
+        Assert.NotEqual("", vm.SubmitError);
+
+        vm.BackCommand.Execute(null);
+
+        Assert.Equal("", vm.SubmitError);
+    }
+
+    [Fact]
+    public async Task ARefusalFromTheArchive_IsNotBlamedOnTheConnection()
+    {
+        var family = new FakeFamilyService { RefuseCreate = true };
+        var vm = new FamilyViewModel(TestServices.Contributions(), family, new Nav());
+        await vm.LoadAsync();
+        vm.Draft.LocalName = "Ifisashi ya Banakulu";
+        vm.Draft.Province = "Northern";
+        vm.Draft.TaughtBy = "Banakulu Mwaba";
+
+        for (var i = 0; i < 4; i++) await vm.NextCommand.ExecuteAsync(null);
+
+        Assert.NotEqual(BaseViewModel.OfflineMessage, vm.SubmitError);
+        Assert.Contains("archive", vm.SubmitError, StringComparison.OrdinalIgnoreCase);
+    }
 }

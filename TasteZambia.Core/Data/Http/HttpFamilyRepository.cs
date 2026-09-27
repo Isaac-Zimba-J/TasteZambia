@@ -1,9 +1,13 @@
+using TasteZambia.Core.Services;
 using System.Net;
 using System.Net.Http.Json;
 using TasteZambia.Shared.Contracts.Family;
 using TasteZambia.Shared.Routes;
 
 namespace TasteZambia.Core.Data.Http;
+
+// FamilyRequestRefusedException lives in Services - it is part of the contract callers
+// handle, not an HTTP detail.
 
 /// <summary>
 /// The raw wire calls for <c>ApiRoutes.Family.*</c> - DTOs in, DTOs out, nothing mapped to a
@@ -21,6 +25,14 @@ public sealed class HttpFamilyRepository(HttpClient http)
     public async Task<FamilyRecipeDto> CreateAsync(CreateFamilyRecipeRequest request, CancellationToken ct)
     {
         var response = await http.PostAsJsonAsync(ApiRoutes.Family.Collection, request, ct);
+
+        // A 400 is the archive telling us something about this recipe is wrong. Letting
+        // EnsureSuccessStatusCode turn it into an HttpRequestException made every caller
+        // report it as a connection failure.
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+            throw new FamilyRequestRefusedException(
+                "The archive could not accept that. Check the recipe's name and province.");
+
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<FamilyRecipeDto>(ct))!;
     }

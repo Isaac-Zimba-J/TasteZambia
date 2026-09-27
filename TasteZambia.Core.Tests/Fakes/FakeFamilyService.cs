@@ -31,8 +31,14 @@ public sealed class FakeFamilyService : IFamilyArchiveService
     /// <summary>The owner's own membership row, as the API creates it.</summary>
     public static readonly FamilyMemberDto Owner = new(Guid.NewGuid(), "You", "Owner", MemberState.Joined, IsOwner: true);
 
+    /// <summary>Refuse a create the way the archive does when the request is not acceptable.</summary>
+    public bool RefuseCreate { get; set; }
+
     public Task<FamilyRecipeDto> PreserveAsync(ContributionDraft draft, CancellationToken ct = default)
     {
+        if (RefuseCreate)
+            throw new FamilyRequestRefusedException("The archive could not accept that. Check the recipe's name and province.");
+
         var dto = new FamilyRecipeDto(Guid.NewGuid(), draft.LocalName, draft.EnglishDescription, draft.Province, draft.Language,
             draft.TaughtBy, draft.TaughtByOrigin, draft.Story, draft.TraditionalMethod, draft.Privacy,
             TranscriptState.None, null, PercentComplete(draft), true, DateTimeOffset.UtcNow,

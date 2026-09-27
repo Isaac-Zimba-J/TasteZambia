@@ -258,6 +258,17 @@ public class FamilyViewModelTests
 {
     private static FamilyViewModel Sut() => new(TestServices.Contributions(), new FakeFamilyService(), new Nav());
 
+    /// <summary>
+    /// Fills what the wizard requires before it will advance, so a test about step titles or
+    /// privacy options is not really a test about validation.
+    /// </summary>
+    private static void FillRequired(FamilyViewModel vm)
+    {
+        vm.Draft.LocalName = "Ifisashi ya Banakulu";
+        vm.Draft.Province = "Northern";
+        vm.Draft.TaughtBy = "Banakulu Mwaba, my father's mother";
+    }
+
     [Fact]
     public async Task StartsOnTheRecipeStepWithABlankDraft()
     {
@@ -277,6 +288,7 @@ public class FamilyViewModelTests
         var vm = Sut();
         await vm.InitializeAsync();
 
+        FillRequired(vm);
         var titles = new List<string> { vm.StepTitle };
         for (var i = 0; i < 3; i++)
         {
@@ -292,6 +304,7 @@ public class FamilyViewModelTests
     {
         var vm = Sut();
         await vm.InitializeAsync();
+        FillRequired(vm);
         for (var i = 0; i < 3; i++) vm.NextCommand.Execute(null);
 
         Assert.True(vm.IsStep4);
@@ -306,6 +319,7 @@ public class FamilyViewModelTests
     {
         var vm = Sut();
         await vm.InitializeAsync();
+        FillRequired(vm);
         for (var i = 0; i < 3; i++) vm.NextCommand.Execute(null);
 
         vm.PrivacyOptions[2].SelectCommand.Execute(null);
@@ -320,6 +334,7 @@ public class FamilyViewModelTests
     {
         var vm = Sut();
         await vm.InitializeAsync();
+        FillRequired(vm);
         for (var i = 0; i < 6; i++) vm.NextCommand.Execute(null);
 
         Assert.Equal(4, vm.Step);
