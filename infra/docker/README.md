@@ -5,7 +5,7 @@ Start to finish on a freshly wiped server. Follow it in order.
 **The address the phone will dial:** `https://<your-ip-with-dashes>.sslip.io`
 
 `sslip.io` is a public DNS service that resolves any IP encoded in the name —
-`203-0-113-9.sslip.io` already points at `203.0.113.9`, today, with no account
+`104-237-6-144.sslip.io` already points at `203.0.113.9`, today, with no account
 and nothing to buy. Because it is a *real* DNS name, Let's Encrypt issues a real
 certificate for it, so the app speaks HTTPS and a Release build works. A bare IP
 could do neither.
@@ -13,8 +13,8 @@ could do neither.
 Write your own down now and use it everywhere below:
 
 ```
-SERVER_IP   = 203.0.113.9              <- yours
-API_HOST    = 203-0-113-9.sslip.io     <- the same IP, dots swapped for dashes
+104.237.6.144   = 203.0.113.9              <- yours
+API_HOST    = 104-237-6-144.sslip.io     <- the same IP, dots swapped for dashes
 ```
 
 What ships: the API and its Postgres. The mobile app is not deployed — it is
@@ -43,7 +43,7 @@ ssh-keygen -t ed25519 -C "$(whoami)@$(hostname -s)"
 ### Option A — `ssh-copy-id` (easiest; needs the root password)
 
 ```bash
-ssh-copy-id -i ~/.ssh/id_ed25519.pub root@SERVER_IP
+ssh-copy-id -i ~/.ssh/id_ed25519.pub root@104.237.6.144
 ```
 
 It asks for the root password once, appends your key and fixes the permissions.
@@ -60,7 +60,7 @@ Paste it either into your provider's "SSH keys" box when creating the server, or
 into the server's own file if you already have a way in:
 
 ```bash
-ssh root@SERVER_IP
+ssh root@104.237.6.144
 mkdir -p ~/.ssh && chmod 700 ~/.ssh
 nano ~/.ssh/authorized_keys             # paste on its own line, save
 chmod 600 ~/.ssh/authorized_keys
@@ -71,10 +71,10 @@ Never paste `id_ed25519` — the one **without** `.pub` stays on your Mac foreve
 ### Confirm before going on
 
 ```bash
-ssh root@SERVER_IP 'echo key works'
+ssh root@104.237.6.144 'echo key works'
 ```
 
-If it still asks for a password it did not take. `ssh -v root@SERVER_IP` shows
+If it still asks for a password it did not take. `ssh -v root@104.237.6.144` shows
 which key it offered.
 
 ---
@@ -82,7 +82,7 @@ which key it offered.
 ## 1. Prepare the server (once, as root)
 
 ```bash
-ssh root@SERVER_IP
+ssh root@104.237.6.144
 
 apt update && apt upgrade -y
 
@@ -110,14 +110,14 @@ Confirm you can get back in as `deploy` **before** you close the root session �
 if this fails you are locked out of your own server:
 
 ```bash
-ssh deploy@SERVER_IP 'docker ps'
+ssh deploy@104.237.6.144 'docker ps'
 ```
 
 Check the name resolves to you. There is no DNS record to create and nothing to
 wait for:
 
 ```bash
-dig +short 203-0-113-9.sslip.io        # must print your IP
+dig +short 104-237-6-144.sslip.io        # must print your IP
 ```
 
 ---
@@ -128,7 +128,7 @@ This terminates TLS and fetches the certificate. One stack, in front of
 everything you ever deploy on this server.
 
 ```bash
-ssh deploy@SERVER_IP
+ssh deploy@104.237.6.144
 
 docker network create proxy-net
 
@@ -183,7 +183,7 @@ fail. Pick one of these three.
 Make a key **on the server** and give GitHub its public half:
 
 ```bash
-ssh deploy@SERVER_IP
+ssh deploy@104.237.6.144
 ssh-keygen -t ed25519 -C "tastezambia-server" -f ~/.ssh/github_deploy -N ""
 cat ~/.ssh/github_deploy.pub            # copy this whole line
 ```
@@ -232,7 +232,7 @@ in, so a redeploy you are not present for will fail.
 
 ```bash
 ssh-add ~/.ssh/id_ed25519          # on your Mac, once
-ssh -A deploy@SERVER_IP
+ssh -A deploy@104.237.6.144
 git clone git@github.com:Isaac-Zimba-J/TasteZambia.git ~/apps/tastezambia
 ```
 
@@ -256,10 +256,10 @@ nano .env.production
 Fill in four things:
 
 ```
-API_HOST=203-0-113-9.sslip.io       # yours, dashes not dots
-LETSENCRYPT_EMAIL=you@example.com   # where expiry warnings go
-POSTGRES_PASSWORD=...               # from above
-JWT_SIGNING_KEY=...                 # from above
+API_HOST=104-237-6-144.sslip.io       # yours, dashes not dots
+LETSENCRYPT_EMAIL=isaacjuniorzimba@gmail.com   # where expiry warnings go
+POSTGRES_PASSWORD=nGWkOUuStLYjMh/mYBv1RpbrIezfxBZhGPVcfPCjNqw=               # from above
+JWT_SIGNING_KEY=YW3EdSAFBW0MxbamG1xUO2TcCGsJyuY184GsP/diK3BO0jvY5nxyQ5C60ybM5f59                 # from above
 ```
 
 `JWT_SIGNING_KEY` must never change again. Every phone's session is signed with
@@ -302,8 +302,8 @@ Run these **on your Mac**, not on the server — reaching it from the server
 itself proves nothing about the firewall or the certificate.
 
 ```bash
-curl -s https://203-0-113-9.sslip.io/health                        # {"status":"healthy"}
-curl -s https://203-0-113-9.sslip.io/api/v1/dishes | head -c 200   # the seeded archive
+curl -s https://104-237-6-144.sslip.io/health                        # {"status":"healthy"}
+curl -s https://104-237-6-144.sslip.io/api/v1/dishes | head -c 200   # the seeded archive
 ```
 
 Both must be **https** and must work without `-k`. If curl complains about the
@@ -320,11 +320,11 @@ usual causes are port 80 closed, or `API_HOST` typed with dots instead of dashes
 ```bash
 # on your Mac, from the repository root, phone connected
 dotnet build TasteZambia.Mobile -t:Run -f net10.0-android \
-  -p:ArchiveApiHost=203-0-113-9.sslip.io
+  -p:ArchiveApiHost=104-237-6-144.sslip.io
 ```
 
 That is the whole change. `ArchiveApiOptions` sees a hostname rather than an IP
-and composes `https://203-0-113-9.sslip.io` — no port, no cleartext, so a
+and composes `https://104-237-6-144.sslip.io` — no port, no cleartext, so a
 Release build behaves the same as a Debug one.
 
 `scripts/android.sh` keeps injecting your Mac's LAN address for local work. The
@@ -421,7 +421,7 @@ signing key stay where they are, so nobody is signed out.
 ## The no-DNS variant
 
 `compose.production.ip.yml` and `.env.production.ip.example` serve the API as
-plain HTTP on `http://SERVER_IP:5080`, with no proxy and no certificate. They
+plain HTTP on `http://104.237.6.144:5080`, with no proxy and no certificate. They
 exist for a server that cannot resolve any name at all. Use them only if you
 have to: session tokens and contributed recordings travel readable, and a
 Release build refuses cleartext outright, so it can never reach the Play Store.
@@ -431,11 +431,16 @@ Release build refuses cleartext outright, so it can never reach the Play Store.
 
 ## Not done yet — read before taking real contributions
 
-This deploys the API as it stands. The hardening in
-`Docs/plans/2026-09-25-completion-roadmap.md` §4 is **not** in place:
+This deploys the API as it stands. Rate limiting is in place - per address on
+`POST /auth/device` and `/auth/refresh`, per account on writes, with a backstop on
+everything else, and the health check exempt. The numbers are in the `RateLimits`
+section of `appsettings.json` and can be overridden per deployment with
+`RateLimits__DeviceAuthPerWindow` and friends; they are set for many readers
+sharing one carrier address, not for one phone.
 
-- **No rate limiting.** `POST /auth/device` will mint accounts as fast as anyone
-  asks. Fine for a closed test; not for a public address.
+The rest of the hardening in `Docs/plans/2026-09-25-completion-roadmap.md` §4 is
+**not** in place:
+
 - **No audit log** on review actions — who published what is only inferable
   from `review_events`.
 - **No CI**, so nothing but a person stops a broken commit reaching here.

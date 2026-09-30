@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using TasteZambia.API.Auth;
+using TasteZambia.API.Common;
 using TasteZambia.API.Data;
 using TasteZambia.API.Data.Entities;
 using TasteZambia.API.Data.Seed;
@@ -86,6 +87,7 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
     });
 builder.Services.AddAuthorization();
 
+builder.Services.AddArchiveRateLimiting(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
@@ -170,8 +172,12 @@ if (app.Environment.IsDevelopment())
 
 // No UseHttpsRedirection: Kestrel serves HTTP inside the container and TLS
 // terminates at the ingress. Leaving it on breaks container health checks.
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+// After authentication, so a per-account policy can see whose account it is; after
+// UseForwardedHeaders, so a per-address one sees the phone rather than the proxy.
+app.UseRateLimiter();
 // Liveness for the container and the proxy. Deliberately anonymous and cheap:
 // it says the process is up and can reach its database, and nothing else.
 app.MapGet("/health", async (TasteZambiaDbContext db, CancellationToken ct) =>

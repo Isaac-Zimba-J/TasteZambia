@@ -23,8 +23,13 @@ namespace TasteZambia.API.Tests;
 public sealed class ApiFactory : WebApplicationFactory<Program>
 {
     private readonly string _connectionString;
+    private readonly IReadOnlyDictionary<string, string?> _overrides;
 
-    public ApiFactory(string connectionString) => _connectionString = connectionString;
+    public ApiFactory(string connectionString, IReadOnlyDictionary<string, string?>? overrides = null)
+    {
+        _connectionString = connectionString;
+        _overrides = overrides ?? new Dictionary<string, string?>();
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -35,7 +40,19 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
             ["Jwt:Issuer"] = "tastezambia-tests",
             ["Jwt:Audience"] = "tastezambia-app",
             ["Jwt:SigningKey"] = "test-signing-key-that-is-at-least-32-bytes-long!!",
+
+            // In-process requests carry no remote address, so every test would share one
+            // rate-limit partition. These are high enough that the suite never trips a
+            // limit by accident; the tests that are about limits set their own.
+            ["RateLimits:DeviceAuthPerWindow"] = "100000",
+            ["RateLimits:RefreshPerWindow"] = "100000",
+            ["RateLimits:WritesPerWindow"] = "100000",
+            ["RateLimits:GlobalPerWindow"] = "100000",
         }));
+
+        // Applied last so a test can override any of the above.
+        if (_overrides.Count > 0)
+            builder.ConfigureAppConfiguration((_, cfg) => cfg.AddInMemoryCollection(_overrides));
 
         builder.ConfigureServices(services =>
         {
