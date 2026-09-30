@@ -59,8 +59,13 @@ public sealed partial class ShareViewModel(
     IIngredientRepository ingredientArchive,
     INavigationService navigation,
     IPhotoPicker photoPicker,
-    IMediaUploader mediaUploader) : BaseViewModel(navigation)
+    IMediaUploader mediaUploader,
+    IToastService? toast = null,
+    IArchiveSignal? signal = null) : BaseViewModel(navigation)
 {
+    private readonly IToastService _toast = toast ?? new NullToastService();
+    private readonly IArchiveSignal _signal = signal ?? new ArchiveSignal();
+
     public static readonly IReadOnlyList<string> MealTypes =
         ["Relish", "Staple", "Meat dish", "Fish", "Vegetable dish", "Snack", "Drink", "Dessert"];
 
@@ -159,9 +164,11 @@ public sealed partial class ShareViewModel(
 
     private void LoadRowsFromDraft()
     {
+        foreach (var row in Ingredients) row.PropertyChanged -= OnRowChanged;
         Ingredients.Clear();
         foreach (var i in Draft.Ingredients)
-            Ingredients.Add(new DraftIngredientViewModel { Name = i.DisplayName, Quantity = i.Quantity, IngredientKey = i.IngredientKey, Subtitle = i.DisplaySubtitle });
+            AddIngredientRow(new DraftIngredientViewModel { Name = i.DisplayName, Quantity = i.Quantity, IngredientKey = i.IngredientKey, Subtitle = i.DisplaySubtitle });
+        foreach (var row in Steps) row.PropertyChanged -= OnRowChanged;
         Steps.Clear();
         foreach (var s in Draft.Steps) AddStepRow(s);
         if (Ingredients.Count == 0) AddIngredient();
@@ -200,21 +207,54 @@ public sealed partial class ShareViewModel(
 
     [RelayCommand] private void ToggleCredit() => CreditTeacher = !CreditTeacher;
 
-    [RelayCommand] private void AddIngredient() => Ingredients.Add(new DraftIngredientViewModel());
-    [RelayCommand] private void RemoveIngredient(DraftIngredientViewModel row) => Ingredients.Remove(row);
+    [RelayCommand] private void AddIngredient() => AddIngredientRow(new DraftIngredientViewModel());
+
+    [RelayCommand]
+    private void RemoveIngredient(DraftIngredientViewModel row)
+    {
+        row.PropertyChanged -= OnRowChanged;
+        Ingredients.Remove(row);
+        ClearValidationIfSatisfied();
+    }
 
     [RelayCommand] private void AddStep() => AddStepRow("");
 
     [RelayCommand]
     private void RemoveStep(DraftStepViewModel row)
     {
+        row.PropertyChanged -= OnRowChanged;
         Steps.Remove(row);
         Renumber();
+        ClearValidationIfSatisfied();
+    }
+
+    private void AddIngredientRow(DraftIngredientViewModel row)
+    {
+        row.PropertyChanged += OnRowChanged;
+        Ingredients.Add(row);
     }
 
     private void AddStepRow(string text)
     {
-        Steps.Add(new DraftStepViewModel { Text = text, Number = Steps.Count + 1 });
+        var row = new DraftStepViewModel { Text = text, Number = Steps.Count + 1 };
+        row.PropertyChanged += OnRowChanged;
+        Steps.Add(row);
+    }
+
+    private void OnRowChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        => ClearValidationIfSatisfied();
+
+    /// <summary>
+    /// Keeps the complaint true while the reader works. Without this, one who pressed
+    /// Continue too early and then typed the ingredient it asked for was still being told to
+    /// list an ingredient - so the screen read as broken rather than as satisfied.
+    ///
+    /// It only speaks once the reader has already been told something: re-validating on every
+    /// keystroke from the start would nag at someone who has not finished their first word.
+    /// </summary>
+    private void ClearValidationIfSatisfied()
+    {
+        if (ValidationMessage.Length > 0) ValidationMessage = Validate() ?? "";
     }
 
     private void Renumber()
@@ -338,6 +378,9 @@ public sealed partial class ShareViewModel(
                 : "";
             if (DraftId is { } submitted) mediaUploader.ForgetClaims(submitted);
             IsSubmitted = true;
+            // The Profile's contribution list and counts are now out of date.
+            _signal.Changed();
+            _toast.Show($"{contribution.Name} sent for review");
             RefreshDraftsLabel();
             // The recipe is away; nothing here needs a local display copy of an uploaded
             // photo any more (the still-pending ones keep theirs until they too go).

@@ -50,8 +50,12 @@ public sealed partial class FamStartViewModel(
 /// </summary>
 public sealed partial class FamDraftViewModel(
     IFamilyArchiveService archive, IPhotoPicker photoPicker, IMediaUploader mediaUploader,
-    IVoiceRecorder recorder, INavigationService navigation) : BaseViewModel(navigation)
+    IVoiceRecorder recorder, INavigationService navigation,
+    IToastService? toast = null, IArchiveSignal? signal = null) : BaseViewModel(navigation)
 {
+    private readonly IToastService _toast = toast ?? new NullToastService();
+    private readonly IArchiveSignal _signal = signal ?? new ArchiveSignal();
+
     public ObservableCollection<DraftChecklistItem> Checklist { get; } = [];
 
     /// <summary>Route parameter: which family recipe this draft is.</summary>
@@ -227,6 +231,8 @@ public sealed partial class FamDraftViewModel(
 
             case UploadOutcome.Sent:
                 MediaError = "";
+                _signal.Changed();
+                _toast.Show(kind == MediaKind.Audio ? "Recording added" : "Photograph added");
                 break;
         }
 
@@ -305,8 +311,12 @@ public sealed partial class FamSavedViewModel(
 }
 
 public sealed partial class FamSharedViewModel(
-    IFamilyArchiveService archive, INavigationService navigation) : BaseViewModel(navigation)
+    IFamilyArchiveService archive, INavigationService navigation,
+    IToastService? toast = null, IArchiveSignal? signal = null) : BaseViewModel(navigation)
 {
+    private readonly IToastService _toast = toast ?? new NullToastService();
+    private readonly IArchiveSignal _signal = signal ?? new ArchiveSignal();
+
     public ObservableCollection<FamilyMember> Members { get; } = [];
     public ObservableCollection<FamilyNote> Notes { get; } = [];
 
@@ -369,13 +379,16 @@ public sealed partial class FamSharedViewModel(
     private async Task Invite()
     {
         if (NewMemberName.Trim().Length == 0) return;
+        var invited = NewMemberName.Trim();
         try
         {
-            var invite = await archive.InviteAsync(Id, NewMemberName.Trim(), NewMemberRelation.Trim());
+            var invite = await archive.InviteAsync(Id, invited, NewMemberRelation.Trim());
             if (invite is null) { ActionError = "Could not send that invite."; return; }
 
             InviteCode = invite.Code;
             ActionError = "";
+            _signal.Changed();
+            _toast.Show($"{invited} invited - share the code with them");
             NewMemberName = "";
             NewMemberRelation = "";
             await InitializeAsync();   // the person just invited now shows up as Invited
@@ -401,6 +414,8 @@ public sealed partial class FamSharedViewModel(
             await archive.AddNoteAsync(Id, body);
             NewNote = "";
             ActionError = "";
+            _signal.Changed();
+            _toast.Show("Note added");
             await InitializeAsync();   // the note appears where the family will read it
         }
         catch (FamilyRequestRefusedException ex)
@@ -419,7 +434,12 @@ public sealed partial class FamSharedViewModel(
         if (member is null) return;
         try
         {
-            if (await archive.RemoveMemberAsync(Id, member.Id)) Members.Remove(member);
+            if (await archive.RemoveMemberAsync(Id, member.Id))
+            {
+                Members.Remove(member);
+                _signal.Changed();
+                _toast.Show($"{member.Name} can no longer open this recipe");
+            }
             else ActionError = NotAllowedMessage;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)

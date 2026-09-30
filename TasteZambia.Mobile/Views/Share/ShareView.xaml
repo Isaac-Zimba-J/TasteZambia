@@ -123,15 +123,7 @@
                 <!-- Step 2 -->
                 <VerticalStackLayout Padding="20" Spacing="16" IsVisible="{Binding IsStep2}">
                     <VerticalStackLayout Spacing="8">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Ingredients" Style="{StaticResource FieldLabel}"/>
-                            <Label Grid.Column="1" Text="+ Add" FontFamily="ArchivoMedium" FontSize="11.5" Padding="8,0,0,0"
-                                   TextColor="{StaticResource TzGold}" SemanticProperties.Description="Add an ingredient">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding AddIngredientCommand}"/>
-                                </Label.GestureRecognizers>
-                            </Label>
-                        </Grid>
+                        <Label Text="Ingredients" Style="{StaticResource FieldLabel}"/>
                         <Border Stroke="{StaticResource TzBorder}" StrokeThickness="1"
                                 StrokeShape="RoundRectangle 13" Padding="0"
                                 BackgroundColor="{StaticResource TzSurface}">
@@ -162,21 +154,27 @@
                                 </BindableLayout.ItemTemplate>
                             </VerticalStackLayout>
                         </Border>
+                        <Border Style="{StaticResource AddRowAction}"
+                                SemanticProperties.Description="Add another ingredient"
+                                AutomationProperties.IsInAccessibleTree="True">
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                                <ic:FluentIcon Icon="Add" IconSize="Size16" ForegroundColor="{StaticResource TzGold}"
+                                               VerticalOptions="Center"/>
+                                <Label Text="Add another ingredient" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                                       VerticalOptions="Center" TextColor="{StaticResource TzGold}"/>
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AddIngredientCommand}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+
                         <Label Text="Names already in the ingredient archive turn green and link automatically."
                                FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.5"
                                TextColor="{StaticResource TzMuted2}"/>
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Spacing="9">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Cooking steps" Style="{StaticResource FieldLabel}"/>
-                            <Label Grid.Column="1" Text="+ Add step" FontFamily="ArchivoMedium" FontSize="11.5" Padding="8,0,0,0"
-                                   TextColor="{StaticResource TzGold}" SemanticProperties.Description="Add a cooking step">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding AddStepCommand}"/>
-                                </Label.GestureRecognizers>
-                            </Label>
-                        </Grid>
+                        <Label Text="Cooking steps" Style="{StaticResource FieldLabel}"/>
                         <VerticalStackLayout Spacing="9" BindableLayout.ItemsSource="{Binding Steps}">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="vm:DraftStepViewModel">
@@ -195,6 +193,20 @@
                                 </DataTemplate>
                             </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
+
+                        <Border Style="{StaticResource AddRowAction}"
+                                SemanticProperties.Description="Add another cooking step"
+                                AutomationProperties.IsInAccessibleTree="True">
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                                <ic:FluentIcon Icon="Add" IconSize="Size16" ForegroundColor="{StaticResource TzGold}"
+                                               VerticalOptions="Center"/>
+                                <Label Text="Add another step" FontFamily="ArchivoSemiBold" FontSize="12.5"
+                                       VerticalOptions="Center" TextColor="{StaticResource TzGold}"/>
+                            </HorizontalStackLayout>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AddStepCommand}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
 

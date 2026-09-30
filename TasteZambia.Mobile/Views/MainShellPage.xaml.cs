@@ -3,6 +3,7 @@ using TasteZambia.Mobile.Views.Details;
 using TasteZambia.Mobile.Views.Share;
 using TasteZambia.Mobile.Views.Family;
 using TasteZambia.Mobile.Views.Collections;
+using TasteZambia.Mobile.Services;
 
 namespace TasteZambia.Mobile.Views;
 
@@ -52,11 +53,39 @@ public partial class MainShellPage : ContentPage
 
     private string _section = "home";
 
-    public MainShellPage(IServiceProvider services)
+    /// <summary>Which confirmation is currently on screen; a newer one supersedes it.</summary>
+    private int _toastGeneration;
+
+    public MainShellPage(IServiceProvider services, ToastService toasts)
     {
         InitializeComponent();
         _services = services;
+        toasts.Requested += ShowToast;
         Navigate("//home", null);
+    }
+
+    /// <summary>
+    /// Fades a confirmation in over the content, above the nav bar, and takes it away again.
+    /// Deliberately short: it says the archive heard them, and is never the only place
+    /// something important is written.
+    /// </summary>
+    private void ShowToast(string message)
+    {
+        var generation = ++_toastGeneration;
+
+        Dispatcher.Dispatch(async () =>
+        {
+            ToastText.Text = message;
+            Toast.IsVisible = true;
+            await Toast.FadeToAsync(1, 160, Easing.CubicOut);
+            await Task.Delay(2600);
+
+            // A second confirmation arrived while this one was up; it owns the banner now.
+            if (generation != _toastGeneration) return;
+
+            await Toast.FadeToAsync(0, 220, Easing.CubicIn);
+            if (generation == _toastGeneration) Toast.IsVisible = false;
+        });
     }
 
     public void Navigate(string route, IDictionary<string, object>? parameters)

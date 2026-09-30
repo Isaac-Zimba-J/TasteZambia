@@ -121,6 +121,16 @@
         <Setter Property="StrokeShape" Value="RoundRectangle 14"/>
     </Style>
 
+    <!-- Adds a row to a list the reader is filling in. Full width and tinted, because as
+         small gold text beside a heading it was being missed entirely. -->
+    <Style x:Key="AddRowAction" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource TzGoldTint}"/>
+        <Setter Property="Stroke" Value="{StaticResource TzGoldDecor}"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Padding" Value="13,11"/>
+        <Setter Property="StrokeShape" Value="RoundRectangle 12"/>
+    </Style>
+
     <!-- Standard card -->
     <Style x:Key="Card" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{StaticResource TzSurface}"/>

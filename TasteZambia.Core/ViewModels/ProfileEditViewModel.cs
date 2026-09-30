@@ -11,8 +11,13 @@ namespace TasteZambia.Core.ViewModels;
 /// </summary>
 public sealed partial class ProfileEditViewModel(
     IProfileRepository profiles,
-    INavigationService navigation) : BaseViewModel(navigation)
+    INavigationService navigation,
+    IToastService? toast = null,
+    IArchiveSignal? signal = null) : BaseViewModel(navigation)
 {
+    private readonly IToastService _toast = toast ?? new NullToastService();
+    private readonly IArchiveSignal _signal = signal ?? new ArchiveSignal();
+
     // The command's CanExecute is not enough: the button's own look is bound to CanSave, so
     // without this it stays drawn as disabled however much the reader types.
     [ObservableProperty]
@@ -42,6 +47,9 @@ public sealed partial class ProfileEditViewModel(
         {
             await profiles.UpdateAsync(Name, Location, Languages);
             ErrorMessage = "";
+            // Home's initials and the Profile header are both stale now.
+            _signal.Changed();
+            _toast.Show("Saved");
             await Navigation.GoBackAsync();
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)

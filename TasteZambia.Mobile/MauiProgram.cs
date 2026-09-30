@@ -96,6 +96,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<ICatalogService, CatalogService>();
         // Searches the whole archive - dishes, ingredients, stories and provinces - from Home.
         builder.Services.AddSingleton<IArchiveSearchService, ArchiveSearchService>();
+
+        // The shell draws the confirmations, so it takes the concrete type; everything that
+        // raises one takes the interface. One instance, or a ViewModel would raise into a
+        // service nothing is listening to.
+        builder.Services.AddSingleton<ToastService>();
+        builder.Services.AddSingleton<IToastService>(sp => sp.GetRequiredService<ToastService>());
+        builder.Services.AddSingleton<IArchiveSignal, ArchiveSignal>();
         builder.Services.AddSingleton<PersonalStore>(sp => new PersonalStore(sp.GetRequiredService<ILocalStore>(), TimeProvider.System));
         builder.Services.AddSingleton<IFavouritesService, FavouritesService>();
         builder.Services.AddSingleton<ICookingProgressService, CookingProgressService>();

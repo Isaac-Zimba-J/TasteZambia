@@ -12,5 +12,18 @@
     <Grid RowDefinitions="*,Auto">
         <ContentView x:Name="Region" Grid.Row="0"/>
         <controls:BottomNavBar x:Name="NavBar" Grid.Row="1"/>
+
+        <!-- Confirmations land here, above the content and clear of the nav bar. It sits in
+             the shell rather than on each screen because the screen that caused it is often
+             the one being left. Transparent to touch when hidden - InputTransparent stays
+             true throughout, since there is nothing on it to tap. -->
+        <Border x:Name="Toast" Grid.Row="0" IsVisible="False" Opacity="0"
+                InputTransparent="True" Margin="20,0,20,16"
+                HorizontalOptions="Center" VerticalOptions="End"
+                Padding="16,11" StrokeThickness="0" StrokeShape="RoundRectangle 13"
+                BackgroundColor="{StaticResource TzGreenDeep}">
+            <Label x:Name="ToastText" FontFamily="ArchivoMedium" FontSize="12.5" LineHeight="1.4"
+                   MaximumWidthRequest="300" TextColor="{StaticResource TzSurface}"/>
+        </Border>
     </Grid>
 </ContentPage>
