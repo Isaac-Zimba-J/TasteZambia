@@ -131,8 +131,16 @@ public sealed partial class FamilyRecipesViewModel(
 }
 
 public sealed partial class SettingsViewModel(
-    ICollectionsService collections, INavigationService navigation) : BaseViewModel(navigation)
+    ICollectionsService collections, IDeviceIdentity identity, INavigationService navigation) : BaseViewModel(navigation)
 {
+    /// <summary>
+    /// The account's own identifier. Shown because the privacy policy asks a reader to quote
+    /// it when they write in to have their account deleted or to ask for a copy of what the
+    /// archive holds - and without it on screen there is no way for them to say which account
+    /// is theirs. It identifies the install, not the person.
+    /// </summary>
+    [ObservableProperty] private string _deviceId = "";
+
     public ObservableCollection<LanguageStatus> Languages { get; } = [];
     public ObservableCollection<SettingToggle> Toggles { get; } = [];
 
@@ -144,12 +152,13 @@ public sealed partial class SettingsViewModel(
         "About the archive",
     ];
 
-    public override Task InitializeAsync()
+    public override async Task InitializeAsync()
     {
-        if (Languages.Count > 0) return Task.CompletedTask;
+        DeviceId = (await identity.GetOrCreateAsync()).Id;
+
+        if (Languages.Count > 0) return;
         foreach (var l in collections.Languages) Languages.Add(l);
         foreach (var t in collections.Toggles) Toggles.Add(t);
-        return Task.CompletedTask;
     }
 
     [RelayCommand] private Task BackToProfile() => Navigation.GoBackAsync();

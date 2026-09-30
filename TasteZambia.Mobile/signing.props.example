@@ -1,0 +1,16 @@
+<!-- Copy to signing.props (gitignored) and fill in. This file holds the passwords to
+     the key that identifies Taste Zambia to Google Play. Losing the keystore or its
+     password means you can never update the app under this listing again. -->
+<Project>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <AndroidKeyStore>true</AndroidKeyStore>
+
+        <!-- Absolute path, outside the repository. Back this file up somewhere you will
+             still have it in five years. -->
+        <AndroidSigningKeyStore>/Users/you/keys/tastezambia-upload.keystore</AndroidSigningKeyStore>
+
+        <AndroidSigningKeyAlias>tastezambia-upload</AndroidSigningKeyAlias>
+        <AndroidSigningKeyPass></AndroidSigningKeyPass>
+        <AndroidSigningStorePass></AndroidSigningStorePass>
+    </PropertyGroup>
+</Project>

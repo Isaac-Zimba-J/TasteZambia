@@ -33,8 +33,10 @@
         <!-- App Identifier -->
         <ApplicationId>zm.tastezambia.mobile</ApplicationId>
 
-        <!-- Versions -->
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <!-- Versions. DisplayVersion is what the listing shows; ApplicationVersion is the
+             Play Store's version code, which must increase with every upload and can never
+             be reused, even for a build that was rejected. -->
+        <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
 
         <!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
@@ -42,10 +44,41 @@
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+        <!-- Android 7.0. Below this the OS ships TLS roots too old to trust a current
+             Let's Encrypt chain, and the app cannot reach the archive at all - so claiming
+             support for them would be a lie on the store listing. -->
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
     </PropertyGroup>
+
+    <!-- Release, for the Play Store. An .aab, shrunk, and signed with the upload key.
+         Nothing here holds a secret: the keystore and its passwords come from
+         signing.props, which is gitignored. See Docs/play-store-release.md. -->
+    <PropertyGroup Condition="'$(Configuration)' == 'Release' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <AndroidPackageFormat>aab</AndroidPackageFormat>
+        <AndroidLinkTool>r8</AndroidLinkTool>
+
+        <!-- Pinned deliberately. MainShellPage.ApplyParameters sets route parameters by
+             reflection - GetProperty("dishId") and the like - and full trimming would remove
+             those setters as unreferenced, so every detail screen would open blank with no
+             build warning to say why. Partial leaves our own assemblies alone. -->
+        <TrimMode>partial</TrimMode>
+        <AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
+        <!-- Symbols for Play Console's crash reports; without them a stack trace is numbers. -->
+        <AndroidEnableAssemblySymbols>true</AndroidEnableAssemblySymbols>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>portable</DebugType>
+    </PropertyGroup>
+
+    <Import Project="signing.props" Condition="Exists('signing.props')"/>
+
+    <!-- A Release build that is not signed produces an .aab the Play Console silently
+         rejects. Fail here instead, where the reason is readable. -->
+    <Target Name="RequireSigningForRelease" BeforeTargets="Build"
+            Condition="'$(Configuration)' == 'Release' and '$(AndroidKeyStore)' != 'true' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <Error Text="A Release Android build needs signing.props (gitignored). Copy signing.props.example and fill it in - see Docs/play-store-release.md. To build an unsigned Release deliberately, pass -p:AndroidKeyStore=false -p:SkipSigningCheck=true." Condition="'$(SkipSigningCheck)' != 'true'"/>
+    </Target>
 
     <ItemGroup>
         <!-- App Icon -->

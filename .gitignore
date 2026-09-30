@@ -72,3 +72,6 @@ secrets.json
 media-dev/
 .env.production
 infra/docker/secrets/
+
+# The Play Store upload key's passwords. Never committed.
+TasteZambia.Mobile/signing.props
