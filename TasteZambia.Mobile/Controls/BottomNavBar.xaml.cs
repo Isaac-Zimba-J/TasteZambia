@@ -1,3 +1,5 @@
+using FluentIcons.Common;
+using FluentIcons.Maui;
 using TasteZambia.Core.Services;
 
 namespace TasteZambia.Mobile.Controls;
@@ -14,10 +16,18 @@ public partial class BottomNavBar : ContentView
         set => SetValue(ActiveSectionProperty, value);
     }
 
-    private static readonly (string Key, string Label)[] Sections =
+    /// <summary>
+    /// The icon is part of what each tab means, not decoration: a reader glancing down should
+    /// recognise where they are before reading the word. Filled when active, outline when not,
+    /// which is the convention every Android user already knows.
+    /// </summary>
+    private static readonly (string Key, string Label, Icon Glyph)[] Sections =
     [
-        ("home", "Home"), ("explore", "Explore"), ("regions", "Regions"),
-        ("culture", "Culture"), ("profile", "Profile"),
+        ("home", "Home", Icon.Home),
+        ("explore", "Explore", Icon.Food),
+        ("regions", "Regions", Icon.Map),
+        ("culture", "Culture", Icon.Book),
+        ("profile", "Profile", Icon.Person),
     ];
 
     public BottomNavBar()
@@ -32,27 +42,42 @@ public partial class BottomNavBar : ContentView
 
         for (var i = 0; i < Sections.Length; i++)
         {
-            var (key, label) = Sections[i];
+            var (key, label, glyph) = Sections[i];
             var active = key == ActiveSection;
             var slot = slots[i];
 
             slot.Children.Clear();
 
-            // 5pt dot: clay when active, transparent otherwise.
+            // 4pt dot: clay when active, transparent otherwise. Kept from the design - it is
+            // the one marker that does not rely on telling two colours apart.
             slot.Children.Add(new BoxView
             {
-                WidthRequest = 5,
-                HeightRequest = 5,
-                CornerRadius = 2.5,
+                WidthRequest = 4,
+                HeightRequest = 4,
+                CornerRadius = 2,
                 HorizontalOptions = LayoutOptions.Center,
                 Color = active ? GetColor("TzClay") : Colors.Transparent,
             });
+
+            var icon = new FluentIcon
+            {
+                Icon = glyph,
+                IconVariant = active ? IconVariant.Filled : IconVariant.Regular,
+                IconSize = IconSize.Size20,
+                ForegroundColor = GetColor(active ? "TzGreenDeep" : "TzMuted"),
+                HorizontalOptions = LayoutOptions.Center,
+            };
+
+            // The slot already announces the tab and whether it is selected; letting the icon
+            // speak too would read every tab twice.
+            AutomationProperties.SetIsInAccessibleTree(icon, false);
+            slot.Children.Add(icon);
 
             slot.Children.Add(new Label
             {
                 Text = label,
                 FontFamily = active ? "ArchivoSemiBold" : "ArchivoRegular",
-                FontSize = 10.5,
+                FontSize = 10,
                 CharacterSpacing = 0.1,
                 HorizontalOptions = LayoutOptions.Center,
                 TextColor = GetColor(active ? "TzGreenDeep" : "TzMuted"),
