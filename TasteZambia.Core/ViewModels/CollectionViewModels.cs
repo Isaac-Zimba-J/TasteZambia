@@ -128,6 +128,8 @@ public sealed partial class FamilyRecipesViewModel(
 
     [RelayCommand] private Task PreserveAnother() => Navigation.GoToAsync("famStart");
     [RelayCommand] private Task BackToProfile() => Navigation.GoBackAsync();
+
+    [RelayCommand] private Task DeleteAccount() => Navigation.GoToAsync("deleteAccount");
 }
 
 public sealed partial class SettingsViewModel(
@@ -162,4 +164,6 @@ public sealed partial class SettingsViewModel(
     }
 
     [RelayCommand] private Task BackToProfile() => Navigation.GoBackAsync();
+
+    [RelayCommand] private Task DeleteAccount() => Navigation.GoToAsync("deleteAccount");
 }

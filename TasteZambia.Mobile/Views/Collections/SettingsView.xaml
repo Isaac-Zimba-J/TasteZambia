@@ -128,6 +128,25 @@
                 </Border>
             </VerticalStackLayout>
 
+            <!-- Required by Google Play for any app that creates an account, and right
+                 regardless: the way out has to be in the app, not in an email to someone. -->
+            <VerticalStackLayout Padding="20,24,20,0" Spacing="7">
+                <Border Stroke="{StaticResource TzClay}" StrokeThickness="1" StrokeShape="RoundRectangle 13"
+                        BackgroundColor="{StaticResource TzSurface}" Padding="15,14"
+                        SemanticProperties.Description="Delete your account"
+                        AutomationProperties.IsInAccessibleTree="True">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Delete my account" FontFamily="ArchivoMedium" FontSize="12.5"
+                               TextColor="{StaticResource TzClayText}" VerticalOptions="Center"/>
+                        <ic:FluentIcon Grid.Column="1" Icon="ChevronRight" IconSize="Size16"
+                                       ForegroundColor="{StaticResource TzClay}" VerticalOptions="Center"/>
+                    </Grid>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DeleteAccountCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </VerticalStackLayout>
+
             <Border Style="{StaticResource DeepPanel}" Margin="20,24,20,0" Padding="18" StrokeShape="RoundRectangle 18">
                 <VerticalStackLayout Spacing="9">
                     <Label Text="Your recipes stay yours" FontFamily="NewsreaderMedium" FontSize="19" LineHeight="1.25" TextColor="{StaticResource TzSurface}"/>

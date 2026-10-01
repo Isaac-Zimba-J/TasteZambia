@@ -46,6 +46,7 @@ public partial class MainShellPage : ContentPage
         ["famList"]  = (typeof(FamilyRecipesView), "profile"),
         ["settings"]    = (typeof(SettingsView),     "profile"),
         ["profileEdit"] = (typeof(ProfileEditView),  "profile"),
+        ["deleteAccount"] = (typeof(DeleteAccountView), "profile"),
     };
 
     /// <summary>Views pushed over the current section, most recent last.</summary>

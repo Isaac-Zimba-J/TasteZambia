@@ -15,9 +15,39 @@ public sealed class MeController(
     ICurrentUser me,
     IUserProfileRepository profiles,
     IPersonalDataRepository personal,
-    IPersonalSyncService sync) : ControllerBase
+    IPersonalSyncService sync,
+    IAccountDeletionService deletion) : ControllerBase
 {
     private string UserId => me.UserId ?? throw new UnauthorizedAccessException();
+
+    /// <summary>
+    /// Deletes the account and everything the archive holds for it. Required by Google Play
+    /// for any app that creates an account, and the right thing regardless.
+    ///
+    /// The body must carry the caller's own device id. It is not a security measure - the
+    /// bearer token already proved who this is - it is there so a retried or mistaken DELETE
+    /// cannot destroy an archive of family recipes by accident.
+    /// </summary>
+    [HttpDelete(ApiRoutes.Me.Account)]
+    [ProducesResponseType<DeleteAccountResultDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountRequest request, CancellationToken ct)
+    {
+        if (await deletion.DeleteAsync(UserId, request.ConfirmDeviceId, ct) is not DeletionOutcome.Done done)
+            return Problem(
+                title: "Confirmation does not match",
+                detail: "Send this account's own device id to confirm. Nothing has been deleted.",
+                statusCode: StatusCodes.Status400BadRequest);
+
+        var summary = done.Summary;
+        return Ok(new DeleteAccountResultDto(
+            summary.UnpublishedContributions,
+            summary.PublishedContributionsAnonymised,
+            summary.FamilyRecipesDeleted,
+            summary.FamilyRecipesLeft,
+            summary.NotesAnonymised,
+            summary.MediaDeleted));
+    }
 
     [HttpGet(ApiRoutes.Me.Profile)]
     [ProducesResponseType<ProfileDto>(StatusCodes.Status200OK)]

@@ -57,6 +57,9 @@ public static class ApiRoutes
         public const string Progress = $"{Root}/me/progress/{{dishId}}";
         public const string Sync = $"{Root}/me/sync";
 
+        /// <summary>DELETE: the account and everything the archive holds for it.</summary>
+        public const string Account = $"{Root}/me/account";
+
         public const string Contributions = $"{Root}/me/contributions";
         public const string ContributionById = $"{Contributions}/{{id}}";
         public const string Resubmit = $"{Contributions}/{{id}}/resubmit";

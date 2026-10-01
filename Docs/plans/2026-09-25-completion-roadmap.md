@@ -140,3 +140,52 @@ The API side of Stage 4 is sound: the whole-branch review's one Critical there �
 stranger permanently attaching files to a public family recipe — was fixed in `d0a2443`,
 along with orphaned contribution photos and a removed member keeping a recipe on their
 shelf.
+
+---
+
+## Closed out (2026-10-01)
+
+Everything that stood between the app and a public address, with where it lives:
+
+- **Rate limiting** — `TasteZambia.API/Common/RateLimiting.cs`. Per address on
+  `POST /auth/device` and `/auth/refresh`, per account on writes, a backstop on
+  everything else, `/health` exempt. Refusals carry `Retry-After` and
+  `problem+json`. Numbers live in the `RateLimits` section of `appsettings.json`
+  and are overridable per deployment.
+- **A deleted token stops working** — `Program.cs`, `OnTokenValidated`. A signed,
+  unexpired token whose account no longer exists is refused. Without it a deleted
+  account could resurrect itself, because `GET /me` creates a profile row on demand.
+- **Account deletion** — `TasteZambia.API/Services/AccountDeletionService.cs`,
+  `DELETE /api/v1/me/account`, and Settings → *Delete my account* in the app.
+  Required by Google Play for any app that creates accounts. A published recipe
+  stays in the archive with the credit withdrawn, and a note left on another
+  family's recipe stays with them anonymised - neither is only the deleter's.
+- **The archive is deployed** — `https://104-237-6-144.sslip.io`, per
+  `infra/docker/README.md`. A free DNS name pointing at the server, which is what
+  makes a real certificate possible without buying a domain.
+- **Release configuration** — `.aab`, r8, profiled AOT, symbols, signing from a
+  gitignored `signing.props`, `TrimMode` pinned to partial because route
+  parameters go through reflection. `Docs/play-store-release.md`.
+- **Privacy policy and data-safety answers** — `Docs/privacy-policy.md`, written
+  from what the code does, with the form's answers beside it so the two cannot
+  contradict each other.
+- **CI** — `.github/workflows/ci.yml`. Both suites on every push and pull request,
+  plus a check that no signing key or filled-in environment file is tracked.
+
+### Still open, in the order they matter
+
+1. **An audit log on review actions.** Who published or rejected what is only
+   inferable from `review_events`. The reviewer's name is on the event; a
+   deliberate, append-only record is not.
+2. **`CONTACT_EMAIL` in the privacy policy** has to become a live address before
+   the policy is hosted.
+3. **Offline archive cache.** Onboarding promises the archive works without a
+   connection and it does not; saved recipes and drafts survive, the archive does
+   not. Either build the cache or soften the promise - the second is a one-line
+   change and is the honest stopgap.
+4. **Transcription** of voice recordings. The family screens already show a
+   transcript state that nothing ever advances past None.
+5. **The wishlist.** "Recipes I Want to Try" is on the Profile shelf and nothing
+   writes to it; it reads "Nothing yet" truthfully but permanently.
+6. **Settings toggles** do not persist.
+7. **A motion pass and TalkBack.** Neither has had a deliberate look.

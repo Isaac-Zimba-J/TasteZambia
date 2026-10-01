@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -34,6 +36,7 @@ builder.Services.AddScoped<IPersonalSyncService, PersonalSyncService>();
 builder.Services.AddScoped<IContributionRepository, ContributionRepository>();
 builder.Services.AddScoped<IContributionService, ContributionService>();
 builder.Services.AddScoped<IFamilyAccessService, FamilyAccessService>();
+builder.Services.AddScoped<IAccountDeletionService, AccountDeletionService>();
 builder.Services.AddScoped<IFamilyRepository, FamilyRepository>();
 builder.Services.AddScoped<IFamilyService, FamilyService>();
 builder.Services.AddScoped<IMediaService, MediaService>();
@@ -83,6 +86,32 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ClockSkew = TimeSpan.FromSeconds(30),
+        };
+
+        // A signed, unexpired token whose account no longer exists must not be honoured.
+        // Deleting an account removes its refresh tokens, but the access token it already
+        // holds stays cryptographically valid until it expires - and /me creates a profile
+        // row on demand, so without this a deleted account could resurrect itself.
+        //
+        // The cost is one primary-key lookup per authenticated request. For an archive this
+        // size that is the right trade against serving a deleted reader.
+        o.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var userId = context.Principal?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                          ?? context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (userId is null)
+                {
+                    context.Fail("The token carries no subject.");
+                    return;
+                }
+
+                var db = context.HttpContext.RequestServices.GetRequiredService<TasteZambiaDbContext>();
+                if (!await db.Users.AnyAsync(u => u.Id == userId, context.HttpContext.RequestAborted))
+                    context.Fail("The account this token was issued for no longer exists.");
+            },
         };
     });
 builder.Services.AddAuthorization();

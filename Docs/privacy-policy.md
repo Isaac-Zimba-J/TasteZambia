@@ -111,18 +111,29 @@ Server logs are short-lived.
 ## Your choices
 
 - **Change your profile** at any time in the app.
-- **Remove someone's access** to a family recipe you preserved, at any time.
 - **Delete a photograph** from a draft before you submit it.
-- **Ask for your account and everything in it to be deleted** by writing to
-  `CONTACT_EMAIL` from the app, including your device identifier, which the
-  Settings screen shows. Deletion removes your account, profile, saved lists,
-  family recipes you own, and contributions that have not been published.
+- **Delete your account, in the app.** Settings → *Delete my account*. It tells
+  you what will go and what will stay before you confirm, and you have to type the
+  word DELETE. Nothing is recoverable afterwards.
 
-  Recipes already **published** in the archive are handled case by case: the
-  credit can be removed so the recipe is anonymous, and a recipe can be withdrawn
-  if the person who taught it asks. Say which you want.
+  It removes: your profile, your saved and cooked lists, recipes you have sent that
+  are still being reviewed, every family recipe you preserved along with its
+  photographs and recordings, your membership of other people's family recipes, and
+  the account itself.
 
-- **Ask for a copy** of what the archive holds about you, at the same address.
+  Two things are **not** removed, because they are not only yours:
+
+  - A recipe of yours that was already **published** stays in the archive, with
+    your name taken off it. Other people have saved it and cooked from it. If you
+    want a published recipe withdrawn altogether, write to `CONTACT_EMAIL` **before**
+    deleting your account — afterwards there is no way to know which one was yours.
+  - A **note you added to another family's recipe** stays with that family, without
+    your name. Deleting it would take something from people who did not ask for it.
+
+- **Remove someone's access** to a family recipe you preserved, at any time.
+
+- **Ask for a copy** of what the archive holds about you by writing to
+  `CONTACT_EMAIL` with your device identifier, which Settings shows.
 
 ## Children
 
@@ -161,14 +172,16 @@ common reason for rejection. These are the consistent answers.
 
 **Is all of the user data encrypted in transit?** Yes — HTTPS.
 
-**Do you provide a way for users to request that their data be deleted?** Yes, by
-the contact address above.
+**Do you provide a way for users to request that their data be deleted?** Yes —
+in the app, at Settings → *Delete my account*, and by the contact address above.
 
 **Data collection is optional** for everything except the device identifier, which
 is the account itself.
 
-> **Not built yet, and Play will ask:** there is no in-app "delete my account"
-> button. Google Play requires apps that create accounts to offer account deletion,
-> with a request route reachable from the listing. Until that is built, the email
-> route above is what this policy promises — it must be a live address that is
-> actually answered.
+> **Before publishing:** `CONTACT_EMAIL` must be a live address you answer. It is
+> what this policy offers for withdrawing a published recipe and for asking what
+> the archive holds — the deletion route itself is in the app.
+>
+> The Play Console also asks for a **URL** where deletion can be requested. Point it
+> at the hosted copy of this policy; the in-app route is what satisfies the policy
+> requirement, and the page explains where to find it.

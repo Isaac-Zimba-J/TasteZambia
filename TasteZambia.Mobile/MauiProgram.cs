@@ -103,6 +103,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<ToastService>();
         builder.Services.AddSingleton<IToastService>(sp => sp.GetRequiredService<ToastService>());
         builder.Services.AddSingleton<IArchiveSignal, ArchiveSignal>();
+        builder.Services.AddSingleton<IAccountService>(sp => new AccountService(
+            sp.GetRequiredService<IHttpClientFactory>().CreateClient("me"),
+            sp.GetRequiredService<IDeviceIdentity>(),
+            sp.GetRequiredService<ISecureStore>(),
+            sp.GetRequiredService<ILocalStore>()));
         builder.Services.AddSingleton<PersonalStore>(sp => new PersonalStore(sp.GetRequiredService<ILocalStore>(), TimeProvider.System));
         builder.Services.AddSingleton<IFavouritesService, FavouritesService>();
         builder.Services.AddSingleton<ICookingProgressService, CookingProgressService>();
@@ -196,9 +201,11 @@ public static class MauiProgram
         builder.Services.AddTransient<FamilyRecipesViewModel>();
         builder.Services.AddTransient<FamilyRecipesView>();
         builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddTransient<DeleteAccountViewModel>();
         builder.Services.AddTransient<ProfileEditViewModel>();
         builder.Services.AddTransient<ProfileEditView>();
         builder.Services.AddTransient<SettingsView>();
+        builder.Services.AddTransient<DeleteAccountView>();
 
 #if ANDROID
         // Android draws a Material underline under every Entry/Editor/Picker. Our fields

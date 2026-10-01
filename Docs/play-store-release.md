@@ -96,6 +96,9 @@ the change is worth telling people about.
 - **Data safety form:** the answers are set out in `Docs/privacy-policy.md` under
   "What the data safety form should say". Filling it in inconsistently with the
   policy is a common rejection.
+- **Account deletion URL:** required, because the app creates accounts. Deletion
+  itself is in the app (Settings → *Delete my account*); point this field at the
+  hosted privacy policy, which says where to find it.
 - **Screenshots:** at least two phone screenshots. Take them on the device with
   `adb exec-out screencap -p > shot.png`.
 - **Feature graphic:** 1024×500.

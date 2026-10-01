@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:LoadOnceView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:TasteZambia.Mobile.Views"
+             xmlns:controls="clr-namespace:TasteZambia.Mobile.Controls"
+             xmlns:ic="clr-namespace:FluentIcons.Maui;assembly=FluentIcons.Maui"
+             xmlns:vm="clr-namespace:TasteZambia.Core.ViewModels;assembly=TasteZambia.Core"
+             x:Class="TasteZambia.Mobile.Views.Collections.DeleteAccountView"
+             x:DataType="vm:DeleteAccountViewModel">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <Grid Padding="20,20,20,0" ColumnDefinitions="Auto,*" IsVisible="{Binding IsPending}">
+                <controls:CircleButton Icon="ArrowLeft" Diameter="34" CircleBackground="Transparent"
+                                       SemanticLabel="Go back" IconColor="{StaticResource TzInk}"
+                                       HorizontalOptions="Start" Command="{Binding BackCommand}"/>
+            </Grid>
+
+            <!-- Before -->
+            <VerticalStackLayout Padding="20,14,20,0" Spacing="16" IsVisible="{Binding IsPending}">
+
+                <VerticalStackLayout Spacing="9">
+                    <Label Text="This cannot be undone" Style="{StaticResource KickerLabel}"
+                           TextColor="{StaticResource TzClayText}"/>
+                    <Label Text="Delete your account" Style="{StaticResource DisplayTitle}" CharacterSpacing="-0.31"/>
+                </VerticalStackLayout>
+
+                <!-- What goes. Said before what stays, because it is the part that cannot be got back. -->
+                <Border Style="{StaticResource FieldCard}" Padding="17">
+                    <VerticalStackLayout Spacing="11">
+                        <Label Text="What is deleted" FontFamily="ArchivoSemiBold" FontSize="12"
+                               CharacterSpacing="0.6" TextColor="{StaticResource TzClayText}"/>
+                        <Label Style="{StaticResource BodyText}" FontSize="12.5" TextColor="{StaticResource TzBody}"
+                               Text="Your profile. Your saved and cooked lists. Recipes you have sent that are still being reviewed. Every family recipe you preserved, with its photographs and recordings. This account."/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- What stays, and why. A reader who found this out afterwards would rightly
+                     feel misled, so it is on the screen before the button. -->
+                <Border Style="{StaticResource FieldCard}" Padding="17">
+                    <VerticalStackLayout Spacing="11">
+                        <Label Text="What stays in the archive" FontFamily="ArchivoSemiBold" FontSize="12"
+                               CharacterSpacing="0.6" TextColor="{StaticResource TzGold}"/>
+                        <Label Style="{StaticResource BodyText}" FontSize="12.5" TextColor="{StaticResource TzBody}"
+                               Text="A recipe of yours that was already published stays, with your name taken off it. Other people have saved it and cooked from it, and it is part of the archive now. A note you added to another family's recipe also stays with them, without your name."/>
+                        <Label Style="{StaticResource BodyText}" FontSize="11.5" TextColor="{StaticResource TzBodyMuted}"
+                               Text="If you want a published recipe withdrawn altogether, write to us before deleting your account - afterwards there is no way to know which one was yours."/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="The account being deleted" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource FieldCard}" Padding="15,13">
+                        <Label Text="{Binding DeviceId}" FontFamily="PlexMonoRegular" FontSize="11.5"
+                               LineBreakMode="CharacterWrap" TextColor="{StaticResource TzBodyMuted}"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="7">
+                    <Label Text="Type DELETE to confirm" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource FieldCard}">
+                        <Entry Text="{Binding Typed}" Placeholder="DELETE" Style="{StaticResource FieldEntry}"
+                               FontFamily="PlexMonoMedium" FontSize="14"
+                               SemanticProperties.Description="Type the word DELETE to confirm"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <Label Text="{Binding ErrorMessage}" IsVisible="{Binding ErrorMessage, Converter={StaticResource HasText}}"
+                       FontFamily="ArchivoMedium" FontSize="12" LineHeight="1.55"
+                       TextColor="{StaticResource TzClayText}"/>
+
+                <Border BackgroundColor="{StaticResource TzClay}" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 13" Padding="15"
+                        Opacity="{Binding CanDelete, Converter={StaticResource BoolToOpacity}}"
+                        SemanticProperties.Description="Delete my account permanently"
+                        AutomationProperties.IsInAccessibleTree="True">
+                    <Label Text="Delete my account" FontFamily="ArchivoSemiBold" FontSize="13.5"
+                           HorizontalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DeleteCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- After. No way back to an account that no longer exists. -->
+            <VerticalStackLayout Padding="28,60,28,0" Spacing="0" IsVisible="{Binding IsDone}"
+                                 HorizontalOptions="Center">
+                <Border WidthRequest="78" HeightRequest="78" StrokeShape="RoundRectangle 39"
+                        StrokeThickness="1" Stroke="{StaticResource TzGoldDecor}"
+                        BackgroundColor="{StaticResource TzGoldTint}"
+                        HorizontalOptions="Center" Margin="0,0,0,22">
+                    <ic:FluentIcon Icon="Checkmark" IconSize="Size32" ForegroundColor="{StaticResource TzGold}"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+
+                <Label Text="Your account is deleted" HorizontalTextAlignment="Center" HorizontalOptions="Center"
+                       FontFamily="NewsreaderSemiBold" FontSize="23" LineHeight="1.15"
+                       TextColor="{StaticResource TzGreenDeep}" Margin="0,0,0,14"/>
+
+                <Label Text="{Binding Summary}" HorizontalTextAlignment="Center" HorizontalOptions="Center"
+                       MaximumWidthRequest="300" FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.6"
+                       TextColor="{StaticResource TzBodyMuted}" Margin="0,0,0,26"/>
+
+                <Border Style="{StaticResource PrimaryAction}" HorizontalOptions="Center" Padding="26,13">
+                    <Label Text="Start again" FontFamily="ArchivoSemiBold" FontSize="13"
+                           TextColor="{StaticResource TzSurface}"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding FinishCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </VerticalStackLayout>
+
+            <BoxView HeightRequest="30" Color="Transparent"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</views:LoadOnceView>
