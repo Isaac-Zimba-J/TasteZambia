@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using TasteZambia.Core.Services;
 using TasteZambia.Core.ViewModels;
 
 namespace TasteZambia.Mobile.Views;
@@ -8,10 +9,16 @@ namespace TasteZambia.Mobile.Views;
 /// loaded. Every screen in the app follows this pattern; having it in one place means
 /// the awkward part - an async handler on a synchronous event - is written once, and
 /// written so a failure is logged rather than escaping as an unhandled crash.
+///
+/// "Once" holds only while the archive has not changed. A screen that comes back to find
+/// <see cref="IArchiveSignal"/> further along than when it loaded reloads itself, so a
+/// recipe just submitted or a name just saved is on screen without a pull, and without
+/// closing the app - which is what it used to take.
 /// </summary>
 public abstract class LoadOnceView : ContentView
 {
     private bool _loaded;
+    private int _loadedAtVersion;
 
     protected LoadOnceView(BaseViewModel viewModel)
     {
@@ -29,14 +36,27 @@ public abstract class LoadOnceView : ContentView
 
     private async void OnLoadedOnce(object? sender, EventArgs e)
     {
-        if (_loaded) return;
+        var signal = Handler?.MauiContext?.Services.GetService<IArchiveSignal>();
 
         try
         {
+            if (_loaded)
+            {
+                // Nothing has been written since; this screen is still current.
+                if (signal is null || signal.Version == _loadedAtVersion) return;
+
+                // Refresh rather than Load: it empties what InitializeAsync guards on first,
+                // so the rows come back changed instead of doubling.
+                await ViewModel.RefreshCommand.ExecuteAsync(null);
+                _loadedAtVersion = signal.Version;
+                return;
+            }
+
             // Only a successful load counts. Tab views are singletons that are re-attached
             // on every visit, so a failure - the API down at launch, say - is retried the
             // next time the user comes back to the tab rather than leaving it blank forever.
             _loaded = await LoadAsync();
+            if (_loaded) _loadedAtVersion = signal?.Version ?? 0;
         }
         catch (Exception ex)
         {

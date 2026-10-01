@@ -19,7 +19,8 @@ public sealed class ReviewController(
     ICurrentUser me,
     IContributionRepository contributions,
     IContributionService service,
-    IUserProfileRepository profiles) : ControllerBase
+    IUserProfileRepository profiles,
+    IAuditLog audit) : ControllerBase
 {
     private const string DefaultReviewer = "The archive team";
 
@@ -38,7 +39,10 @@ public sealed class ReviewController(
         {
             // The first reviewer action is when the submission was "read by the archive team".
             await service.MarkReadAsync(id, reviewer, ct);
-            return Ok((await service.RequestChangesAsync(id, reviewer, request.Note, request.Flags, ct)).ToDetail());
+            var changed = await service.RequestChangesAsync(id, reviewer, request.Note, request.Flags, ct);
+            await audit.WriteAsync(AuditActions.ReviewRequestChanges, id.ToString(),
+                $"{request.Flags.Count} field(s) flagged", ct);
+            return Ok(changed.ToDetail());
         }
         catch (KeyNotFoundException)
         {
@@ -60,6 +64,8 @@ public sealed class ReviewController(
         {
             await service.MarkReadAsync(id, reviewer, ct);
             var c = await service.PublishAsync(id, reviewer, ct);
+            await audit.WriteAsync(AuditActions.ReviewPublish, id.ToString(),
+                $"published as dish {c.PublishedDishId}", ct);
             return Ok(new PublishResultDto(c.Id, c.PublishedDishId!));
         }
         catch (KeyNotFoundException)

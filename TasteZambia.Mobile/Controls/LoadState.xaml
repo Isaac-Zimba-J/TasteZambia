@@ -1,38 +1,79 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ic="clr-namespace:FluentIcons.Maui;assembly=FluentIcons.Maui"
              x:Class="TasteZambia.Mobile.Controls.LoadState"
              x:Name="Root"
              IsVisible="False">
 
     <!-- Either a quiet spinner while the screen has nothing yet, or an honest
-         message with a way to try again. Never both, never neither. -->
-    <VerticalStackLayout Padding="30,60" Spacing="14" HorizontalOptions="Center" VerticalOptions="Center">
+         explanation with a way out. Never both, never neither. -->
+    <Grid BackgroundColor="{StaticResource TzCream}">
+        <VerticalStackLayout Padding="32,40" Spacing="0"
+                             HorizontalOptions="Center" VerticalOptions="Center">
 
-        <VerticalStackLayout Spacing="14" IsVisible="{Binding IsLoading, Source={x:Reference Root}}">
-            <ActivityIndicator IsRunning="{Binding IsLoading, Source={x:Reference Root}}"
-                               Color="{StaticResource TzGoldDecor}" WidthRequest="26" HeightRequest="26"
-                               HorizontalOptions="Center"/>
-            <Label Text="{Binding LoadingText, Source={x:Reference Root}}" HorizontalOptions="Center"
-                   FontFamily="ArchivoRegular" FontSize="12" TextColor="{StaticResource TzMuted2}"/>
-        </VerticalStackLayout>
+            <!-- Loading -->
+            <VerticalStackLayout Spacing="15" IsVisible="{Binding IsLoading, Source={x:Reference Root}}">
+                <ActivityIndicator IsRunning="{Binding IsLoading, Source={x:Reference Root}}"
+                                   Color="{StaticResource TzGoldDecor}" WidthRequest="26" HeightRequest="26"
+                                   HorizontalOptions="Center"/>
+                <Label Text="{Binding LoadingText, Source={x:Reference Root}}" HorizontalOptions="Center"
+                       FontFamily="ArchivoRegular" FontSize="12" CharacterSpacing="0.2"
+                       TextColor="{StaticResource TzMuted2}"/>
+            </VerticalStackLayout>
 
-        <Border IsVisible="{Binding HasError, Source={x:Reference Root}}"
-                Stroke="{StaticResource TzBorder}" StrokeThickness="1" StrokeShape="RoundRectangle 18"
-                Padding="20" BackgroundColor="{StaticResource TzSurface}">
-            <VerticalStackLayout Spacing="12">
-                <Label Text="{Binding ErrorMessage, Source={x:Reference Root}}" HorizontalTextAlignment="Center"
-                       FontFamily="ArchivoRegular" FontSize="12.5" LineHeight="1.6"
-                       TextColor="{StaticResource TzBody}"/>
+            <!-- Failure. An emblem, a short heading, the reason, then the way out. -->
+            <VerticalStackLayout Spacing="0" IsVisible="{Binding HasError, Source={x:Reference Root}}"
+                                 HorizontalOptions="Center">
+
+                <Border WidthRequest="78" HeightRequest="78" StrokeShape="RoundRectangle 39"
+                        StrokeThickness="1" Stroke="{StaticResource TzGoldDecor}"
+                        BackgroundColor="{StaticResource TzGoldTint}"
+                        HorizontalOptions="Center" Margin="0,0,0,22"
+                        AutomationProperties.IsInAccessibleTree="False">
+                    <ic:FluentIcon Icon="{Binding EmblemIcon, Source={x:Reference Root}}"
+                                   IconSize="Size32" ForegroundColor="{StaticResource TzGold}"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+
+                <Label Text="{Binding ErrorTitle, Source={x:Reference Root}}"
+                       HorizontalTextAlignment="Center" HorizontalOptions="Center"
+                       FontFamily="NewsreaderSemiBold" FontSize="23" LineHeight="1.15"
+                       CharacterSpacing="-0.2" TextColor="{StaticResource TzGreenDeep}"
+                       Margin="0,0,0,9"/>
+
+                <Label Text="{Binding ErrorMessage, Source={x:Reference Root}}"
+                       HorizontalTextAlignment="Center" HorizontalOptions="Center"
+                       MaximumWidthRequest="290"
+                       FontFamily="ArchivoRegular" FontSize="13" LineHeight="1.6"
+                       TextColor="{StaticResource TzBodyMuted}"
+                       Margin="0,0,0,24"/>
+
                 <Border BackgroundColor="{StaticResource TzGreenDeep}" StrokeThickness="0"
-                        StrokeShape="RoundRectangle 12" Padding="18,11" HorizontalOptions="Center">
-                    <Label Text="Try again" FontFamily="ArchivoSemiBold" FontSize="12.5"
-                           TextColor="{StaticResource TzSurface}"/>
+                        StrokeShape="RoundRectangle 13" Padding="26,13" HorizontalOptions="Center"
+                        SemanticProperties.Description="Try loading this again"
+                        AutomationProperties.IsInAccessibleTree="True">
+                    <HorizontalStackLayout Spacing="9">
+                        <ic:FluentIcon Icon="ArrowClockwise" IconSize="Size16"
+                                       ForegroundColor="{StaticResource TzSurface}" VerticalOptions="Center"/>
+                        <Label Text="Try again" FontFamily="ArchivoSemiBold" FontSize="13"
+                               VerticalOptions="Center" TextColor="{StaticResource TzSurface}"/>
+                    </HorizontalStackLayout>
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding RetryCommand, Source={x:Reference Root}}"/>
                     </Border.GestureRecognizers>
                 </Border>
+
+                <!-- What the reader still has while the archive is out of reach. Only shown
+                     when it is true: their saved recipes are on the phone, not the server. -->
+                <Label Text="{Binding Consolation, Source={x:Reference Root}}"
+                       IsVisible="{Binding HasConsolation, Source={x:Reference Root}}"
+                       HorizontalTextAlignment="Center" HorizontalOptions="Center"
+                       MaximumWidthRequest="280"
+                       FontFamily="ArchivoRegular" FontSize="11" LineHeight="1.55"
+                       TextColor="{StaticResource TzMuted2}"
+                       Margin="0,20,0,0"/>
             </VerticalStackLayout>
-        </Border>
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Grid>
 </ContentView>

@@ -252,6 +252,94 @@ public class ShareViewModelTests
 
         Assert.Equal(1, vm.Step);
     }
+
+    // ---- The validation message must not outlive the problem ----
+
+    [Fact]
+    public async Task TypingTheIngredientItAskedFor_TakesTheComplaintDown()
+    {
+        var vm = Sut();
+        await vm.InitializeAsync();
+        vm.Draft.LocalName = "Ifisashi";
+        vm.Draft.EnglishDescription = "Groundnuts and greens";
+        vm.Province = "Northern";
+        vm.NextCommand.Execute(null);
+
+        vm.NextCommand.Execute(null);                       // step 2, nothing filled in
+        Assert.Equal("List at least one ingredient.", vm.ValidationMessage);
+
+        vm.Ingredients[0].Name = "Chibwabwa";
+        vm.Ingredients[0].Quantity = "2 bundles";
+
+        // Still complaining, but now about the steps - not about the ingredient just typed.
+        Assert.Equal("Write at least one cooking step.", vm.ValidationMessage);
+
+        vm.Steps[0].Text = "Boil the greens until soft.";
+
+        Assert.Empty(vm.ValidationMessage);                 // nothing left to say
+        vm.NextCommand.Execute(null);
+        Assert.Equal(3, vm.Step);
+    }
+
+    [Fact]
+    public async Task AddingARow_DoesNotByItselfClearTheComplaint()
+    {
+        var vm = Sut();
+        await vm.InitializeAsync();
+        vm.Draft.LocalName = "Ifisashi";
+        vm.Draft.EnglishDescription = "Groundnuts and greens";
+        vm.Province = "Northern";
+        vm.NextCommand.Execute(null);
+        vm.NextCommand.Execute(null);
+
+        vm.AddIngredientCommand.Execute(null);
+
+        // An empty row is not an ingredient; saying otherwise would be a lie about progress.
+        Assert.Equal("List at least one ingredient.", vm.ValidationMessage);
+    }
+
+    [Fact]
+    public async Task RemovingTheOnlyIngredient_BringsTheComplaintBack()
+    {
+        var vm = Sut();
+        await vm.InitializeAsync();
+        vm.Draft.LocalName = "Ifisashi";
+        vm.Draft.EnglishDescription = "Groundnuts and greens";
+        vm.Province = "Northern";
+        vm.NextCommand.Execute(null);
+        vm.Ingredients[0].Name = "Chibwabwa";
+        vm.Steps[0].Text = "Boil the greens.";
+        vm.NextCommand.Execute(null);
+        Assert.Equal(3, vm.Step);
+
+        vm.BackCommand.Execute(null);
+        vm.RemoveIngredientCommand.Execute(vm.Ingredients[0]);
+        vm.NextCommand.Execute(null);
+
+        Assert.Equal("List at least one ingredient.", vm.ValidationMessage);
+        Assert.Equal(2, vm.Step);
+    }
+
+    [Fact]
+    public async Task ARecipeSentForReview_IsConfirmedByName()
+    {
+        var toast = new RecordingToastService();
+        var signal = new ArchiveSignal();
+        var vm = new ShareViewModel(new FakeContributionService(), new InMemoryRegionRepository(),
+            new InMemoryIngredientRepository(), new Nav(), new FakePhotoPicker(),
+            new MediaUploader(TestServices.NoNetwork(), new InMemoryLocalStore(), TimeProvider.System, new TemporaryAppStorage()),
+            toast, signal);
+        await vm.InitializeAsync();
+        TypeWalkthrough(vm);
+        var before = signal.Version;
+
+        for (var i = 0; i < 4; i++) await vm.NextCommand.ExecuteAsync(null);
+
+        Assert.True(vm.IsSubmitted);
+        Assert.Contains(vm.SubmittedName, toast.Last);
+        Assert.Contains("sent for review", toast.Last);
+        Assert.NotEqual(before, signal.Version);        // the Profile's counts are stale now
+    }
 }
 
 public class FamilyViewModelTests

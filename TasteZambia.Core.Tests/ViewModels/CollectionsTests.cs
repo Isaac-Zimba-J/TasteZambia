@@ -92,7 +92,7 @@ public class CollectionsTests
     [Fact]
     public async Task Settings_HasEightLanguagesAndFiveToggles()
     {
-        var vm = new SettingsViewModel(new CollectionsService(), new Nav());
+        var vm = new SettingsViewModel(new CollectionsService(), new FixedDeviceIdentity(), new Nav());
         await vm.InitializeAsync();
 
         Assert.Equal(8, vm.Languages.Count);
@@ -120,5 +120,16 @@ public class CollectionsTests
 
         Assert.True(ifisashi.IsSaved);
         Assert.True(fav.IsSaved("ifisashi"));
+    }
+
+    [Fact]
+    public async Task Settings_ShowsTheAccountIdentifier_SoADeletionRequestCanNameIt()
+    {
+        // The privacy policy asks the reader to quote this. Without it on screen there is no
+        // way for them to say which account is theirs.
+        var vm = new SettingsViewModel(new CollectionsService(), new FixedDeviceIdentity("device-abc123"), new Nav());
+        await vm.InitializeAsync();
+
+        Assert.Equal("device-abc123", vm.DeviceId);
     }
 }

@@ -97,7 +97,7 @@
         </VerticalStackLayout>
     </ScrollView>
 
-    <controls:LoadState IsLoading="{Binding IsFirstLoad}" ErrorMessage="{Binding LoadError}"
+    <controls:LoadState IsLoading="{Binding IsFirstLoad}" ErrorMessage="{Binding LoadError}" Failure="{Binding Failure}"
                         RetryCommand="{Binding RefreshCommand}"
                         LoadingText="Reading the archive…"/>
     </Grid>

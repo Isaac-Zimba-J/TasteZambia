@@ -12,11 +12,11 @@
             <BoxView Grid.ColumnSpan="5" HeightRequest="1" VerticalOptions="Start"
                      Color="{StaticResource TzHairline}"/>
 
-            <VerticalStackLayout Grid.Column="0" x:Name="HomeItem"    Spacing="6" VerticalOptions="Center" HorizontalOptions="Center"/>
-            <VerticalStackLayout Grid.Column="1" x:Name="ExploreItem" Spacing="6" VerticalOptions="Center" HorizontalOptions="Center"/>
-            <VerticalStackLayout Grid.Column="2" x:Name="RegionsItem" Spacing="6" VerticalOptions="Center" HorizontalOptions="Center"/>
-            <VerticalStackLayout Grid.Column="3" x:Name="CultureItem" Spacing="6" VerticalOptions="Center" HorizontalOptions="Center"/>
-            <VerticalStackLayout Grid.Column="4" x:Name="ProfileItem" Spacing="6" VerticalOptions="Center" HorizontalOptions="Center"/>
+            <VerticalStackLayout Grid.Column="0" x:Name="HomeItem"    Spacing="3" VerticalOptions="Center" HorizontalOptions="Center"/>
+            <VerticalStackLayout Grid.Column="1" x:Name="ExploreItem" Spacing="3" VerticalOptions="Center" HorizontalOptions="Center"/>
+            <VerticalStackLayout Grid.Column="2" x:Name="RegionsItem" Spacing="3" VerticalOptions="Center" HorizontalOptions="Center"/>
+            <VerticalStackLayout Grid.Column="3" x:Name="CultureItem" Spacing="3" VerticalOptions="Center" HorizontalOptions="Center"/>
+            <VerticalStackLayout Grid.Column="4" x:Name="ProfileItem" Spacing="3" VerticalOptions="Center" HorizontalOptions="Center"/>
         </Grid>
     </Grid>
 </ContentView>

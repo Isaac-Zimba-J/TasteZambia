@@ -22,7 +22,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      # The port the phone dials: http://SERVER_IP:5080. Kestrel still listens
+      # The port the phone dials: http://104.237.6.144:5080. Kestrel still listens
       # on 8080 inside the container, exactly as it does behind the proxy.
       - "${API_PORT:-5080}:8080"
     environment:

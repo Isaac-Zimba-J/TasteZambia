@@ -4,10 +4,30 @@ using TasteZambia.Core.Services;
 
 namespace TasteZambia.Core.ViewModels;
 
+/// <summary>
+/// Why a screen has nothing on it. The reader is owed a different picture and a different
+/// sentence for each of these: "check your connection" is unhelpful when the connection is
+/// fine and the archive simply asked them to wait.
+/// </summary>
+public enum LoadFailure
+{
+    None = 0,
+    Offline = 1,
+    TooManyRequests = 2,
+    Unexpected = 3,
+}
+
 public abstract partial class BaseViewModel(INavigationService navigation) : ObservableObject
 {
     /// <summary>Shown when the archive cannot be reached. Deliberately says what to do next.</summary>
     public const string OfflineMessage = "Could not reach the archive. Check your connection and try again.";
+
+    /// <summary>
+    /// Shown when the archive answered 429. Telling this reader to check their connection
+    /// would be wrong twice over - it is working, and there is nothing for them to fix.
+    /// </summary>
+    public const string TooManyRequestsMessage =
+        "The archive is asking everyone to slow down for a moment. Try again in a few minutes.";
 
     /// <summary>Shown when the failure is not the network's fault. The detail is in the log.</summary>
     public const string UnexpectedMessage = "Something went wrong loading this. Try again.";
@@ -41,6 +61,10 @@ public abstract partial class BaseViewModel(INavigationService navigation) : Obs
     [NotifyPropertyChangedFor(nameof(IsFirstLoad))]
     private string _loadError = "";
 
+    /// <summary>Which kind of failure it was, so the screen can draw the right thing.</summary>
+    [ObservableProperty]
+    private LoadFailure _failure;
+
     [ObservableProperty]
     private string _title = "";
 
@@ -63,19 +87,30 @@ public abstract partial class BaseViewModel(INavigationService navigation) : Obs
     {
         IsLoading = true;
         LoadError = "";
+        Failure = LoadFailure.None;
         try
         {
             await InitializeAsync();
             OnPropertyChanged(nameof(IsFirstLoad));
             return true;
         }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+        {
+            // The archive is up and answered. Saying "check your connection" here would send
+            // the reader to fix something that is not broken.
+            Failure = LoadFailure.TooManyRequests;
+            LoadError = TooManyRequestsMessage;
+            return false;
+        }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
+            Failure = LoadFailure.Offline;
             LoadError = OfflineMessage;
             return false;
         }
         catch (Exception)
         {
+            Failure = LoadFailure.Unexpected;
             LoadError = UnexpectedMessage;
             throw;   // the host logs it; the screen already shows the reader something honest
         }

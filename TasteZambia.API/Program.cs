@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -7,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using TasteZambia.API.Auth;
+using TasteZambia.API.Common;
 using TasteZambia.API.Data;
 using TasteZambia.API.Data.Entities;
 using TasteZambia.API.Data.Seed;
@@ -33,6 +36,8 @@ builder.Services.AddScoped<IPersonalSyncService, PersonalSyncService>();
 builder.Services.AddScoped<IContributionRepository, ContributionRepository>();
 builder.Services.AddScoped<IContributionService, ContributionService>();
 builder.Services.AddScoped<IFamilyAccessService, FamilyAccessService>();
+builder.Services.AddScoped<IAccountDeletionService, AccountDeletionService>();
+builder.Services.AddScoped<IAuditLog, AuditLog>();
 builder.Services.AddScoped<IFamilyRepository, FamilyRepository>();
 builder.Services.AddScoped<IFamilyService, FamilyService>();
 builder.Services.AddScoped<IMediaService, MediaService>();
@@ -83,9 +88,36 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
             ValidateIssuerSigningKey = true,
             ClockSkew = TimeSpan.FromSeconds(30),
         };
+
+        // A signed, unexpired token whose account no longer exists must not be honoured.
+        // Deleting an account removes its refresh tokens, but the access token it already
+        // holds stays cryptographically valid until it expires - and /me creates a profile
+        // row on demand, so without this a deleted account could resurrect itself.
+        //
+        // The cost is one primary-key lookup per authenticated request. For an archive this
+        // size that is the right trade against serving a deleted reader.
+        o.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var userId = context.Principal?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                          ?? context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (userId is null)
+                {
+                    context.Fail("The token carries no subject.");
+                    return;
+                }
+
+                var db = context.HttpContext.RequestServices.GetRequiredService<TasteZambiaDbContext>();
+                if (!await db.Users.AnyAsync(u => u.Id == userId, context.HttpContext.RequestAborted))
+                    context.Fail("The account this token was issued for no longer exists.");
+            },
+        };
     });
 builder.Services.AddAuthorization();
 
+builder.Services.AddArchiveRateLimiting(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
@@ -170,8 +202,12 @@ if (app.Environment.IsDevelopment())
 
 // No UseHttpsRedirection: Kestrel serves HTTP inside the container and TLS
 // terminates at the ingress. Leaving it on breaks container health checks.
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+// After authentication, so a per-account policy can see whose account it is; after
+// UseForwardedHeaders, so a per-address one sees the phone rather than the proxy.
+app.UseRateLimiter();
 // Liveness for the container and the proxy. Deliberately anonymous and cheap:
 // it says the process is up and can reach its database, and nothing else.
 app.MapGet("/health", async (TasteZambiaDbContext db, CancellationToken ct) =>

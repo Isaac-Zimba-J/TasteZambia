@@ -122,4 +122,57 @@ public class LoadStateTests
         public override Task<ContributionDetailDto> WithdrawAsync(Guid id, CancellationToken ct = default)
             => throw new HttpRequestException("offline");
     }
+
+    [Fact]
+    public async Task BeingRateLimited_IsNotReportedAsBeingOffline()
+    {
+        // The archive answered. Telling this reader to check their connection would send them
+        // to fix something that is not broken.
+        var vm = TestServices.Home(new Nav(), new RefusingDishRepository(System.Net.HttpStatusCode.TooManyRequests));
+
+        Assert.False(await vm.LoadAsync());
+
+        Assert.Equal(LoadFailure.TooManyRequests, vm.Failure);
+        Assert.Equal(BaseViewModel.TooManyRequestsMessage, vm.LoadError);
+        Assert.DoesNotContain("connection", vm.LoadError);
+    }
+
+    [Fact]
+    public async Task ARealNetworkFailure_IsStillReportedAsBeingOffline()
+    {
+        var dishes = new SwitchableDishRepository { IsOffline = true };
+        var vm = TestServices.Home(new Nav(), dishes);
+
+        Assert.False(await vm.LoadAsync());
+
+        Assert.Equal(LoadFailure.Offline, vm.Failure);
+        Assert.Equal(BaseViewModel.OfflineMessage, vm.LoadError);
+    }
+
+    [Fact]
+    public async Task ASuccessfulReload_ClearsTheFailureKindToo()
+    {
+        var dishes = new SwitchableDishRepository { IsOffline = true };
+        var vm = TestServices.Home(new Nav(), dishes);
+        await vm.LoadAsync();
+        Assert.Equal(LoadFailure.Offline, vm.Failure);
+
+        dishes.IsOffline = false;
+        Assert.True(await vm.LoadAsync());
+
+        Assert.Equal(LoadFailure.None, vm.Failure);   // or the screen keeps drawing the emblem
+        Assert.Empty(vm.LoadError);
+    }
+
+    /// <summary>Answers every read with one chosen status, the way the real HTTP layer would.</summary>
+    private sealed class RefusingDishRepository(System.Net.HttpStatusCode status) : IDishRepository
+    {
+        private HttpRequestException Refuse() => new("refused", null, status);
+
+        public Task<IReadOnlyList<Dish>> GetAllAsync(CancellationToken ct = default) => throw Refuse();
+        public Task<IReadOnlyList<Dish>> SearchAsync(string q, string c, CancellationToken ct = default) => throw Refuse();
+        public Task<IReadOnlyList<Dish>> GetByIdsAsync(IEnumerable<string> ids, CancellationToken ct = default) => throw Refuse();
+        public Task<Dish?> GetByIdAsync(string id, CancellationToken ct = default) => throw Refuse();
+        public Task<RecipeDetail?> GetRecipeAsync(string dishId, CancellationToken ct = default) => throw Refuse();
+    }
 }

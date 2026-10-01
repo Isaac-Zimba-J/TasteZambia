@@ -17,7 +17,7 @@ file sealed class Nav : INavigationService
 
 public class FamilyLifecycleTests
 {
-    private static FamilyRecipeDto SomeRecipe() => new(Guid.NewGuid(), "Ifisashi ya Banakulu", "", "Northern", "Bemba",
+    internal static FamilyRecipeDto SomeRecipe() => new(Guid.NewGuid(), "Ifisashi ya Banakulu", "", "Northern", "Bemba",
         "Banakulu Mwaba, Mungwi", "", "She cooked this every time we arrived.", "Clay pot on the mbaula.",
         PrivacyLevel.SharedWithFamily, TranscriptState.None, null, 100, true, DateTimeOffset.UtcNow,
         [], [], []);

@@ -110,6 +110,43 @@
                 </Border>
             </VerticalStackLayout>
 
+            <!-- The account, in the only form it has. The privacy policy asks a reader to
+                 quote this when they write in to have their account deleted or to ask for a
+                 copy of what the archive holds; without it on screen they cannot say which
+                 account is theirs. It names the install, not the person. -->
+            <VerticalStackLayout Padding="20,24,20,0" Spacing="7">
+                <Label Text="This device" Style="{StaticResource FieldLabel}"/>
+                <Border Style="{StaticResource FieldCard}" Padding="15,13">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="{Binding DeviceId}" FontFamily="PlexMonoRegular" FontSize="11.5"
+                               LineBreakMode="CharacterWrap" TextColor="{StaticResource TzBody}"
+                               SemanticProperties.Description="Your account identifier"/>
+                        <Label Text="Your account is this phone - no name, no email, no phone number. Quote this if you ever write in to have it deleted."
+                               FontFamily="ArchivoRegular" FontSize="10.5" LineHeight="1.55"
+                               TextColor="{StaticResource TzMuted2}"/>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Required by Google Play for any app that creates an account, and right
+                 regardless: the way out has to be in the app, not in an email to someone. -->
+            <VerticalStackLayout Padding="20,24,20,0" Spacing="7">
+                <Border Stroke="{StaticResource TzClay}" StrokeThickness="1" StrokeShape="RoundRectangle 13"
+                        BackgroundColor="{StaticResource TzSurface}" Padding="15,14"
+                        SemanticProperties.Description="Delete your account"
+                        AutomationProperties.IsInAccessibleTree="True">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Delete my account" FontFamily="ArchivoMedium" FontSize="12.5"
+                               TextColor="{StaticResource TzClayText}" VerticalOptions="Center"/>
+                        <ic:FluentIcon Grid.Column="1" Icon="ChevronRight" IconSize="Size16"
+                                       ForegroundColor="{StaticResource TzClay}" VerticalOptions="Center"/>
+                    </Grid>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DeleteAccountCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </VerticalStackLayout>
+
             <Border Style="{StaticResource DeepPanel}" Margin="20,24,20,0" Padding="18" StrokeShape="RoundRectangle 18">
                 <VerticalStackLayout Spacing="9">
                     <Label Text="Your recipes stay yours" FontFamily="NewsreaderMedium" FontSize="19" LineHeight="1.25" TextColor="{StaticResource TzSurface}"/>

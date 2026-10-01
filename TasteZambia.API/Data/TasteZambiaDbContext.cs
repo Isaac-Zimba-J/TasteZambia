@@ -32,11 +32,29 @@ public class TasteZambiaDbContext(DbContextOptions<TasteZambiaDbContext> options
     public DbSet<FamilyNote> FamilyNotes => Set<FamilyNote>();
     public DbSet<FamilyInvite> FamilyInvites => Set<FamilyInvite>();
 
+    /// <summary>Privileged actions, append-only. Written by the server, never by a client.</summary>
+    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+
     protected override void OnModelCreating(ModelBuilder b)
     {
         // Identity configures its own tables here. It MUST run before ours.
         base.OnModelCreating(b);
         b.ApplyConfigurationsFromAssembly(typeof(TasteZambiaDbContext).Assembly);
+
+        b.Entity<AuditEntry>(e =>
+        {
+            e.ToTable("audit_entries");
+            e.Property(x => x.ActorUserId).HasMaxLength(450);
+            e.Property(x => x.ActorName).HasMaxLength(200);
+            e.Property(x => x.Action).HasMaxLength(60);
+            e.Property(x => x.Subject).HasMaxLength(200);
+            e.Property(x => x.Detail).HasMaxLength(1000);
+
+            // The two questions actually asked of it: what happened recently, and what has
+            // been done to this one thing.
+            e.HasIndex(x => x.At);
+            e.HasIndex(x => new { x.Subject, x.At });
+        });
 
         b.Entity<RefreshToken>(e =>
         {

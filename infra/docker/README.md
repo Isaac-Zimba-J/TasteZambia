@@ -1,41 +1,88 @@
 # Deploying the Taste Zambia API
 
-Two paths. Follow **one**.
+Start to finish on a freshly wiped server. Follow it in order.
 
-| | Use when | Address the phone dials |
-|---|---|---|
-| **A — bare IP** (this runbook) | No domain yet. Your own phone and a handful of testers. | `http://SERVER_IP:5080` |
-| **B — domain + HTTPS** ([below](#path-b--when-you-have-a-domain)) | Real contributors, or the Play Store. | `https://api.yourdomain/` |
+**The address the phone will dial:** `https://<your-ip-with-dashes>.sslip.io`
 
-Path A has **no TLS**. Let's Encrypt validates DNS names, so it cannot issue a
-certificate for an IP address — this is not a setting we skipped, it is not
-available. [What that costs you](#what-path-a-costs-you) is worth reading before
-you hand the address to anyone else.
+`sslip.io` is a public DNS service that resolves any IP encoded in the name —
+`104-237-6-144.sslip.io` already points at `203.0.113.9`, today, with no account
+and nothing to buy. Because it is a *real* DNS name, Let's Encrypt issues a real
+certificate for it, so the app speaks HTTPS and a Release build works. A bare IP
+could do neither.
 
-What ships either way: the API and its Postgres. The mobile app is not deployed —
-it is built and installed onto phones, and points at whatever address you chose.
+Write your own down now and use it everywhere below:
+
+```
+104.237.6.144   = 203.0.113.9              <- yours
+API_HOST    = 104-237-6-144.sslip.io     <- the same IP, dots swapped for dashes
+```
+
+What ships: the API and its Postgres. The mobile app is not deployed — it is
+built and installed onto phones, pointed at `API_HOST`.
 
 ---
 
-# Path A — bare IP
+## 0. Get your SSH key onto the server
 
-## Before you start
+Everything else needs this working. On a fresh server your provider has either
+already installed a key for you, or given you a root password.
 
-You need two things:
+### Do you have a key on your Mac?
 
-| | |
-|---|---|
-| The server's public IP | Written `SERVER_IP` throughout. Substitute it literally. |
-| SSH access as `root` | Step 1 is the only step that runs as root. |
+```bash
+ls -l ~/.ssh/id_ed25519.pub
+```
 
-Nothing else is decided in advance — no hostname, no email, no DNS.
+If it is missing, make one. Press Enter at every prompt, adding a passphrase if
+you want one:
+
+```bash
+ssh-keygen -t ed25519 -C "$(whoami)@$(hostname -s)"
+```
+
+### Option A — `ssh-copy-id` (easiest; needs the root password)
+
+```bash
+ssh-copy-id -i ~/.ssh/id_ed25519.pub root@104.237.6.144
+```
+
+It asks for the root password once, appends your key and fixes the permissions.
+
+### Option B — paste it by hand (no password; provider console, or a key already works)
+
+Copy the **public** key on your Mac:
+
+```bash
+cat ~/.ssh/id_ed25519.pub | pbcopy      # now on your clipboard
+```
+
+Paste it either into your provider's "SSH keys" box when creating the server, or
+into the server's own file if you already have a way in:
+
+```bash
+ssh root@104.237.6.144
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
+nano ~/.ssh/authorized_keys             # paste on its own line, save
+chmod 600 ~/.ssh/authorized_keys
+```
+
+Never paste `id_ed25519` — the one **without** `.pub` stays on your Mac forever.
+
+### Confirm before going on
+
+```bash
+ssh root@104.237.6.144 'echo key works'
+```
+
+If it still asks for a password it did not take. `ssh -v root@104.237.6.144` shows
+which key it offered.
+
+---
 
 ## 1. Prepare the server (once, as root)
 
-Skip to step 2 if the server already has a `deploy` user and Docker.
-
 ```bash
-ssh root@SERVER_IP
+ssh root@104.237.6.144
 
 apt update && apt upgrade -y
 
@@ -45,57 +92,189 @@ curl -fsSL https://get.docker.com | sh
 # A non-root user to own the apps. Nothing after this step needs root.
 adduser --disabled-password --gecos "" deploy
 usermod -aG docker,sudo deploy
+
+# Give deploy the same key you just used, so you can log in as them.
 mkdir -p /home/deploy/.ssh
 cp /root/.ssh/authorized_keys /home/deploy/.ssh/
 chown -R deploy:deploy /home/deploy/.ssh
 chmod 700 /home/deploy/.ssh && chmod 600 /home/deploy/.ssh/authorized_keys
 
-# SSH and the API port. Not 80 or 443 - nothing is listening there on this path.
+# SSH, HTTP and HTTPS. 80 is not optional - Let's Encrypt validates over it.
 # The database is never opened; it binds to the server's loopback only.
-ufw allow OpenSSH && ufw allow 5080/tcp && ufw --force enable
+ufw allow OpenSSH && ufw allow 80 && ufw allow 443 && ufw --force enable
 
 exit
 ```
 
-Confirm you can get back in as `deploy` **before** you close the root session:
+Confirm you can get back in as `deploy` **before** you close the root session —
+if this fails you are locked out of your own server:
 
 ```bash
-ssh deploy@SERVER_IP 'docker ps'
+ssh deploy@104.237.6.144 'docker ps'
 ```
 
-> If the server already runs other apps, check 5080 is free first:
-> `ss -lntp | grep 5080`. If it is taken, pick another port and change it in
-> **both** places — `API_PORT` in step 2 and `ufw allow` above — then remember
-> the phone build in step 5 needs the same number.
-
-## 2. Configuration
+Check the name resolves to you. There is no DNS record to create and nothing to
+wait for:
 
 ```bash
-ssh deploy@SERVER_IP
+dig +short 104-237-6-144.sslip.io        # must print your IP
+```
+
+---
+
+## 2. The shared proxy stack (once, as `deploy`)
+
+This terminates TLS and fetches the certificate. One stack, in front of
+everything you ever deploy on this server.
+
+```bash
+ssh deploy@104.237.6.144
+
+docker network create proxy-net
+
+mkdir -p ~/apps/proxy-stack && cd ~/apps/proxy-stack
+cat > docker-compose.yml <<'COMPOSE'
+services:
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    volumes:
+      - conf:/etc/nginx/conf.d
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - certs:/etc/nginx/certs:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks: [proxy-net]
+
+  acme-companion:
+    image: nginxproxy/acme-companion
+    restart: unless-stopped
+    volumes_from: [nginx-proxy]
+    volumes:
+      - certs:/etc/nginx/certs
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [proxy-net]
+
+networks:
+  proxy-net:
+    external: true
+
+volumes:
+  conf:
+  vhost:
+  html:
+  certs:
+COMPOSE
+
+docker compose up -d
+docker compose ps        # both running
+```
+
+---
+
+## 3. Get the code onto the server
+
+The repository is private, so a plain `git clone` will ask for a password and
+fail. Pick one of these three.
+
+### Option A — deploy key (recommended: read-only, scoped to this one repo)
+
+Make a key **on the server** and give GitHub its public half:
+
+```bash
+ssh deploy@104.237.6.144
+ssh-keygen -t ed25519 -C "tastezambia-server" -f ~/.ssh/github_deploy -N ""
+cat ~/.ssh/github_deploy.pub            # copy this whole line
+```
+
+In the browser: **GitHub → the TasteZambia repo → Settings → Deploy keys → Add
+deploy key**. Paste it, title it `server`, leave *Allow write access*
+**unchecked**, add.
+
+Tell SSH to use it for GitHub, then clone:
+
+```bash
+cat >> ~/.ssh/config <<'CFG'
+Host github.com
+  IdentityFile ~/.ssh/github_deploy
+  IdentitiesOnly yes
+CFG
+chmod 600 ~/.ssh/config
+
+mkdir -p ~/apps/tastezambia && cd ~/apps/tastezambia
+git clone git@github.com:Isaac-Zimba-J/TasteZambia.git .
+```
+
+A deploy key cannot push and cannot see your other repositories. Revoking it is
+one click and it does not touch your own account.
+
+### Option B — personal access token over HTTPS
+
+GitHub → **Settings → Developer settings → Personal access tokens →
+Fine-grained tokens**, scoped to this repository only, `Contents: Read-only`.
+
+```bash
 mkdir -p ~/apps/tastezambia && cd ~/apps/tastezambia
 git clone https://github.com/Isaac-Zimba-J/TasteZambia.git .
+# Username: your GitHub username     Password: paste the token
 
-cp infra/docker/.env.production.ip.example .env.production
+git config credential.helper store      # so `git pull` stops asking
+```
+
+That writes the token in cleartext to `~/.git-credentials`. Acceptable on a
+server only you reach; a deploy key is better.
+
+### Option C — forward your own key for one session
+
+Nothing is stored on the server at all, but it only works while you are logged
+in, so a redeploy you are not present for will fail.
+
+```bash
+ssh-add ~/.ssh/id_ed25519          # on your Mac, once
+ssh -A deploy@104.237.6.144
+git clone git@github.com:Isaac-Zimba-J/TasteZambia.git ~/apps/tastezambia
+```
+
+---
+
+## 4. Configuration
+
+```bash
+cd ~/apps/tastezambia
+
+cp infra/docker/.env.production.example .env.production
 chmod 600 .env.production
 
 # Generate the two secrets rather than inventing them:
 echo "POSTGRES_PASSWORD=$(openssl rand -base64 32)"
 echo "JWT_SIGNING_KEY=$(openssl rand -base64 48)"
 
-nano .env.production      # paste both in; leave API_PORT at 5080
+nano .env.production
+```
+
+Fill in four things:
+
+```
+API_HOST=104-237-6-144.sslip.io       # yours, dashes not dots
+LETSENCRYPT_EMAIL=isaacjuniorzimba@gmail.com   # where expiry warnings go
+POSTGRES_PASSWORD=nGWkOUuStLYjMh/mYBv1RpbrIezfxBZhGPVcfPCjNqw=               # from above
+JWT_SIGNING_KEY=YW3EdSAFBW0MxbamG1xUO2TcCGsJyuY184GsP/diK3BO0jvY5nxyQ5C60ybM5f59                 # from above
 ```
 
 `JWT_SIGNING_KEY` must never change again. Every phone's session is signed with
 it, so replacing it signs everyone out with no way back. The API refuses to
 start in Production if you leave the example value in place.
 
-A shorthand for the rest of this file — note the `.ip.` in the filename:
+A shorthand for the rest of this file:
 
 ```bash
-alias tz='docker compose -f infra/docker/compose.production.ip.yml --env-file .env.production'
+alias tz='docker compose -f infra/docker/compose.production.yml --env-file .env.production'
 ```
 
-## 3. Bring it up
+---
+
+## 5. Bring it up
 
 ```bash
 tz build
@@ -106,44 +285,55 @@ tz build
 tz run --rm api dotnet TasteZambia.API.dll --migrate
 
 tz up -d
-tz ps                     # api and db both "running", api eventually "healthy"
+tz ps                     # api and db running; api "healthy" within ~30s
 ```
 
-## 4. Check it from outside the server
+The certificate arrives 30–90 seconds later. Watch it happen if you like:
+
+```bash
+docker logs -f $(docker ps -qf name=acme-companion)
+```
+
+---
+
+## 6. Check it from your Mac
 
 Run these **on your Mac**, not on the server — reaching it from the server
-itself proves nothing about the firewall.
+itself proves nothing about the firewall or the certificate.
 
 ```bash
-curl -s http://SERVER_IP:5080/health                        # {"status":"healthy"}
-curl -s http://SERVER_IP:5080/api/v1/dishes | head -c 200   # the seeded archive
+curl -s https://104-237-6-144.sslip.io/health                        # {"status":"healthy"}
+curl -s https://104-237-6-144.sslip.io/api/v1/dishes | head -c 200   # the seeded archive
 ```
 
-If `/health` hangs rather than refusing, it is the firewall or the provider's own
-security group, not the app. If it refuses immediately, the container is not
-listening — `tz logs api --tail 50`.
+Both must be **https** and must work without `-k`. If curl complains about the
+certificate it has not been issued yet, and the acme-companion log says why. The
+usual causes are port 80 closed, or `API_HOST` typed with dots instead of dashes.
 
-## 5. Point the phone at it
+> Let's Encrypt allows 5 certificates per week for the same exact name. If you
+> are debugging, do not sit in a loop of `tz up -d --build` — read the log.
 
-The API address is baked in at build time. Pass the server's IP instead of your
-Mac's LAN address:
+---
+
+## 7. Point the phone at it
 
 ```bash
-# on your Mac, from the repository root
+# on your Mac, from the repository root, phone connected
 dotnet build TasteZambia.Mobile -t:Run -f net10.0-android \
-  -p:ArchiveApiHost=SERVER_IP
+  -p:ArchiveApiHost=104-237-6-144.sslip.io
 ```
 
-That produces `http://SERVER_IP:5080` inside the app, which is what step 4 just
-proved works. `scripts/android.sh` keeps injecting your Mac's LAN address for
-local work — the two are the same switch, different value.
+That is the whole change. `ArchiveApiOptions` sees a hostname rather than an IP
+and composes `https://104-237-6-144.sslip.io` — no port, no cleartext, so a
+Release build behaves the same as a Debug one.
 
-**This has to be a Debug build.** .NET for Android adds
-`usesCleartextTraffic="true"` to the manifest in Debug only, so a Release APK or
-AAB will refuse every plain-HTTP request before it leaves the phone. That is
-Android's rule, not ours. A Release build needs Path B.
+`scripts/android.sh` keeps injecting your Mac's LAN address for local work. The
+two are the same switch with a different value: an IP gets `http://ip:5080`, a
+name gets `https://name`.
 
-## 6. Make yourself a reviewer
+---
+
+## 8. Make yourself a reviewer
 
 Nothing seeds a privileged account in Production — a known password in a
 repository is not a login. Grant the role to your own device account instead.
@@ -197,7 +387,7 @@ cat > ~/backups/tastezambia.sh <<'SH'
 set -euo pipefail
 cd /home/deploy/apps/tastezambia
 STAMP=$(date +%F)
-docker compose -f infra/docker/compose.production.ip.yml --env-file .env.production \
+docker compose -f infra/docker/compose.production.yml --env-file .env.production \
   exec -T db pg_dump -U tastezambia tastezambia | gzip > ~/backups/db-$STAMP.sql.gz
 docker run --rm -v tastezambia_media:/m -v /home/deploy/backups:/out alpine \
   tar czf /out/media-$STAMP.tar.gz -C /m .
@@ -208,8 +398,8 @@ chmod +x ~/backups/tastezambia.sh
 ```
 
 **Copy the dumps off the server.** A backup on the same disk as the data is not
-a backup. Also back up `.env.production` somewhere safe — without
-`JWT_SIGNING_KEY` a restored database signs nobody in.
+a backup. Back up `.env.production` too — without `JWT_SIGNING_KEY` a restored
+database signs nobody in.
 
 ## Housekeeping
 
@@ -221,131 +411,36 @@ docker builder prune -a -f       # build cache grows fast
 
 ---
 
-## What Path A costs you
+## When you buy a real domain
 
-Plain HTTP is readable and rewritable by anything between the phone and the
-server — the Wi-Fi it is on, its mobile carrier, every network in between. In
-concrete terms:
+Point its A record at the server, change `API_HOST` in `.env.production`, run
+`tz up -d`, and rebuild the app with the new name. acme-companion issues the new
+certificate on its own. Nothing else moves — the database, the media and the
+signing key stay where they are, so nobody is signed out.
 
-- **Session tokens travel in the clear.** Anyone who reads one can act as that
-  reader until it expires: submit contributions in their name, open the family
-  recipes shared with them.
-- **Contributed content travels in the clear** — the recipe text, the
-  photographs, the recording of somebody's grandmother.
-- **Nothing proves the server is yours.** A network that answers for
-  `SERVER_IP` first can serve the app whatever it likes.
+## The no-DNS variant
 
-That is an acceptable trade for your own phone and people you can tell in
-person. It is not one to make on behalf of contributors who are trusting the
-archive with a family recipe, and the Play Store will not ship a Release build
-that talks to it at all.
-
-## Getting HTTPS without buying anything
-
-You need a **DNS name**, not a paid domain. Either of these gets you one free,
-and then Path B works unchanged:
-
-- **`sslip.io` / `nip.io`** — resolve automatically. If your server is
-  `203.0.113.9`, the name `203-0-113-9.sslip.io` already points at it, today,
-  with no account. Let's Encrypt issues for it happily. Set that as `API_HOST`.
-- **DuckDNS / Afraid.org** — a free subdomain you register and point at the IP.
-  Slightly nicer to read, one account to keep.
-
-Both are real DNS names, so the certificate is real and Android is satisfied.
-The only thing a paid domain buys you over these is a name you'd want on a
-poster.
-
----
-
-# Path B — when you have a domain
-
-Same repository, different compose file: `compose.production.yml` instead of
-`compose.production.ip.yml`, and `.env.production.example` instead of
-`.env.production.ip.example`. It puts the API behind a shared nginx-proxy that
-terminates TLS, per `Docs/shared-vps-deployment-pattern.md` — no nginx config,
-no certbot, no systemd.
-
-**Changes from Path A:**
-
-1. **Firewall:** open 80 and 443 instead of 5080. The API no longer publishes a
-   host port at all; the proxy reaches it over `proxy-net`.
-   ```bash
-   ufw allow 80 && ufw allow 443 && ufw delete allow 5080/tcp
-   ```
-2. **DNS first.** The A record for `API_HOST` must already resolve to the server
-   before you bring the stack up — Let's Encrypt validates over HTTP and fails
-   otherwise.
-3. **The proxy stack**, once, as `deploy`:
-   ```bash
-   docker network create proxy-net
-
-   mkdir -p ~/apps/proxy-stack && cd ~/apps/proxy-stack
-   cat > docker-compose.yml <<'COMPOSE'
-   services:
-     nginx-proxy:
-       image: nginxproxy/nginx-proxy
-       restart: unless-stopped
-       ports: ["80:80", "443:443"]
-       volumes:
-         - conf:/etc/nginx/conf.d
-         - vhost:/etc/nginx/vhost.d
-         - html:/usr/share/nginx/html
-         - certs:/etc/nginx/certs:ro
-         - /var/run/docker.sock:/tmp/docker.sock:ro
-       networks: [proxy-net]
-
-     acme-companion:
-       image: nginxproxy/acme-companion
-       restart: unless-stopped
-       volumes_from: [nginx-proxy]
-       volumes:
-         - certs:/etc/nginx/certs
-         - /var/run/docker.sock:/var/run/docker.sock:ro
-       networks: [proxy-net]
-
-   networks:
-     proxy-net:
-       external: true
-
-   volumes:
-     conf:
-     vhost:
-     html:
-     certs:
-   COMPOSE
-
-   docker compose up -d && docker compose ps
-   ```
-4. **`.env.production`** gains `API_HOST` and `LETSENCRYPT_EMAIL`, and drops
-   `API_PORT`. Keep `POSTGRES_PASSWORD` and `JWT_SIGNING_KEY` **exactly as they
-   are** if you are moving an existing deployment across — changing the signing
-   key signs every phone out.
-5. **The alias** loses the `.ip.`:
-   ```bash
-   alias tz='docker compose -f infra/docker/compose.production.yml --env-file .env.production'
-   ```
-   Then `tz build && tz up -d`. Within 30–90 seconds the certificate appears:
-   ```bash
-   curl -s https://$API_HOST/health
-   docker logs $(docker ps -qf name=acme-companion) --tail 40   # if it does not
-   ```
-6. **The phone build** takes the hostname, and no port:
-   ```bash
-   dotnet build TasteZambia.Mobile -f net10.0-android -p:ArchiveApiHost=api.yourdomain
-   ```
-   No code change: `ArchiveApiOptions` reads what you pass. A bare IP becomes
-   `http://ip:5080`, a hostname becomes `https://host` — because an IP cannot
-   have a certificate and a name can.
+`compose.production.ip.yml` and `.env.production.ip.example` serve the API as
+plain HTTP on `http://104.237.6.144:5080`, with no proxy and no certificate. They
+exist for a server that cannot resolve any name at all. Use them only if you
+have to: session tokens and contributed recordings travel readable, and a
+Release build refuses cleartext outright, so it can never reach the Play Store.
+`sslip.io` costs nothing and avoids all of that.
 
 ---
 
 ## Not done yet — read before taking real contributions
 
-This deploys the API as it stands. The hardening in
-`Docs/plans/2026-09-25-completion-roadmap.md` §4 is **not** in place:
+This deploys the API as it stands. Rate limiting is in place - per address on
+`POST /auth/device` and `/auth/refresh`, per account on writes, with a backstop on
+everything else, and the health check exempt. The numbers are in the `RateLimits`
+section of `appsettings.json` and can be overridden per deployment with
+`RateLimits__DeviceAuthPerWindow` and friends; they are set for many readers
+sharing one carrier address, not for one phone.
 
-- **No rate limiting.** `POST /auth/device` will mint accounts as fast as anyone
-  asks. Fine for a closed test; not for a public address.
+The rest of the hardening in `Docs/plans/2026-09-25-completion-roadmap.md` §4 is
+**not** in place:
+
 - **No audit log** on review actions — who published what is only inferable
   from `review_events`.
 - **No CI**, so nothing but a person stops a broken commit reaching here.
