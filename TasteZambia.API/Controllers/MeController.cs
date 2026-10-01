@@ -16,7 +16,8 @@ public sealed class MeController(
     IUserProfileRepository profiles,
     IPersonalDataRepository personal,
     IPersonalSyncService sync,
-    IAccountDeletionService deletion) : ControllerBase
+    IAccountDeletionService deletion,
+    IAuditLog audit) : ControllerBase
 {
     private string UserId => me.UserId ?? throw new UnauthorizedAccessException();
 
@@ -38,6 +39,12 @@ public sealed class MeController(
                 title: "Confirmation does not match",
                 detail: "Send this account's own device id to confirm. Nothing has been deleted.",
                 statusCode: StatusCodes.Status400BadRequest);
+
+        // After the deletion, not before: a refused confirmation must not leave a record saying
+        // an account was deleted. ActorUserId is a plain column with no foreign key, so the row
+        // survives the account it names - which is the point.
+        await audit.WriteAsync(AuditActions.AccountDelete, request.ConfirmDeviceId,
+            "requested by the account itself", ct);
 
         var summary = done.Summary;
         return Ok(new DeleteAccountResultDto(
